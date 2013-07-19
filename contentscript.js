@@ -28,11 +28,20 @@ $( function() {
 		init : function() {
 			var _self = this;
 
-			if ( localStoage ) {
-				RuruExt.data.hidecnw = localStoage.hidecnw;
-				RuruExt.data.showgray = localStoage.showgray;
-				RuruExt.data.showuranai = localStoage.showuranai;
-				RuruExt.data.reverseLog = localStoage.reverseLog;
+			if ( localStorage ) {
+				if ( localStorage.installed ) {
+					_self.data.hidecnw = localStorage.hidecnw == "true";
+					_self.data.showgray = localStorage.showgray == "true";
+					_self.data.showuranai = localStorage.showuranai == "true";
+					_self.data.reverseLog = localStorage.reverseLog == "true";
+				} else {
+					localStorage.hidecnw = _self.data.hidecnw;
+					localStorage.showgray = _self.data.showgray;
+					localStorage.showuranai = _self.data.showuranai;
+					localStorage.reverseLog = _self.data.reverseLog;
+
+					localStorage.installed = "true";
+				}
 			}
 
 			chrome.extension.sendRequest( {
@@ -294,6 +303,7 @@ $( function() {
 						} );
 					} else {
 						_self.setup();
+						_self.updateCss();
 					}
 				}
 			}
@@ -664,25 +674,25 @@ $( function() {
 				_self.data.users[user]["役職解除"] = false;
 			} else if ( action === "menu-reverse-log" ) {
 				_self.data.reverseLog = !_self.data.reverseLog;
-				if ( localStoage ) {
-					localStoage.reverseLog = _self.data.reverseLog;
+				if ( localStorage ) {
+					localStorage.reverseLog = _self.data.reverseLog;
 				}
 			} else if ( action === "menu-hidecng" ) {
 				_self.data.hidecng = !_self.data.hidecng;
 			} else if ( action === "menu-hidecnw" ) {
 				_self.data.hidecnw = !_self.data.hidecnw;
-				if ( localStoage ) {
-					localStoage.hidecnw = _self.data.hidecnw;
+				if ( localStorage ) {
+					localStorage.hidecnw = _self.data.hidecnw;
 				}
 			} else if ( action === "menu-showgray" ) {
 				_self.data.showgray = !_self.data.showgray;
-				if ( localStoage ) {
-					localStoage.showgray = _self.data.showgray;
+				if ( localStorage ) {
+					localStorage.showgray = _self.data.showgray;
 				}
 			} else if ( action === "menu-showuranai" ) {
 				_self.data.showuranai = !_self.data.showuranai;
-				if ( localStoage ) {
-					localStoage.showuranai = _self.data.showuranai;
+				if ( localStorage ) {
+					localStorage.showuranai = _self.data.showuranai;
 				}
 			} else if ( action === "menu-log" ) {
 				var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
