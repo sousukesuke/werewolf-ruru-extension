@@ -102,9 +102,9 @@ $( function() {
 			};
 
 			$( document ).on( "contextmenu", "#No01 td, #No09 td", function( event ) {
-				var wh = $( "window" ).height();
+				var wh = $( window ).height();
 				var mh = RuruExt.data.menu.height();
-				var limitTop = wh - mh;
+				var limitTop = wh - mh - 10;
 
 				RuruExt.data.menu.css( "top", limitTop > event.pageY ? limitTop : event.pageY );
 				RuruExt.data.menu.css( "left", event.pageX );
@@ -194,7 +194,7 @@ $( function() {
 				var user = RuruExt.data.names[name];
 				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + user + "' value='" + user + "' style='vertical-align:sub;'/>" ).attr( "checked", true ).data( "user-id", user );
 				var count = $( "<span class='dialog-user-count count-" + user + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;'>[0]</span>" ).data( "user-id", user );
-				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + user + "' style='display:inline-block;min-width:80px;'>" + name + "</label>" ).append( count ) );
+				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + user + "' class='" + user + "' style='display:inline-block;min-width:80px;'>" + name + "</label>" ).append( count ) );
 			}
 
 			var updateDialogCss = function() {
