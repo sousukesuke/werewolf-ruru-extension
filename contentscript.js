@@ -658,9 +658,18 @@ $( function() {
 
 				RuruExt.data.logDialog.dialog( "open" );
 			} else if ( action === "menu-log-of-day" ) {
+				var buttonPanel = $( RuruExt.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
 				var day = $( selected ).text();
 				RuruExt.data.logDialog.dialog( "option", "title", day );
 				$( "#ruru-log-table", RuruExt.data.logDialog ).empty().append( RuruExt.data.log[day] );
+
+				for ( var name in RuruExt.data.names ) {
+					var targetUser = RuruExt.data.names[name];
+
+					var count = $( "." + targetUser, RuruExt.data.log[day] ).length / 2;
+					$( ".count-" + targetUser, buttonPanel ).text( "[" + count + "]" );
+				}
+
 				RuruExt.data.logDialog.dialog( "open" );
 			} else if ( action === "menu-person" ) {
 				RuruExt.data.positionDialog.dialog( "open" );
