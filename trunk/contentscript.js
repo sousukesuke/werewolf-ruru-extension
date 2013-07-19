@@ -61,11 +61,22 @@ $( function() {
 				} ]
 			} );
 
+			var userBox = $( ".d1>.d12>.d122>.d1221" );
+			var uo = userBox.offset();
+			var uw = userBox.width() - 20;
+			var ul = uo.left + 10;
+			var uh = $( window ).height() - userBox.height() - uo.top - 20;
+			if ( uh < 250 ) {
+				uh = 250;
+			}
+			var ut = $( window ).height() - uh - 10;
+
 			RuruExt.data.positionDialog = $( "<div style='font-size:11px;overflow:auto;' id='ruru-ext-position-dialog'></div>" ).appendTo( "body" ).dialog( {
 				autoOpen : false,
-				minWidth : 450,
-				height : 600,
-				title : "内訳"
+				minWidth : uw,
+				height : uh,
+				title : "内訳",
+				position : [ ul, ut ]
 			} );
 
 			RuruExt.data.baloon = function( message ) {
@@ -90,8 +101,12 @@ $( function() {
 				}
 			};
 
-			$( document ).on( "contextmenu", "#No01 td", function( event ) {
-				RuruExt.data.menu.css( "top", event.pageY );
+			$( document ).on( "contextmenu", "#No01 td, #No09 td", function( event ) {
+				var wh = $( "window" ).height();
+				var mh = RuruExt.data.menu.height();
+				var limitTop = wh - mh;
+
+				RuruExt.data.menu.css( "top", limitTop > event.pageY ? limitTop : event.pageY );
 				RuruExt.data.menu.css( "left", event.pageX );
 
 				var menuTarget = event.target;
@@ -177,8 +192,9 @@ $( function() {
 
 			for ( var name in RuruExt.data.names ) {
 				var user = RuruExt.data.names[name];
-				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + user + "' value='" + user + "'/>" ).attr( "checked", true ).data( "user-id", user );
-				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + user + "' style='margin-right:20px;'>" + name + "</label>" ) );
+				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + user + "' value='" + user + "' style='vertical-align:sub;'/>" ).attr( "checked", true ).data( "user-id", user );
+				var count = $( "<span class='dialog-user-count count-" + user + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;'>[0]</span>" ).data( "user-id", user );
+				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + user + "' style='display:inline-block;min-width:80px;'>" + name + "</label>" ).append( count ) );
 			}
 
 			var updateDialogCss = function() {
@@ -196,6 +212,18 @@ $( function() {
 			};
 
 			$( "input.dialog-user-checkbox", buttonPanel ).on( "click", updateDialogCss );
+
+			$( "span.dialog-user-count", buttonPanel ).on( "click", function() {
+				var user = $( this ).data( "user-id" );
+
+				$( "input.dialog-user-checkbox", buttonPanel ).removeAttr( "checked", false );
+
+				// $( "#dialog-checkbox-" + user, buttonPanel ).attr( "checked",
+				// true );
+				$( "#dialog-checkbox-" + user )[0].checked = true;
+
+				updateDialogCss();
+			} );
 		},
 		load : function() {
 			if ( RuruExt.data.active ) {
@@ -294,8 +322,8 @@ $( function() {
 		},
 		reverseChat : function() {
 			if ( RuruExt.data.reverseLog ) {
-				var mslist = $( "#chatscr2_1>.d1215>span>table>tbody>tr" ).get().reverse();
 				var tbody = $( "#chatscr2_1>.d1215>span>table>tbody" );
+				var mslist = tbody.children().get().reverse();
 
 				if ( RuruExt.data.prevstatus == 1 && RuruExt.data.prevstatus != RuruExt.data.status ) {
 					RuruExt.data.log[RuruExt.data.day] = mslist;
@@ -308,7 +336,8 @@ $( function() {
 						var cn = $( "td.cn>span.name", row );
 						if ( cn.length ) {
 							var name = cn.text();
-							$( "td", row ).addClass( RuruExt.data.names[name] );
+							var user = RuruExt.data.names[name];
+							$( "td", row ).addClass( user ).data( "user-id", user );
 						}
 						tbody.append( row );
 					}
@@ -316,10 +345,8 @@ $( function() {
 					tbody.empty().append( mslist );
 				}
 
-				var h1 = $( "#chatscr2_1>.d1215" ).height();
-				$( '#chatscr2_1' ).animate( {
-					scrollTop : h1
-				}, 'swing' );
+				var h1 = $( "#chatscr2_1>.d1215" ).height() + 100;
+				$( '#chatscr2_1' ).scrollTop( h1 );
 			} else {
 				var mslist = $( "#chatscr2_1>.d1215>span>table>tbody>tr" );
 
@@ -333,7 +360,8 @@ $( function() {
 						var cn = $( "td.cn>span.name", row );
 						if ( cn.length ) {
 							var name = cn.text();
-							$( "td", row ).addClass( RuruExt.data.names[name] );
+							var user = RuruExt.data.names[name];
+							$( "td", row ).addClass( user ).data( "user-id", user );
 						}
 					}
 				}
@@ -361,7 +389,7 @@ $( function() {
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
 					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
 					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-pin-s'></span>狐</a></li>" );
+					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 
 					var white = $( "<ul></ul>" ).appendTo( $( "<li id='menu-ura-white'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村人</a></li>" ).appendTo( RuruExt.data.menu ) );
 					var black = $( "<ul></ul>" ).appendTo( $( "<li id='menu-ura-black'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人狼</a></li>" ).appendTo( RuruExt.data.menu ) );
@@ -395,7 +423,7 @@ $( function() {
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
 					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
 					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-pin-s'></span>狐</a></li>" );
+					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 
 					var white = $( "<ul></ul>" ).appendTo( $( "<li id='menu-rei-white'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村人</a></li>" ).appendTo( RuruExt.data.menu ) );
 					var black = $( "<ul></ul>" ).appendTo( $( "<li id='menu-rei-black'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人狼</a></li>" ).appendTo( RuruExt.data.menu ) );
@@ -430,7 +458,7 @@ $( function() {
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
 					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
 					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-pin-s'></span>狐</a></li>" );
+					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 				} else if ( userData["役職"] === "共有" ) {
 
 					var post;
@@ -450,7 +478,7 @@ $( function() {
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
 					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
 					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-pin-s'></span>狐</a></li>" );
+					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 				} else if ( userData["役職"] === "狂人" ) {
 
 					var post;
@@ -470,7 +498,7 @@ $( function() {
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
 					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-pin-s'></span>狐</a></li>" );
+					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 				} else if ( userData["役職"] === "人狼" ) {
 
 					var post;
@@ -490,7 +518,7 @@ $( function() {
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
 					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-pin-s'></span>狐</a></li>" );
+					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 				} else if ( userData["役職"] === "狐" ) {
 
 					var post;
@@ -518,7 +546,7 @@ $( function() {
 					RuruExt.data.menu.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
 					RuruExt.data.menu.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
 					RuruExt.data.menu.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					RuruExt.data.menu.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-pin-s'></span>狐</a></li>" );
+					RuruExt.data.menu.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 					RuruExt.data.menu.append( "<hr/>" );
 				}
 			}
@@ -539,34 +567,36 @@ $( function() {
 
 			RuruExt.data.menu.append( "<li id='menu-person'><a href='#'><span class='ui-icon ui-icon-person'></span>内訳</a></li>" );
 
+			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><a href='#'><span class='ui-icon ui-icon-wrench'></span>表示切替</a></li>" ).appendTo( RuruExt.data.menu ) );
+
 			if ( RuruExt.data.showuranai ) {
-				RuruExt.data.menu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果表示</a></li>" );
 			} else {
-				RuruExt.data.menu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い結果非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い結果非表示</a></li>" );
 			}
 
 			if ( RuruExt.data.showgray ) {
-				RuruExt.data.menu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-check'></span>グレー表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-check'></span>グレー表示</a></li>" );
 			} else {
-				RuruExt.data.menu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-closethick'></span>グレー非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-closethick'></span>グレー非表示</a></li>" );
 			}
 
 			if ( RuruExt.data.hidecng ) {
-				RuruExt.data.menu.append( "<li id='menu-hidecng'><a href='#'><span class='ui-icon ui-icon-closethick'></span>GM非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecng'><a href='#'><span class='ui-icon ui-icon-closethick'></span>GM非表示</a></li>" );
 			} else {
-				RuruExt.data.menu.append( "<li id='menu-hidecng'><a href='#'><span class='ui-icon ui-icon-check'></span>GM表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecng'><a href='#'><span class='ui-icon ui-icon-check'></span>GM表示</a></li>" );
 			}
 
 			if ( RuruExt.data.hidecnw ) {
-				RuruExt.data.menu.append( "<li id='menu-hidecnw'><a href='#'><span class='ui-icon ui-icon-closethick'></span>観戦非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecnw'><a href='#'><span class='ui-icon ui-icon-closethick'></span>観戦非表示</a></li>" );
 			} else {
-				RuruExt.data.menu.append( "<li id='menu-hidecnw'><a href='#'><span class='ui-icon ui-icon-check'></span>観戦表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecnw'><a href='#'><span class='ui-icon ui-icon-check'></span>観戦表示</a></li>" );
 			}
 
 			if ( RuruExt.data.reverseLog ) {
-				RuruExt.data.menu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-check'></span>チャット反転</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-check'></span>チャット反転</a></li>" );
 			} else {
-				RuruExt.data.menu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット切り替え</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット切り替え</a></li>" );
 			}
 		},
 		execAction : function( user, action, selected ) {
@@ -614,9 +644,18 @@ $( function() {
 			} else if ( action === "menu-showuranai" ) {
 				RuruExt.data.showuranai = !RuruExt.data.showuranai;
 			} else if ( action === "menu-log" ) {
+				var buttonPanel = $( RuruExt.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
 				var day = $( selected ).data( "last-day" );
 				RuruExt.data.logDialog.dialog( "option", "title", day );
+
 				$( "#ruru-log-table", RuruExt.data.logDialog ).empty().append( RuruExt.data.log[day] );
+				for ( var name in RuruExt.data.names ) {
+					var targetUser = RuruExt.data.names[name];
+
+					var count = $( "." + targetUser, RuruExt.data.log[day] ).length / 2;
+					$( ".count-" + targetUser, buttonPanel ).text( "[" + count + "]" );
+				}
+
 				RuruExt.data.logDialog.dialog( "open" );
 			} else if ( action === "menu-log-of-day" ) {
 				var day = $( selected ).text();
