@@ -102,13 +102,6 @@ $( function() {
 			};
 
 			$( document ).on( "contextmenu", "#No01 td, #No09 td", function( event ) {
-				var wh = $( window ).height();
-				var mh = RuruExt.data.menu.height();
-				var limitTop = wh - mh - 10;
-
-				RuruExt.data.menu.css( "top", limitTop > event.pageY ? limitTop : event.pageY );
-				RuruExt.data.menu.css( "left", event.pageX );
-
 				var menuTarget = event.target;
 				var parents = $( menuTarget ).parents( "td:first" );
 				if ( parents.length ) {
@@ -122,6 +115,13 @@ $( function() {
 				$( menuTarget ).trigger( "preparemenu" );
 				RuruExt.data.menu.menu();
 				RuruExt.data.menu.show();
+
+				var wh = $( window ).height();
+				var mh = RuruExt.data.menu.height();
+				var limitTop = wh - mh - 10;
+
+				RuruExt.data.menu.css( "top", limitTop < event.pageY ? limitTop : event.pageY );
+				RuruExt.data.menu.css( "left", event.pageX );
 
 				$( "a", RuruExt.data.menu ).off( "click" );
 				$( "a", RuruExt.data.menu ).on( "click", function() {
