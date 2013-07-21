@@ -1,6 +1,6 @@
 {
   "name" : "汝は人狼なりや？るる鯖拡張機能",
-  "version" : "1.3",
+  "version" : "1.4",
   "description" : "るる鯖の便利拡張です",
   "background" : {
     "scripts": ["jquery.js", "background.js"]
