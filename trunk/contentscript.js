@@ -86,7 +86,7 @@ $( function() {
 			}
 
 			_self.data.logDialog = $( "<div style='font-size:11px;overflow-y:scroll;'><table style='width:100%;background:white;'><tbody id='ruru-log-table'></tbody></table></div>" ).appendTo( "body" ).dialog( {
-				// autoOpen : false,
+				autoOpen : false,
 				minWidth : 450,
 				height : 600,
 				buttons : [ {
