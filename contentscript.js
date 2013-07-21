@@ -16,7 +16,7 @@ $( function() {
 			hidecnw : false,
 			showgray : false,
 			showuranai : true,
-			reverseLog : true,
+			reverseLog : false,
 			baloon : undefined,
 			menu : undefined,
 			styleSheet : undefined,
@@ -34,6 +34,13 @@ $( function() {
 					_self.data.showgray = localStorage.showgray == "true";
 					_self.data.showuranai = localStorage.showuranai == "true";
 					_self.data.reverseLog = localStorage.reverseLog == "true";
+
+					console.log( "設定読み込み", {
+						"観戦OFF" : _self.data.showgray,
+						"完グレ強調" : _self.data.showgray,
+						"占い強調" : _self.data.showuranai,
+						"ログ逆" : _self.data.reverseLog
+					} );
 				} else {
 					localStorage.hidecnw = _self.data.hidecnw;
 					localStorage.showgray = _self.data.showgray;
@@ -63,7 +70,7 @@ $( function() {
 		setup : function() {
 			var _self = this;
 
-			console.log( "start setup" );
+			console.log( "ツール開始" );
 
 			_self.data.loaded = true;
 
@@ -250,6 +257,8 @@ $( function() {
 
 				updateDialogCss();
 			} );
+
+			console.log( "ユーザー把握", _self.data.names );
 		},
 		load : function() {
 			var _self = this;
@@ -322,10 +331,6 @@ $( function() {
 					_self.data.active = true;
 					if ( !$( "#SC" ).is( ":checked" ) ) {
 						$( "#SC" ).click();
-					}
-
-					if ( !$( "#isSE" ).is( ":checked" ) ) {
-						$( "#isSE" ).click();
 					}
 
 					$( "#messageInput" ).keypress( function( event ) {
@@ -421,6 +426,7 @@ $( function() {
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
 					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
@@ -455,6 +461,7 @@ $( function() {
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
 					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
@@ -490,6 +497,7 @@ $( function() {
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
 					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
 					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
 					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
@@ -510,6 +518,7 @@ $( function() {
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
 					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
 					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
@@ -530,6 +539,7 @@ $( function() {
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
 					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
 					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
@@ -550,6 +560,7 @@ $( function() {
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
 					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
 					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
@@ -570,6 +581,7 @@ $( function() {
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
 					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
 					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
 					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
@@ -641,6 +653,10 @@ $( function() {
 
 			if ( action === "menu-toggle-post" ) {
 				_self.data.users[user]["役職解除"] = !_self.data.users[user]["役職解除"];
+			} else if ( action === "menu-remove-position" ) {
+				_self.data.users[user]["役職"] = undefined;
+				_self.data.users[user]["役職解除"] = false;
+				_self.data.users[user]["結果"] = {};
 			} else if ( action === "menu-ura" ) {
 				_self.data.users[user] = {};
 				_self.data.users[user]["役職"] = "占い";
@@ -762,51 +778,57 @@ $( function() {
 					if ( !uranai ) {
 						uranai = $( "<div></div>" );
 					}
-					var result = $( "<div></div>" ).append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( uranai );
+					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( uranai ).data( "user-id", user );
+					var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
 					for ( var targetUser in userData["結果"] ) {
 						if ( userData["結果"][targetUser] === "村人" ) {
-							result.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" );
+							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
+									.data( "user-id", targetUser ) );
 						} else {
-							result.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" );
+							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
+									.data( "user-id", targetUser ) );
 						}
 					}
 				} else if ( userData["役職"] === "霊能" ) {
 					if ( !reinou ) {
 						reinou = $( "<div></div>" );
 					}
-					var result = $( "<div></div>" ).append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( reinou );
+					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( reinou ).data( "user-id", user );
+					var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
 					for ( var targetUser in userData["結果"] ) {
 						if ( userData["結果"][targetUser] === "村人" ) {
-							result.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" );
+							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
+									.data( "user-id", targetUser ) );
 						} else {
-							result.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" );
+							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
+									.data( "user-id", targetUser ) );
 						}
 					}
 				} else if ( userData["役職"] === "狩人" ) {
 					if ( !karido ) {
 						karido = $( "<div></div>" );
 					}
-					karido.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + user + "'>" + name + "</div>" );
+					karido.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
 				} else if ( userData["役職"] === "共有" ) {
 					if ( !kyouyu ) {
 						kyouyu = $( "<div></div>" );
 					}
-					kyouyu.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + user + "'>" + name + "</div>" );
+					kyouyu.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
 				} else if ( userData["役職"] === "狂人" ) {
 					if ( !kyojin ) {
 						kyojin = $( "<div></div>" );
 					}
-					kyojin.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + user + "'>" + name + "</div>" );
+					kyojin.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
 				} else if ( userData["役職"] === "人狼" ) {
 					if ( !jinrou ) {
 						jinrou = $( "<div></div>" );
 					}
-					jinrou.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + user + "'>" + name + "</div>" );
+					jinrou.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
 				} else if ( userData["役職"] === "狐" ) {
 					if ( !kitune ) {
 						kitune = $( "<div></div>" );
 					}
-					kitune.append( "<div style='display:inline-block;minWidth:100px;padding:3px;margin-right:5px;' class='" + user + "'>" + name + "</div>" );
+					kitune.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
 				}
 			}
 
@@ -838,6 +860,36 @@ $( function() {
 				dialog.append( "<h3>狐</h3>" );
 				dialog.append( kitune );
 			}
+
+			$( ".position-user", dialog ).on( "dblclick", function( e ) {
+				var delUser;
+				if ( $( this ).hasClass( "position" ) ) {
+					delUser = $( this ).data( "user-id" );
+				} else {
+					delUser = $( this ).parents( ".position:first" ).data( "user-id" );
+				}
+
+				if ( delUser ) {
+					_self.data.users[delUser]["役職"] = undefined;
+					_self.data.users[delUser]["役職解除"] = false;
+					_self.data.users[delUser]["結果"] = {};
+
+					_self.updateCss();
+					_self.updatePosition();
+				}
+			} );
+
+			$( ".position-target", dialog ).on( "dblclick", function( e ) {
+				var delTarget = $( this ).data( "user-id" );
+				var targetPosition = $( this ).parents( ".position:first" ).data( "user-id" );
+
+				if ( delTarget && targetPosition ) {
+					delete _self.data.users[targetPosition]["結果"][delTarget];
+
+					_self.updateCss();
+					_self.updatePosition();
+				}
+			} );
 		},
 		updateCss : function() {
 			var _self = this;
