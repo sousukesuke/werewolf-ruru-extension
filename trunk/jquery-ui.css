@@ -1176,7 +1176,13 @@ body .ui-tooltip {
 	border-radius: 3px;
 }
 
+/* ======= for ruru_extension ======= */
+
 .ui-dialog-content .cng {display:none;}
 .ui-dialog-content .ccg {display:none;}
 .ui-dialog-content .cnw {display:none;}
 .ui-dialog-content .ccw {display:none;}
+#ruru-ext-position-dialog .position-user{cursor:pointer;-webkit-user-select: none;user-select: none;}
+#ruru-ext-position-dialog .position-target{cursor:pointer;-webkit-user-select: none;user-select: none;}
+
+
