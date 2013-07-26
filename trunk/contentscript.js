@@ -16,11 +16,12 @@ $( function() {
 			showgray : false,
 			showuranai : true,
 			reverseLog : false,
-			baloon : undefined,
+			balloon : undefined,
 			menu : undefined,
 			styleSheet : undefined,
 			logDialog : undefined,
 			positionDialog : undefined,
+			colorDialog : undefined,
 			log : {},
 			dialogStyleSheet : undefined
 		},
@@ -118,7 +119,19 @@ $( function() {
 
 			_self.data.step = 2;
 
-			console.log( "ツール開始" );
+			var balloonContainer = $( "<div style='display:inline-block;width:150px;position:absolute;top:5px;left:5px;'></div>" ).appendTo( "body" );
+
+			_self.data.balloon = function( message ) {
+				console.log( message );
+				var balloon = $( "<div class='ui-state-highlight ui-corner-all' style='font-size:11px;margin-bottom:5px;padding:1em;'></div>" ).text( message ).hide();
+				balloon.prependTo( balloonContainer ).show( "slide", {}, 300, function() {
+					setTimeout( function() {
+						balloon.fadeOut( "normal", function() {
+							balloon.remove();
+						} );
+					}, 2000 );
+				} );
+			};
 
 			$( "head" ).append( "<style id='ruru-ext-styles' type='text/css'></style>" );
 			$( "head" ).append( "<style id='ruru-ext-dialog-styles' type='text/css'></style>" );
@@ -158,9 +171,15 @@ $( function() {
 				position : [ ul, ut ]
 			} );
 
-			_self.data.baloon = function( message ) {
-
-			};
+			_self.data.colorDialog = $( "<div style='font-size:11px;overflow-y:scroll;'><table style='width:100%;background:white;'><tbody id='ruru-color-table'></tbody></table></div>" ).appendTo( "body" ).dialog( {
+				autoOpen : false,
+				minWidth : 450,
+				height : 600,
+				title : "カラー設定",
+				buttons : [ {
+					text : "Ok"
+				} ]
+			} );
 
 			_self.data.menu = $( "<ul style='display:none; position:absolute;z-index:6000;font-size:11px;white-space:nowrap;min-width:130px'></ul>" );
 			_self.data.menu.appendTo( "body" );
@@ -229,6 +248,8 @@ $( function() {
 
 				_self.execAction( user, action, event.target );
 			} );
+
+			_self.data.balloon( "コンポーネントロード" );
 
 			_self.data.step = 3;
 		},
@@ -326,7 +347,8 @@ $( function() {
 
 			_self.updateCss();
 
-			console.log( "ユーザー把握", _self.data.names );
+			_self.data.balloon( "ユーザー把握" );
+			console.log( _self.data.names );
 
 			_self.data.step = 5;
 		},
@@ -724,23 +746,28 @@ $( function() {
 				_self.data.users[user]["役職解除"] = false;
 			} else if ( action === "menu-reverse-log" ) {
 				_self.data.reverseLog = !_self.data.reverseLog;
+				_self.data.balloon( "チャット逆 " + ( _self.data.reverseLog ? "ON" : "OFF" ) );
 				if ( localStorage ) {
 					localStorage.reverseLog = _self.data.reverseLog;
 				}
 			} else if ( action === "menu-hidecng" ) {
 				_self.data.hidecng = !_self.data.hidecng;
+				_self.data.balloon( "GM表示 " + ( !_self.data.hidecng ? "ON" : "OFF" ) );
 			} else if ( action === "menu-hidecnw" ) {
 				_self.data.hidecnw = !_self.data.hidecnw;
+				_self.data.balloon( "観戦表示 " + ( !_self.data.hidecnw ? "ON" : "OFF" ) );
 				if ( localStorage ) {
 					localStorage.hidecnw = _self.data.hidecnw;
 				}
 			} else if ( action === "menu-showgray" ) {
 				_self.data.showgray = !_self.data.showgray;
+				_self.data.balloon( "完グレー強調表示 " + ( _self.data.showgray ? "ON" : "OFF" ) );
 				if ( localStorage ) {
 					localStorage.showgray = _self.data.showgray;
 				}
 			} else if ( action === "menu-showuranai" ) {
 				_self.data.showuranai = !_self.data.showuranai;
+				_self.data.balloon( "占い結果強調表示 " + ( _self.data.showuranai ? "ON" : "OFF" ) );
 				if ( localStorage ) {
 					localStorage.showuranai = _self.data.showuranai;
 				}
@@ -938,11 +965,11 @@ $( function() {
 				var usersStatus = {};
 
 				for ( var name in _self.data.names ) {
-					uraCount++;
 					var user = _self.data.names[name];
 					var userData = _self.data.users[user];
 
 					if ( userData["役職"] === "占い" && !userData["役職解除"] ) {
+						uraCount++;
 						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;}" );
 						for ( var targetUser in userData["結果"] ) {
 							if ( userData["結果"][targetUser] === "村人" ) {
@@ -975,17 +1002,11 @@ $( function() {
 					var style = "";
 
 					if ( usersStatus[user] && _self.data.showuranai ) {
-						if ( usersStatus[user]["white"] === uraCount ) {
+						if ( usersStatus[user]["white"] > 0 ) {
 							style += "font-weight:bold;";
-						} else if ( usersStatus[user]["black"] === uraCount ) {
-							style += "font-style:italic;text-decoration:underline;";
-						} else {
-							if ( usersStatus[user]["white"] > 0 ) {
-								style += "font-weight:bold;";
-							}
-							if ( usersStatus[user]["black"] > 0 ) {
-								style += "font-style:italic;text-shadow:2px 2px 2px #999;";
-							}
+						}
+						if ( usersStatus[user]["black"] > 0 ) {
+							style += "font-style:italic;text-shadow:2px 2px 2px #999;";
 						}
 					}
 

@@ -15,8 +15,8 @@
       "matches" : [
         "http://werewolf.ddo.jp/village.jsp"
       ],
-      "css" : ["jquery-ui.css"],
-      "js" : ["jquery.js", "jquery-ui.js", "contentscript.js"],
+      "css" : ["jquery-ui.css", "evol.colorpicker.css"],
+      "js" : ["jquery.js", "jquery-ui.js", "evol.colorpicker.js", "contentscript.js"],
       "run_at" : "document_idle",
       "all_frames" : false
     }
