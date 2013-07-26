@@ -4,14 +4,13 @@ $( function() {
 
 	_RuruExt.prototype = {
 		data : {
-			active : false,
 			day : undefined,
 			prevstatus : 0,
 			status : 0,
 			users : {},
 			names : {},
 			nameMap : {},
-			loaded : false,
+			step : 0,
 			hidecng : false,
 			hidecnw : false,
 			showgray : false,
@@ -26,6 +25,14 @@ $( function() {
 			dialogStyleSheet : undefined
 		},
 		init : function() {
+			// RuruExt.data.step
+			// 0 : 無効
+			// 1 : プラグイン開始
+			// 2 : スタートアップ（UIコンポーネント準備中）
+			// 3 : スタートアップ完了
+			// 4 : セットアップ（ゲーム開始。ユーザー情報読み込み中）
+			// 5 : セットアップ完了
+
 			var _self = this;
 
 			if ( localStorage ) {
@@ -65,14 +72,53 @@ $( function() {
 			} );
 		},
 		marking : function( target, user ) {
-			$( target ).addClass( user ).data( "user-id", user );
+			$( target ).addClass( user ).attr( "userid", user );
 		},
-		setup : function() {
+		onPageAction : function( request, sender, sendResponse ) {
 			var _self = this;
 
-			console.log( "ツール開始" );
+			if ( request.action == "updateChat" ) {
+				_self.onUpdateChat();
+				sendResponse( {} );
+			} else if ( request.action === "click" ) {
+				if ( _self.data.step !== 0 ) {
+					sendResponse( {
+						active : true
+					} );
+					return;
+				} else {
+					_self.data.step = 1;
 
-			_self.data.loaded = true;
+					if ( !$( "#SC" ).is( ":checked" ) ) {
+						$( "#SC" ).click();
+					}
+
+					$( "#messageInput" ).keypress( function( event ) {
+						if ( event.ctrlKey && event.which == 10 ) {
+							$( "#todob" ).click();
+						}
+					} );
+
+					_self.onUpdateChat();
+				}
+
+				sendResponse( {
+					active : true
+				} );
+
+			} else {
+				sendResponse( {} );
+			}
+		},
+		startup : function() {
+			var _self = this;
+			if ( _self.data.step > 2 ) {
+				return;
+			}
+
+			_self.data.step = 2;
+
+			console.log( "ツール開始" );
 
 			$( "head" ).append( "<style id='ruru-ext-styles' type='text/css'></style>" );
 			$( "head" ).append( "<style id='ruru-ext-dialog-styles' type='text/css'></style>" );
@@ -171,7 +217,7 @@ $( function() {
 				return false;
 			} ).on( "preparemenu", function( event ) {
 
-				var user = $( event.target ).data( "user-id" );
+				var user = $( event.target ).attr( "userid" );
 
 				_self.createMenu( user );
 
@@ -179,10 +225,21 @@ $( function() {
 				hidemenu();
 
 				var action = $( event.target ).attr( "id" );
-				var user = $( target ).data( "user-id" );
+				var user = $( target ).attr( "userid" );
 
 				_self.execAction( user, action, event.target );
 			} );
+
+			_self.data.step = 3;
+		},
+		setup : function() {
+			var _self = this;
+
+			if ( _self.data.step !== 3 ) {
+				return;
+			}
+
+			_self.data.step = 4;
 
 			$( "#No01 td" ).each( function( i, td ) {
 				var text = $( td ).text();
@@ -225,8 +282,8 @@ $( function() {
 
 			for ( var name in _self.data.names ) {
 				var user = _self.data.names[name];
-				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + user + "' value='" + user + "' style='vertical-align:sub;'/>" ).attr( "checked", true ).data( "user-id", user );
-				var count = $( "<span class='dialog-user-count count-" + user + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;'>[0]</span>" ).data( "user-id", user );
+				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + user + "' value='" + user + "' style='vertical-align:sub;'/>" ).attr( "checked", true ).attr( "userid", user );
+				var count = $( "<span class='dialog-user-count count-" + user + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;'>[0]</span>" ).attr( "userid", user );
 				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + user + "' class='" + user + "' style='display:inline-block;min-width:80px;'>" + name + "</label>" ).append( count ) );
 			}
 
@@ -238,7 +295,7 @@ $( function() {
 				$( "input.dialog-user-checkbox", buttonPanel ).each( function( i, checkbox ) {
 					var checked = $( checkbox ).is( ":checked" );
 					if ( !checked ) {
-						var user = $( checkbox ).data( "user-id" );
+						var user = $( checkbox ).attr( "userid" );
 						_self.data.dialogStyleSheet.insertRule( "#ruru-log-table ." + user + " {display:none;}" );
 					}
 				} );
@@ -247,7 +304,7 @@ $( function() {
 			$( "input.dialog-user-checkbox", buttonPanel ).on( "click", updateDialogCss );
 
 			$( "span.dialog-user-count", buttonPanel ).on( "click", function() {
-				var user = $( this ).data( "user-id" );
+				var user = $( this ).attr( "userid" );
 
 				$( "input.dialog-user-checkbox", buttonPanel ).removeAttr( "checked", false );
 
@@ -267,150 +324,118 @@ $( function() {
 				updateDialogCss();
 			} );
 
+			_self.updateCss();
+
 			console.log( "ユーザー把握", _self.data.names );
-		},
-		load : function() {
-			var _self = this;
 
-			if ( _self.data.active ) {
-				var date = $( "#No08>span" ).text();
-				if ( date.match( /([^\s]+)\s+([^\s]+)/ ) ) {
-					var d1 = RegExp.$1;
-					var d2 = RegExp.$2;
-
-					_self.data.day = d1;
-					_self.data.prevstatus = _self.data.status;
-
-					if ( d2 === "開始前" ) {
-						_self.data.status = 0;
-						return;
-					} else if ( d2 === "昼" ) {
-						_self.data.status = 1;
-					} else if ( d2 === "夕刻" ) {
-						_self.data.status = 2;
-					} else if ( d2 === "夜" ) {
-						_self.data.status = 3;
-					} else if ( d2 === "夜明け" ) {
-						_self.data.status = 4;
-					} else if ( d2 === "ゲーム終了" ) {
-						_self.data.status = 5;
-					}
-
-					if ( _self.data.loaded ) {
-						$( "#No01 td" ).each( function( i, td ) {
-							var text = $( td ).text();
-							if ( text !== "　" ) {
-								var line = Math.floor( i / 6 );
-								var position = ( i % 6 );
-
-								switch ( position ) {
-								case 0:
-								case 1:
-								case 4:
-									_self.marking( td, "user-" + ( line * 2 ) );
-									break;
-								case 2:
-								case 3:
-								case 5:
-									_self.marking( td, "user-" + ( ( line * 2 ) + 1 ) );
-									break;
-								default:
-									break;
-								}
-							}
-						} );
-					} else {
-						_self.setup();
-						_self.updateCss();
-					}
-				}
-			}
-		},
-		onPageAction : function( request, sender, sendResponse ) {
-			var _self = this;
-
-			if ( request.action == "updateChat" ) {
-				_self.load();
-				_self.onUpdateChat();
-				sendResponse( {} );
-			} else if ( request.action === "click" ) {
-				if ( _self.data.active ) {
-					return;
-				} else {
-					_self.data.active = true;
-					if ( !$( "#SC" ).is( ":checked" ) ) {
-						$( "#SC" ).click();
-					}
-
-					$( "#messageInput" ).keypress( function( event ) {
-						if ( event.ctrlKey && event.which == 10 ) {
-							$( "#todob" ).click();
-						}
-					} );
-
-					_self.load();
-					_self.reverseChat();
-				}
-
-				sendResponse( {
-					active : _self.data.active
-				} );
-
-			} else {
-				sendResponse( {} );
-			}
+			_self.data.step = 5;
 		},
 		onUpdateChat : function() {
 			var _self = this;
 
-			if ( _self.data.active ) {
+			if ( _self.data.step !== 0 ) {
+				_self.load();
 				_self.reverseChat();
+			}
+		},
+		load : function() {
+			var _self = this;
+
+			_self.startup();
+
+			var date = $( "#No08>span" ).text();
+			if ( date.match( /([^\s]+)\s+([^\s]+)/ ) ) {
+				var d1 = RegExp.$1;
+				var d2 = RegExp.$2;
+
+				_self.data.day = d1;
+				_self.data.prevstatus = _self.data.status;
+
+				if ( d2 === "開始前" ) {
+					_self.data.status = 0;
+					return;
+				} else if ( d2 === "昼" ) {
+					_self.data.status = 1;
+				} else if ( d2 === "夕刻" ) {
+					_self.data.status = 2;
+				} else if ( d2 === "夜" ) {
+					_self.data.status = 3;
+				} else if ( d2 === "夜明け" ) {
+					_self.data.status = 4;
+				} else if ( d2 === "ゲーム終了" ) {
+					_self.data.status = 5;
+				}
+
+				if ( _self.data.step === 5 ) {
+					$( "#No01 td" ).each( function( i, td ) {
+						var text = $( td ).text();
+						if ( text !== "　" ) {
+							var line = Math.floor( i / 6 );
+							var position = ( i % 6 );
+
+							switch ( position ) {
+							case 0:
+							case 1:
+							case 4:
+								_self.marking( td, "user-" + ( line * 2 ) );
+								break;
+							case 2:
+							case 3:
+							case 5:
+								_self.marking( td, "user-" + ( ( line * 2 ) + 1 ) );
+								break;
+							default:
+								break;
+							}
+						}
+					} );
+				} else {
+					_self.setup();
+				}
 			}
 		},
 		reverseChat : function() {
 			var _self = this;
 
 			if ( _self.data.reverseLog ) {
-				var tbody = $( "#chatscr2_1>.d1215>span>table>tbody" );
+				var tbody = $( "#No09>table>tbody" );
 				var mslist = tbody.children().get().reverse();
 
 				if ( _self.data.prevstatus == 1 && _self.data.prevstatus != _self.data.status ) {
 					_self.data.log[_self.data.day] = mslist;
 				}
 
-				if ( _self.data.loaded ) {
-					tbody.empty();
+				tbody.empty().append( mslist );
+
+				if ( _self.data.step === 5 ) {
 					for ( var i = 0; i < mslist.length; i++ ) {
 						var row = mslist[i];
 						var cn = $( "td.cn>span.name", row );
 						if ( cn.length ) {
 							var name = cn.text();
 							var user = _self.data.names[name];
-							$( "td", row ).addClass( user ).data( "user-id", user );
+							$( "td", row ).addClass( user ).attr( "userid", user );
 						}
-						tbody.append( row );
 					}
-				} else {
-					tbody.empty().append( mslist );
 				}
 
-				var h1 = $( "#chatscr2_1>.d1215" ).height() + 100;
+				var h1 = $( "#chatscr2_1>.d1215" ).height();
 				$( '#chatscr2_1' ).scrollTop( h1 );
 			} else {
-				var mslist = $( "#chatscr2_1>.d1215>span>table>tbody>tr" );
+				var mslist = $( "#No09>table>tbody>tr" ).get();
 
 				if ( _self.data.prevstatus == 1 && _self.data.prevstatus != _self.data.status ) {
-					_self.data.log[_self.data.day] = mslist.get();
+					_self.data.log[_self.data.day] = mslist;
 				}
 
-				if ( _self.data.loaded ) {
+				if ( _self.data.step === 5 ) {
 					for ( var i = 0; i < mslist.length; i++ ) {
 						var row = mslist[i];
 						var cn = $( "td.cn>span.name", row );
 						if ( cn.length ) {
 							var name = cn.text();
 							var user = _self.data.names[name];
-							$( "td", row ).addClass( user ).data( "user-id", user );
+							$( "td", row ).addClass( user ).attr( "userid", user );
 						}
 					}
 				}
@@ -450,8 +475,8 @@ $( function() {
 						var targetUser = _self.data.names[name];
 
 						if ( !userData["結果"][targetUser] && targetUser !== user ) {
-							$( "<li id='menu-ura-result-white'><a href='#'><span class='ui-icon ui-icon-search'></span>" + name + "</a></li>" ).data( "user-id", targetUser ).appendTo( white );
-							$( "<li id='menu-ura-result-black'><a href='#'><span class='ui-icon ui-icon-search'></span>" + name + "</a></li>" ).data( "user-id", targetUser ).appendTo( black );
+							$( "<li id='menu-ura-result-white'><a href='#'><span class='ui-icon ui-icon-search'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( white );
+							$( "<li id='menu-ura-result-black'><a href='#'><span class='ui-icon ui-icon-search'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( black );
 						}
 					}
 
@@ -485,8 +510,8 @@ $( function() {
 						var targetUser = _self.data.names[name];
 
 						if ( !userData["結果"][targetUser] && targetUser !== user && name !== "第一犠牲者" ) {
-							$( "<li id='menu-rei-result-white'><a href='#'><span class='ui-icon ui-icon-heart'></span>" + name + "</a></li>" ).data( "user-id", targetUser ).appendTo( white );
-							$( "<li id='menu-rei-result-black'><a href='#'><span class='ui-icon ui-icon-heart'></span>" + name + "</a></li>" ).data( "user-id", targetUser ).appendTo( black );
+							$( "<li id='menu-rei-result-white'><a href='#'><span class='ui-icon ui-icon-heart'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( white );
+							$( "<li id='menu-rei-result-black'><a href='#'><span class='ui-icon ui-icon-heart'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( black );
 						}
 					}
 
@@ -750,16 +775,16 @@ $( function() {
 			} else if ( action === "menu-person" ) {
 				_self.data.positionDialog.dialog( "open" );
 			} else if ( action === "menu-ura-result-white" ) {
-				var targetUser = $( selected ).data( "user-id" );
+				var targetUser = $( selected ).attr( "userid" );
 				_self.data.users[user]["結果"][targetUser] = "村人";
 			} else if ( action === "menu-ura-result-black" ) {
-				var targetUser = $( selected ).data( "user-id" );
+				var targetUser = $( selected ).attr( "userid" );
 				_self.data.users[user]["結果"][targetUser] = "人狼";
 			} else if ( action === "menu-rei-result-white" ) {
-				var targetUser = $( selected ).data( "user-id" );
+				var targetUser = $( selected ).attr( "userid" );
 				_self.data.users[user]["結果"][targetUser] = "村人";
 			} else if ( action === "menu-rei-result-black" ) {
-				var targetUser = $( selected ).data( "user-id" );
+				var targetUser = $( selected ).attr( "userid" );
 				_self.data.users[user]["結果"][targetUser] = "人狼";
 			}
 
@@ -787,57 +812,57 @@ $( function() {
 					if ( !uranai ) {
 						uranai = $( "<div></div>" );
 					}
-					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( uranai ).data( "user-id", user );
+					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( uranai ).attr( "userid", user );
 					var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
 					for ( var targetUser in userData["結果"] ) {
 						if ( userData["結果"][targetUser] === "村人" ) {
 							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.data( "user-id", targetUser ) );
+									.attr( "userid", targetUser ) );
 						} else {
 							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.data( "user-id", targetUser ) );
+									.attr( "userid", targetUser ) );
 						}
 					}
 				} else if ( userData["役職"] === "霊能" ) {
 					if ( !reinou ) {
 						reinou = $( "<div></div>" );
 					}
-					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( reinou ).data( "user-id", user );
+					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( reinou ).attr( "userid", user );
 					var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
 					for ( var targetUser in userData["結果"] ) {
 						if ( userData["結果"][targetUser] === "村人" ) {
 							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.data( "user-id", targetUser ) );
+									.attr( "userid", targetUser ) );
 						} else {
 							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.data( "user-id", targetUser ) );
+									.attr( "userid", targetUser ) );
 						}
 					}
 				} else if ( userData["役職"] === "狩人" ) {
 					if ( !karido ) {
 						karido = $( "<div></div>" );
 					}
-					karido.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
+					karido.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
 				} else if ( userData["役職"] === "共有" ) {
 					if ( !kyouyu ) {
 						kyouyu = $( "<div></div>" );
 					}
-					kyouyu.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
+					kyouyu.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
 				} else if ( userData["役職"] === "狂人" ) {
 					if ( !kyojin ) {
 						kyojin = $( "<div></div>" );
 					}
-					kyojin.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
+					kyojin.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
 				} else if ( userData["役職"] === "人狼" ) {
 					if ( !jinrou ) {
 						jinrou = $( "<div></div>" );
 					}
-					jinrou.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
+					jinrou.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
 				} else if ( userData["役職"] === "狐" ) {
 					if ( !kitune ) {
 						kitune = $( "<div></div>" );
 					}
-					kitune.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).data( "user-id", user ) );
+					kitune.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
 				}
 			}
 
@@ -873,9 +898,9 @@ $( function() {
 			$( ".position-user", dialog ).on( "dblclick", function( e ) {
 				var delUser;
 				if ( $( this ).hasClass( "position" ) ) {
-					delUser = $( this ).data( "user-id" );
+					delUser = $( this ).attr( "userid" );
 				} else {
-					delUser = $( this ).parents( ".position:first" ).data( "user-id" );
+					delUser = $( this ).parents( ".position:first" ).attr( "userid" );
 				}
 
 				if ( delUser ) {
@@ -889,8 +914,8 @@ $( function() {
 			} );
 
 			$( ".position-target", dialog ).on( "dblclick", function( e ) {
-				var delTarget = $( this ).data( "user-id" );
-				var targetPosition = $( this ).parents( ".position:first" ).data( "user-id" );
+				var delTarget = $( this ).attr( "userid" );
+				var targetPosition = $( this ).parents( ".position:first" ).attr( "userid" );
 
 				if ( delTarget && targetPosition ) {
 					delete _self.data.users[targetPosition]["結果"][delTarget];
@@ -907,79 +932,82 @@ $( function() {
 				_self.data.styleSheet.deleteRule( i );
 			}
 
-			var uraCount = 0;
-			var usersStatus = {};
+			if ( _self.data.step === 5 ) {
 
-			for ( var name in _self.data.names ) {
-				uraCount++;
-				var user = _self.data.names[name];
-				var userData = _self.data.users[user];
+				var uraCount = 0;
+				var usersStatus = {};
 
-				if ( userData["役職"] === "占い" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;}" );
-					for ( var targetUser in userData["結果"] ) {
-						if ( userData["結果"][targetUser] === "村人" ) {
-							if ( usersStatus[targetUser] ) {
-								usersStatus[targetUser]["white"]++;
+				for ( var name in _self.data.names ) {
+					uraCount++;
+					var user = _self.data.names[name];
+					var userData = _self.data.users[user];
+
+					if ( userData["役職"] === "占い" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;}" );
+						for ( var targetUser in userData["結果"] ) {
+							if ( userData["結果"][targetUser] === "村人" ) {
+								if ( usersStatus[targetUser] ) {
+									usersStatus[targetUser]["white"]++;
+								} else {
+									usersStatus[targetUser] = {
+										"white" : 1,
+										"black" : 0
+									};
+								}
 							} else {
-								usersStatus[targetUser] = {
-									"white" : 1,
-									"black" : 0
-								};
-							}
-						} else {
-							if ( usersStatus[targetUser] ) {
-								usersStatus[targetUser]["black"]++;
-							} else {
-								usersStatus[targetUser] = {
-									"white" : 0,
-									"black" : 1
-								};
+								if ( usersStatus[targetUser] ) {
+									usersStatus[targetUser]["black"]++;
+								} else {
+									usersStatus[targetUser] = {
+										"white" : 0,
+										"black" : 1
+									};
+								}
 							}
 						}
 					}
 				}
-			}
 
-			for ( var name in _self.data.names ) {
-				var user = _self.data.names[name];
-				var userData = _self.data.users[user];
+				for ( var name in _self.data.names ) {
+					var user = _self.data.names[name];
+					var userData = _self.data.users[user];
 
-				var style = "";
+					var style = "";
 
-				if ( usersStatus[user] && _self.data.showuranai ) {
-					if ( usersStatus[user]["white"] === uraCount ) {
-						style += "font-weight:bold;";
-					} else if ( usersStatus[user]["black"] === uraCount ) {
-						style += "font-style:italic;text-decoration:underline;";
-					} else {
-						if ( usersStatus[user]["white"] > 0 ) {
+					if ( usersStatus[user] && _self.data.showuranai ) {
+						if ( usersStatus[user]["white"] === uraCount ) {
 							style += "font-weight:bold;";
-						}
-						if ( usersStatus[user]["black"] > 0 ) {
-							style += "font-style:italic;";
+						} else if ( usersStatus[user]["black"] === uraCount ) {
+							style += "font-style:italic;text-decoration:underline;";
+						} else {
+							if ( usersStatus[user]["white"] > 0 ) {
+								style += "font-weight:bold;";
+							}
+							if ( usersStatus[user]["black"] > 0 ) {
+								style += "font-style:italic;text-shadow:2px 2px 2px #999;";
+							}
 						}
 					}
-				}
 
-				if ( userData["役職"] === "占い" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;" + style + "}" );
-				} else if ( userData["役職"] === "霊能" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#DC143C;" + style + "}" );
-				} else if ( userData["役職"] === "狩人" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#EEE8AA;color:#DC143C;" + style + "}" );
-				} else if ( userData["役職"] === "共有" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#EEE8AA;color:#228B22;" + style + "}" );
-				} else if ( userData["役職"] === "狂人" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#00FFFF;" + style + "}" );
-				} else if ( userData["役職"] === "人狼" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#FF0000;" + style + "}" );
-				} else if ( userData["役職"] === "狐" && !userData["役職解除"] ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#FFFF00;" + style + "}" );
-				} else if ( !usersStatus[user] && _self.data.showgray ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#696969;color:#FFFFFF;}" );
-				} else {
-					_self.data.styleSheet.insertRule( "." + user + " {" + style + "}" );
+					if ( userData["役職"] === "占い" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;" + style + "}" );
+					} else if ( userData["役職"] === "霊能" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#DC143C;" + style + "}" );
+					} else if ( userData["役職"] === "狩人" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#EEE8AA;color:#DC143C;" + style + "}" );
+					} else if ( userData["役職"] === "共有" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#EEE8AA;color:#228B22;" + style + "}" );
+					} else if ( userData["役職"] === "狂人" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#00FFFF;" + style + "}" );
+					} else if ( userData["役職"] === "人狼" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#FF0000;" + style + "}" );
+					} else if ( userData["役職"] === "狐" && !userData["役職解除"] ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#FFFF00;" + style + "}" );
+					} else if ( !usersStatus[user] && _self.data.showgray ) {
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:#696969;color:#FFFFFF;}" );
+					} else {
+						_self.data.styleSheet.insertRule( "." + user + " {" + style + "}" );
+					}
 				}
 			}
 
