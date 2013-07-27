@@ -10,18 +10,22 @@
 
 == インストール ==
 
-このサイトのトップページ、または [https://docs.google.com/file/d/0B60Wj811teVLdm9seWxHSDYwUTA/edit?usp=sharing こちら] からプラグインファイルをダウンロードしてください。
-
-ファイル名【ruru_extension.crx】
+まずはサイトのトップページ、または *[https://docs.google.com/file/d/0B60Wj811teVLdm9seWxHSDYwUTA/edit?usp=sharing こちら]* からプラグインファイルをダウンロードしてください。
 
 
+ファイル : *[https://docs.google.com/file/d/0B60Wj811teVLdm9seWxHSDYwUTA/edit?usp=sharing ruru_extension.crx]*
+
+
+ダウンロードが済んだら、chrome の拡張機能画面を開きます。<br>
+
+ブラウザ右上の
+
+<br>
 == 使ってみる ==
 
 最初、るる鯖拡張プラグインの機能は有効になっていません。<br>
 インストール後に確認したブラウザのURL右にあるアイコンをクリックすることで機能を有効にすることができます。<br>
 
 
+<br>
 == 機能 ==
-
-
-
