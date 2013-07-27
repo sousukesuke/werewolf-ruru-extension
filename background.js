@@ -21,11 +21,12 @@ function onPageActionClicked( tab ) {
 	} );
 }
 
+var updateChatData = {
+	action : "updateChat"
+};
+
 function onUpdateChat( details ) {
-	chrome.tabs.sendRequest( details.tabId, {
-		action : "updateChat"
-	}, function( response ) {
-	} );
+	chrome.tabs.sendRequest( details.tabId, updateChatData );
 }
 
 chrome.extension.onRequest.addListener( onRequest );
