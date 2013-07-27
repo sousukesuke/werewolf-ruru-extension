@@ -18,7 +18,7 @@
 
 ダウンロードが済んだら、chrome の拡張機能画面を開きます。<br>
 
-ブラウザ右上の
+ブラウザ右上の https://googledrive.com/host/0B60Wj811teVLcFRHb1V0aXViSlE/
 
 <br>
 == 使ってみる ==
