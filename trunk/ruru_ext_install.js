@@ -23,13 +23,15 @@ $( function() {
 				status.attr( "time", time );
 			}
 		} else {
-			var date = $( "#No08>span:first" ).text();
-			var index = date.indexOf( "\xa0" );
-			if ( index !== -1 ) {
-				day = date.slice( 0, index );
-				time = date.slice( index + 2 );
-				status.attr( "day", day );
-				status.attr( "time", time );
+			date = $( "#No08>span:first" ).text();
+			if ( date ) {
+				var index = date.indexOf( "\xa0" );
+				if ( index !== -1 ) {
+					day = date.slice( 0, index );
+					time = date.slice( index + 2 );
+					status.attr( "day", day );
+					status.attr( "time", time );
+				}
 			}
 		}
 
