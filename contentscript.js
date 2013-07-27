@@ -9,10 +9,11 @@ $( function() {
 	var cnvrgb = function( rgb ) {
 		if ( !rgb ) {
 			return;
+		} else if ( rgb.indexOf( "rgb" ) === -1 ) {
+			return rgb;
 		}
 
 		var parts = rgb.match( /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/ );
-		// parts now should be ["rgb(0, 70, 255", "0", "70", "255"]
 
 		delete ( parts[0] );
 		for ( var i = 1; i <= 3; ++i ) {
@@ -637,41 +638,43 @@ $( function() {
 				var tbody = $( "#No09>table>tbody" );
 				var mslist = tbody.children().get().reverse();
 
-				if ( _self.data.prevstatus == 1 && _self.data.prevstatus != _self.data.status ) {
+				if ( _self.data.prevstatus === 1 && _self.data.prevstatus !== _self.data.status ) {
 					_self.data.log[_self.data.day] = mslist;
 				}
 
-				tbody.append( mslist );
+				tbody.html( mslist );
 
 				if ( _self.data.step === 5 ) {
 					for ( var i = 0; i < mslist.length; i++ ) {
 						var row = mslist[i];
-						var cn = $( "td.cn>span.name", row );
-						if ( cn.length ) {
+						var cn = $( "td.cn:first>span.name", row );
+						if ( cn.length !== 0 ) {
 							var name = cn.text();
 							var user = _self.data.names[name];
-							$( "td", row ).addClass( user ).attr( "userid", user );
+							cn.parent().addClass( user ).attr( "userid", user ).next().addClass( user ).attr( "userid", user );
 						}
 					}
 				}
 
 				var h1 = $( "#chatscr2_1>.d1215" ).height();
-				$( '#chatscr2_1' ).scrollTop( h1 );
+				$( '#chatscr2_1' ).animate( {
+					scrollTop : h1
+				} );
 			} else {
 				var mslist = $( "#No09>table>tbody>tr" ).get();
 
-				if ( _self.data.prevstatus == 1 && _self.data.prevstatus != _self.data.status ) {
+				if ( _self.data.prevstatus === 1 && _self.data.prevstatus !== _self.data.status ) {
 					_self.data.log[_self.data.day] = mslist;
 				}
 
 				if ( _self.data.step === 5 ) {
 					for ( var i = 0; i < mslist.length; i++ ) {
 						var row = mslist[i];
-						var cn = $( "td.cn>span.name", row );
-						if ( cn.length ) {
+						var cn = $( "td.cn:first>span.name", row );
+						if ( cn.length !== 0 ) {
 							var name = cn.text();
 							var user = _self.data.names[name];
-							$( "td", row ).addClass( user ).attr( "userid", user );
+							cn.parent().addClass( user ).attr( "userid", user ).next().addClass( user ).attr( "userid", user );
 						}
 					}
 				}

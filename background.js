@@ -31,7 +31,7 @@ function onUpdateChat( details ) {
 
 chrome.extension.onRequest.addListener( onRequest );
 chrome.pageAction.onClicked.addListener( onPageActionClicked );
-chrome.webRequest.onCompleted.addListener( onUpdateChat, {
+chrome.webRequest.onResponseStarted.addListener( onUpdateChat, {
 	urls : [ "*://werewolf.ddo.jp/*" ],
 	types : [ "xmlhttprequest" ]
 } );
