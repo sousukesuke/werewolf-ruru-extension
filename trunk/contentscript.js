@@ -26,9 +26,10 @@ $( function() {
 
 	_RuruExt.prototype = {
 		data : {
+			installed : false,
 			day : undefined,
-			prevstatus : 0,
-			status : 0,
+			prevstatus : "開始前",
+			status : undefined,
 			users : {},
 			names : {},
 			nameMap : {},
@@ -77,14 +78,6 @@ $( function() {
 			}
 		},
 		init : function() {
-			// RuruExt.data.step
-			// 0 : 無効
-			// 1 : プラグイン開始
-			// 2 : スタートアップ（UIコンポーネント準備中）
-			// 3 : スタートアップ完了
-			// 4 : セットアップ（ゲーム開始。ユーザー情報読み込み中）
-			// 5 : セットアップ完了
-
 			var _self = this;
 
 			if ( localStorage.installed ) {
@@ -101,12 +94,12 @@ $( function() {
 					_self.data.uraStatus = $.parseJSON( localStorage.uraStatus );
 				}
 
-				console.log( "設定読み込み", {
+				console.log( "設定読み込み", $.stringify( {
 					"観戦OFF" : _self.data.showgray,
 					"完グレ強調" : _self.data.showgray,
 					"占い強調" : _self.data.showuranai,
 					"ログ逆" : _self.data.reverseLog
-				} );
+				} ) );
 			} else {
 				localStorage.hidecnw = _self.data.hidecnw;
 				localStorage.showgray = _self.data.showgray;
@@ -134,24 +127,12 @@ $( function() {
 				_self.onPageAction( request, sender, sendResponse );
 			} );
 		},
-		marking : function( target, user ) {
-			var cls = target.getAttribute( "class" ) + " " + user;
-			target.setAttribute( "class", cls );
-			target.setAttribute( "userid", user );
-		},
 		onPageAction : function( request, sender, sendResponse ) {
 			var _self = this;
 
-			if ( request.action === "updateChat" ) {
-				_self.onUpdateChat();
-			} else if ( request.action === "click" ) {
-				if ( _self.data.step !== 0 ) {
-					sendResponse( {
-						active : true
-					} );
-					return;
-				} else {
-					_self.data.step = 1;
+			if ( request.action === "click" ) {
+				if ( !_self.data.installed ) {
+					_self.data.installed = true;
 
 					if ( !$( "#SC" ).is( ":checked" ) ) {
 						$( "#SC" ).click();
@@ -163,21 +144,62 @@ $( function() {
 						}
 					} );
 
-					_self.onUpdateChat();
+					_self.install();
 				}
 
 				sendResponse( {
-					active : true
+					active : _self.data.installed
 				} );
 			}
 		},
-		startup : function() {
+		install : function() {
 			var _self = this;
-			if ( _self.data.step > 2 ) {
-				return;
-			}
 
-			_self.data.step = 2;
+			_self.data.status = $( "<span id='ruru-ext-status' reverselog='" + _self.data.reverseLog + "' day='1rdDAY' time='開始前'></span>" ).appendTo( "body" );
+			var dispatcher = $( "<button id='ruru-ext-event-dispatcher' style='display:none;'></button>" ).appendTo( "body" );
+
+			var idle = function() {
+				_self.onUpdateChat();
+			};
+
+			var setup = function() {
+				if ( _self.setup() ) {
+					_self.onUpdateChat();
+
+					dispatcher.off( "click" );
+					dispatcher.on( "click", idle );
+				}
+			};
+
+			var setupComponent = function() {
+				_self.setupComponents();
+
+				dispatcher.off( "click" );
+
+				if ( _self.setup() ) {
+					_self.onUpdateChat();
+
+					dispatcher.on( "click", idle );
+				} else {
+					dispatcher.on( "click", setup );
+				}
+			};
+
+			dispatcher.on( "click", setupComponent );
+
+			$.get( chrome.extension.getURL( "ruru_ext_install.js" ), function( data ) {
+
+				var head = document.getElementsByTagName( "head" ).item( 0 );
+
+				var scr = document.createElement( "script" );
+				scr.setAttribute( "type", "text/javascript" );
+				scr.innerText = data;
+
+				head.appendChild( scr );
+			} );
+		},
+		setupComponents : function() {
+			var _self = this;
 
 			var balloonContainer = $( "<div style='display:inline-block;width:150px;position:absolute;top:5px;left:5px;'></div>" ).appendTo( "body" );
 
@@ -198,10 +220,8 @@ $( function() {
 			for ( var i = 0; i < document.styleSheets.length; i++ ) {
 				var styleTag = document.styleSheets.item( i ).ownerNode;
 				if ( $( styleTag ).attr( "id" ) === "ruru-ext-styles" ) {
-					console.log( "hook StyleSheet : ruru-ext-styles" );
 					_self.data.styleSheet = document.styleSheets.item( i );
 				} else if ( $( styleTag ).attr( "id" ) === "ruru-ext-dialog-styles" ) {
-					console.log( "hook StyleSheet : ruru-ext-dialog-styles" );
 					_self.data.dialogStyleSheet = document.styleSheets.item( i );
 				}
 			}
@@ -320,8 +340,6 @@ $( function() {
 
 					var button = $( _self.data.colorDialog ).parents( ".ui-dialog:first" ).find( "button:last" );
 					button.focus();
-				},
-				create : function() {
 				},
 				buttons : {
 					"Save" : function() {
@@ -445,17 +463,13 @@ $( function() {
 			} );
 
 			_self.data.balloon( "コンポーネントロード" );
-
-			_self.data.step = 3;
 		},
 		setup : function() {
 			var _self = this;
 
-			if ( _self.data.step !== 3 ) {
-				return;
+			if ( _self.data.status.attr( "time" ) === "開始前" ) {
+				return false;
 			}
-
-			_self.data.step = 4;
 
 			var posText = $( "#No00" ).text();
 			var from = posText.indexOf( "役職" );
@@ -470,43 +484,13 @@ $( function() {
 				}
 			}
 
-			$( "#No01 td" ).each( function( i, td ) {
-				var text = $( td ).text();
-				if ( _self.data.status === 5 && $( td ).hasClass( "name" ) ) {
-					text = $( ">span:first", td ).text();
-				}
-				if ( text !== "　" ) {
-					var line = Math.floor( i / 6 );
-					var position = ( i % 6 );
-
-					switch ( position ) {
-					case 0:
-						_self.data.users["user-" + ( line * 2 )] = {};
-						_self.marking( td, "user-" + ( line * 2 ) );
-						break;
-					case 1:
-						_self.data.names[text] = "user-" + ( line * 2 );
-						_self.data.nameMap["user-" + ( line * 2 )] = text;
-						_self.marking( td, "user-" + ( line * 2 ) );
-						break;
-					case 2:
-						_self.data.users["user-" + ( ( line * 2 ) + 1 )] = {};
-						_self.marking( td, "user-" + ( ( line * 2 ) + 1 ) );
-						break;
-					case 3:
-						_self.data.names[text] = "user-" + ( ( line * 2 ) + 1 );
-						_self.data.nameMap["user-" + ( ( line * 2 ) + 1 )] = text;
-						_self.marking( td, "user-" + ( ( line * 2 ) + 1 ) );
-						break;
-					case 4:
-						_self.marking( td, "user-" + ( line * 2 ) );
-						break;
-					case 5:
-						_self.marking( td, "user-" + ( ( line * 2 ) + 1 ) );
-						break;
-					default:
-						break;
-					}
+			$( "#No01 td.name" ).each( function( i, td ) {
+				var name = $( ">span:first", td ).text();
+				if ( name ) {
+					var userid = $( td ).attr( "userid" );
+					_self.data.users[userid] = {};
+					_self.data.names[name] = userid;
+					_self.data.nameMap[userid] = name;
 				}
 			} );
 
@@ -559,125 +543,30 @@ $( function() {
 			_self.updateCss();
 
 			_self.data.balloon( "ユーザー把握" );
-			console.log( _self.data.names );
+			console.log( $.stringify( _self.data.names ) );
 
-			_self.data.step = 5;
+			return true;
 		},
 		onUpdateChat : function() {
 			var _self = this;
 
-			if ( _self.data.step !== 0 ) {
-				_self.load();
-				_self.reverseChat();
+			_self.data.day = _self.data.status.attr( "day" );
+			var time = _self.data.status.attr( "time" );
+
+			if ( _self.data.prevstatus !== time ) {
+				_self.data.balloon( time + " になりました" );
 			}
-		},
-		load : function() {
-			var _self = this;
 
-			_self.startup();
-
-			var date = $( "#No08>span" ).text();
-			var index = date.indexOf( "\xa0" );
-			if ( index !== -1 ) {
-				var d1 = date.slice( 0, index );
-				var d2 = date.slice( index + 2 );
-
-				_self.data.day = d1;
-				_self.data.prevstatus = _self.data.status;
-
-				if ( d2 === "開始前" ) {
-					_self.data.status = 0;
-					return;
-				} else if ( d2 === "昼" ) {
-					_self.data.status = 1;
-				} else if ( d2 === "夕刻" ) {
-					_self.data.status = 2;
-				} else if ( d2 === "夜" ) {
-					_self.data.status = 3;
-				} else if ( d2 === "夜明け" ) {
-					_self.data.status = 4;
-				} else if ( d2 === "ゲーム終了" ) {
-					_self.data.status = 5;
-				}
-
-				if ( _self.data.step === 5 ) {
-					var tds = $( "#No01 td" ).get();
-					for ( var i = 0; i < tds.length; i++ ) {
-						var td = tds[i];
-
-						var text = $( td ).text();
-						if ( text !== "　" ) {
-							var line = Math.floor( i / 6 );
-							var position = ( i % 6 );
-
-							switch ( position ) {
-							case 0:
-							case 1:
-							case 4:
-								_self.marking( td, "user-" + ( line * 2 ) );
-								break;
-							case 2:
-							case 3:
-							case 5:
-								_self.marking( td, "user-" + ( ( line * 2 ) + 1 ) );
-								break;
-							default:
-								break;
-							}
-						}
-					}
-				} else {
-					_self.setup();
-				}
+			if ( time === "夕刻" && _self.data.prevstatus !== time ) {
+				_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
+				_self.data.log[_self.data.day] = $( "#No09>table>tbody>tr" ).get();
 			}
-		},
-		reverseChat : function() {
-			var _self = this;
+
+			_self.data.prevstatus = time;
 
 			if ( _self.data.reverseLog ) {
-				var tbody = $( "#No09>table>tbody" );
-				var mslist = tbody.children().get().reverse();
-
-				if ( _self.data.prevstatus === 1 && _self.data.prevstatus !== _self.data.status ) {
-					_self.data.log[_self.data.day] = mslist;
-				}
-
-				tbody.html( mslist );
-
-				if ( _self.data.step === 5 ) {
-					for ( var i = 0; i < mslist.length; i++ ) {
-						var row = mslist[i];
-						var cn = $( "td.cn:first>span.name", row );
-						if ( cn.length !== 0 ) {
-							var name = cn.text();
-							var user = _self.data.names[name];
-							cn.parent().addClass( user ).attr( "userid", user ).next().addClass( user ).attr( "userid", user );
-						}
-					}
-				}
-
 				var h1 = $( "#chatscr2_1>.d1215" ).height();
-				$( '#chatscr2_1' ).animate( {
-					scrollTop : h1
-				} );
-			} else {
-				var mslist = $( "#No09>table>tbody>tr" ).get();
-
-				if ( _self.data.prevstatus === 1 && _self.data.prevstatus !== _self.data.status ) {
-					_self.data.log[_self.data.day] = mslist;
-				}
-
-				if ( _self.data.step === 5 ) {
-					for ( var i = 0; i < mslist.length; i++ ) {
-						var row = mslist[i];
-						var cn = $( "td.cn:first>span.name", row );
-						if ( cn.length !== 0 ) {
-							var name = cn.text();
-							var user = _self.data.names[name];
-							cn.parent().addClass( user ).attr( "userid", user ).next().addClass( user ).attr( "userid", user );
-						}
-					}
-				}
+				$( '#chatscr2_1' ).scrollTop( h1 );
 			}
 		},
 		createMenu : function( user ) {
@@ -824,6 +713,7 @@ $( function() {
 				_self.data.users[user]["結果"][targetUser] = true;
 			} else if ( action === "menu-reverse-log" ) {
 				_self.data.reverseLog = !_self.data.reverseLog;
+				_self.data.status.attr( "reverselog", _self.data.reverseLog );
 				_self.data.balloon( "チャット逆 " + ( _self.data.reverseLog ? "ON" : "OFF" ) );
 				localStorage.reverseLog = _self.data.reverseLog;
 			} else if ( action === "menu-hidecng" ) {
@@ -970,88 +860,85 @@ $( function() {
 				_self.data.styleSheet.deleteRule( i );
 			}
 
-			if ( _self.data.step === 5 ) {
+			var uraCount = 0;
+			var usersStatus = {};
 
-				var uraCount = 0;
-				var usersStatus = {};
+			for ( var name in _self.data.names ) {
+				var user = _self.data.names[name];
+				var userData = _self.data.users[user];
 
-				for ( var name in _self.data.names ) {
-					var user = _self.data.names[name];
-					var userData = _self.data.users[user];
-
-					if ( userData && userData["役職"] === "占　い" && !userData["役職解除"] ) {
-						uraCount++;
-						for ( var targetUser in userData["結果"] ) {
-							if ( userData["結果"][targetUser] === "村　人" ) {
-								if ( usersStatus[targetUser] ) {
-									usersStatus[targetUser]["村　人"]++;
-								} else {
-									usersStatus[targetUser] = {
-										"村　人" : 1,
-										"人　狼" : 0
-									};
-								}
+				if ( userData && userData["役職"] === "占　い" && !userData["役職解除"] ) {
+					uraCount++;
+					for ( var targetUser in userData["結果"] ) {
+						if ( userData["結果"][targetUser] === "村　人" ) {
+							if ( usersStatus[targetUser] ) {
+								usersStatus[targetUser]["村　人"]++;
 							} else {
-								if ( usersStatus[targetUser] ) {
-									usersStatus[targetUser]["人　狼"]++;
-								} else {
-									usersStatus[targetUser] = {
-										"村　人" : 0,
-										"人　狼" : 1
-									};
-								}
+								usersStatus[targetUser] = {
+									"村　人" : 1,
+									"人　狼" : 0
+								};
+							}
+						} else {
+							if ( usersStatus[targetUser] ) {
+								usersStatus[targetUser]["人　狼"]++;
+							} else {
+								usersStatus[targetUser] = {
+									"村　人" : 0,
+									"人　狼" : 1
+								};
 							}
 						}
 					}
 				}
+			}
 
-				var judgmentStyles = {};
+			var judgmentStyles = {};
 
-				for ( var type in _self.data.uraStatus ) {
-					var status = _self.data.uraStatus[type];
-					var style = "";
-					if ( status["bold"] ) {
-						style = "font-weight:bold;";
-					}
-					if ( status["italic"] ) {
-						style += "font-style:italic;";
-					}
-					if ( status["line"] && status["underline"] ) {
-						style += "text-decoration:line-through underline;";
-					} else if ( status["line"] ) {
-						style += "text-decoration:line-through";
-					} else if ( status["underline"] ) {
-						style += "text-decoration:underline;";
-					}
-					if ( status["shadow"] ) {
-						style += "text-shadow:1px 1px 2px #999;";
-					}
-					judgmentStyles[type] = style;
+			for ( var type in _self.data.uraStatus ) {
+				var status = _self.data.uraStatus[type];
+				var style = "";
+				if ( status["bold"] ) {
+					style = "font-weight:bold;";
 				}
+				if ( status["italic"] ) {
+					style += "font-style:italic;";
+				}
+				if ( status["line"] && status["underline"] ) {
+					style += "text-decoration:line-through underline;";
+				} else if ( status["line"] ) {
+					style += "text-decoration:line-through";
+				} else if ( status["underline"] ) {
+					style += "text-decoration:underline;";
+				}
+				if ( status["shadow"] ) {
+					style += "text-shadow:1px 1px 2px #999;";
+				}
+				judgmentStyles[type] = style;
+			}
 
-				for ( var name in _self.data.names ) {
-					var user = _self.data.names[name];
-					var userData = _self.data.users[user];
+			for ( var name in _self.data.names ) {
+				var user = _self.data.names[name];
+				var userData = _self.data.users[user];
 
-					var style = "";
+				var style = "";
 
-					if ( usersStatus[user] && _self.data.showuranai ) {
-						for ( var type in judgmentStyles ) {
-							if ( usersStatus[user][type] > 0 ) {
-								style += judgmentStyles[type];
-							}
+				if ( usersStatus[user] && _self.data.showuranai ) {
+					for ( var type in judgmentStyles ) {
+						if ( usersStatus[user][type] > 0 ) {
+							style += judgmentStyles[type];
 						}
 					}
+				}
 
-					if ( userData && userData["役職"] && !userData["役職解除"] ) {
-						var cl = _self.data.positions[userData["役職"]][1];
-						var bg = _self.data.positions[userData["役職"]][2];
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:" + bg + ";color:" + cl + ";" + style + "}" );
-					} else if ( !usersStatus[user] && _self.data.showgray ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#696969;color:#FFFFFF;}" );
-					} else {
-						_self.data.styleSheet.insertRule( "." + user + " {" + style + "}" );
-					}
+				if ( userData && userData["役職"] && !userData["役職解除"] ) {
+					var cl = _self.data.positions[userData["役職"]][1];
+					var bg = _self.data.positions[userData["役職"]][2];
+					_self.data.styleSheet.insertRule( "." + user + " {background-color:" + bg + ";color:" + cl + ";" + style + "}" );
+				} else if ( !usersStatus[user] && _self.data.showgray ) {
+					_self.data.styleSheet.insertRule( "." + user + " {background-color:#696969;color:#FFFFFF;}" );
+				} else {
+					_self.data.styleSheet.insertRule( "." + user + " {" + style + "}" );
 				}
 			}
 

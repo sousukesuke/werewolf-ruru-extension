@@ -21,17 +21,5 @@ function onPageActionClicked( tab ) {
 	} );
 }
 
-var updateChatData = {
-	action : "updateChat"
-};
-
-function onUpdateChat( details ) {
-	chrome.tabs.sendRequest( details.tabId, updateChatData );
-}
-
 chrome.extension.onRequest.addListener( onRequest );
 chrome.pageAction.onClicked.addListener( onPageActionClicked );
-chrome.webRequest.onResponseStarted.addListener( onUpdateChat, {
-	urls : [ "*://werewolf.ddo.jp/*" ],
-	types : [ "xmlhttprequest" ]
-} );
