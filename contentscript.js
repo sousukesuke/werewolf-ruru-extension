@@ -2,6 +2,27 @@ $( function() {
 	var _RuruExt = function() {
 	};
 
+	var defaultColors = [ 'ffffff', 'f2f2f2', 'd8d8d8', 'bfbfbf', 'a5a5a5', '7f7f7f', '000000', '7f7f7f', '595959', '3f3f3f', '262626', '0c0c0c', 'eeece1', 'ddd9c3', 'c4bd97', '938953', '494429', '1d1b10', '1f497d', 'c6d9f0', '8db3e2', '548dd4', '17365d', '0f243e', '4f81bd', 'dbe5f1', 'b8cce4',
+			'95b3d7', '366092', '244061', 'c0504d', 'f2dcdb', 'e5b9b7', 'd99694', '953734', '632423', '9bbb59', 'ebf1dd', 'd7e3bc', 'c3d69b', '76923c', '4f6128', '8064a2', 'e5e0ec', 'ccc1d9', 'b2a2c7', '5f497a', '3f3151', '4bacc6', 'dbeef3', 'b7dde8', '92cddc', '31859b', '205867', 'f79646',
+			'fdeada', 'fbd5b5', 'fac08f', 'e36c09', '974806', 'c00000', 'ff0000', 'ffc000', 'ffff00', '92d050', '00b050', '00b0f0', '0070c0', '002060', '7030a0' ];
+
+	var cnvrgb = function( rgb ) {
+		if ( !rgb ) {
+			return;
+		}
+
+		var parts = rgb.match( /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/ );
+		// parts now should be ["rgb(0, 70, 255", "0", "70", "255"]
+
+		delete ( parts[0] );
+		for ( var i = 1; i <= 3; ++i ) {
+			parts[i] = parseInt( parts[i] ).toString( 16 );
+			if ( parts[i].length == 1 )
+				parts[i] = '0' + parts[i];
+		}
+		return '#' + parts.join( '' );
+	};
+
 	_RuruExt.prototype = {
 		data : {
 			day : undefined,
@@ -25,27 +46,27 @@ $( function() {
 			log : {},
 			dialogStyleSheet : undefined,
 			defaultPositions : {
-				"占　い" : [ "search", "#4169E1", "#E6E6FA", "判定", "占" ],
-				"霊　能" : [ "heart", "#DC143C", "#E6E6FA", "判定", "霊" ],
-				"狩　人" : [ "note", "#DC143C", "#98fb98", "対象", "狩" ],
-				"共　有" : [ "link", "#4169E1", "#98fb98", "", "共" ],
-				"狂　人" : [ "circle-minus", "#00FFFF", "#000000", "", "狂" ],
-				"人　狼" : [ "circle-close", "#FF0000", "#000000", "", "狼" ],
-				"妖　狐" : [ "alert", "#FF0000", "#EEE8AA", "", "狐" ],
-				"狂信者" : [ "alert", "#00FFFF", "#000000", "", "信" ],
-				"背徳者" : [ "alert", "#00FFFF", "#EEE8AA", "", "背" ],
-				"猫　又" : [ "alert", "#FFFF00", "#E6E6FA", "", "猫" ]
+				"占　い" : [ "search", "#4169E1", "#dbeef3", "判定", "占" ],
+				"霊　能" : [ "heart", "#c00000", "#dbeef3", "判定", "霊" ],
+				"狩　人" : [ "note", "#c00000", "#c3d69b", "対象", "狩" ],
+				"共　有" : [ "link", "#4169E1", "#c3d69b", "", "共" ],
+				"狂　人" : [ "circle-minus", "#92cddc", "#000000", "", "狂" ],
+				"人　狼" : [ "circle-close", "#c00000", "#000000", "", "狼" ],
+				"妖　狐" : [ "alert", "#c00000", "#e5b9b7", "", "狐" ],
+				"狂信者" : [ "alert", "#92cddc", "#000000", "", "信" ],
+				"背徳者" : [ "alert", "#366092", "#e5b9b7", "", "背" ],
+				"猫　又" : [ "alert", "#000000", "#9bbb59", "", "猫" ]
 			},
 			positions : {},
 			uraStatus : {
-				"村人" : {
+				"村　人" : {
 					"bold" : true,
 					"italic" : false,
 					"line" : false,
 					"underline" : false,
 					"shadow" : false
 				},
-				"人狼" : {
+				"人　狼" : {
 					"bold" : false,
 					"italic" : true,
 					"line" : false,
@@ -65,31 +86,36 @@ $( function() {
 
 			var _self = this;
 
-			_self.data.positions = _self.data.defaultPositions;
+			if ( localStorage.installed ) {
+				_self.data.hidecnw = localStorage.hidecnw == "true";
+				_self.data.showgray = localStorage.showgray == "true";
+				_self.data.showuranai = localStorage.showuranai == "true";
+				_self.data.reverseLog = localStorage.reverseLog == "true";
 
-			if ( localStorage ) {
-				if ( localStorage.installed ) {
-					_self.data.hidecnw = localStorage.hidecnw == "true";
-					_self.data.showgray = localStorage.showgray == "true";
-					_self.data.showuranai = localStorage.showuranai == "true";
-					_self.data.reverseLog = localStorage.reverseLog == "true";
-
-					console.log( "設定読み込み", {
-						"観戦OFF" : _self.data.showgray,
-						"完グレ強調" : _self.data.showgray,
-						"占い強調" : _self.data.showuranai,
-						"ログ逆" : _self.data.reverseLog
-					} );
-				} else {
-					localStorage.hidecnw = _self.data.hidecnw;
-					localStorage.showgray = _self.data.showgray;
-					localStorage.showuranai = _self.data.showuranai;
-					localStorage.reverseLog = _self.data.reverseLog;
-
-					localStorage.installed = "true";
+				if ( localStorage.defaultPositions ) {
+					_self.data.defaultPositions = $.parseJSON( localStorage.defaultPositions );
 				}
+
+				if ( localStorage.uraStatus ) {
+					_self.data.uraStatus = $.parseJSON( localStorage.uraStatus );
+				}
+
+				console.log( "設定読み込み", {
+					"観戦OFF" : _self.data.showgray,
+					"完グレ強調" : _self.data.showgray,
+					"占い強調" : _self.data.showuranai,
+					"ログ逆" : _self.data.reverseLog
+				} );
+			} else {
+				localStorage.hidecnw = _self.data.hidecnw;
+				localStorage.showgray = _self.data.showgray;
+				localStorage.showuranai = _self.data.showuranai;
+				localStorage.reverseLog = _self.data.reverseLog;
+
+				localStorage.installed = "true";
 			}
 
+			_self.data.positions = {};
 			for ( var pos in _self.data.defaultPositions ) {
 				_self.data.positions[pos] = _self.data.defaultPositions[pos];
 			}
@@ -156,7 +182,7 @@ $( function() {
 
 			_self.data.balloon = function( message ) {
 				console.log( message );
-				var balloon = $( "<div class='ui-state-highlight ui-corner-all' style='font-size:11px;margin-bottom:5px;padding:1em;'></div>" ).text( message ).hide();
+				var balloon = $( "<div class='ui-state-highlight ui-corner-all ruru-ext-balloon' style='font-size:11px;margin-bottom:5px;padding:1em;'></div>" ).text( message ).hide();
 				balloon.prependTo( balloonContainer ).show( "slide", {}, 300, function() {
 					setTimeout( function() {
 						balloon.fadeOut( "normal", function() {
@@ -171,8 +197,10 @@ $( function() {
 			for ( var i = 0; i < document.styleSheets.length; i++ ) {
 				var styleTag = document.styleSheets.item( i ).ownerNode;
 				if ( $( styleTag ).attr( "id" ) === "ruru-ext-styles" ) {
+					console.log( "hook StyleSheet : ruru-ext-styles" );
 					_self.data.styleSheet = document.styleSheets.item( i );
 				} else if ( $( styleTag ).attr( "id" ) === "ruru-ext-dialog-styles" ) {
+					console.log( "hook StyleSheet : ruru-ext-dialog-styles" );
 					_self.data.dialogStyleSheet = document.styleSheets.item( i );
 				}
 			}
@@ -204,15 +232,148 @@ $( function() {
 				position : [ ul, ut ]
 			} );
 
-			_self.data.colorDialog = $( "<div style='font-size:11px;overflow-y:scroll;'><table style='width:100%;background:white;'><tbody id='ruru-color-table'></tbody></table></div>" ).appendTo( "body" ).dialog( {
+			_self.data.colorDialog = $( "<div style='font-size:11px;'><table class='ui-corner-all' style='width:100%;background:white;'><tbody id='ruru-color-table'></tbody></table></div>" ).appendTo( "body" ).dialog( {
 				autoOpen : false,
+				minHeight : 490,
 				minWidth : 450,
-				height : 300,
+				height : "auto",
 				title : "カラー設定",
-				buttons : [ {
-					text : "Ok"
-				} ]
+				open : function() {
+					$( ".colorPicker-palette" ).remove();
+
+					var table = $( "#ruru-color-table" );
+
+					table.children().remove();
+
+					table.append( "<tr><td style='padding:1em;border-bottom:solid 1px gray;font-weight:bold;'>役職</td><td style='padding:1em;border-bottom:solid 1px gray;width:130px;'></td><td style='padding:1em;border-bottom:solid 1px gray;width:40px;'></td></tr>" );
+
+					for ( var pos in _self.data.defaultPositions ) {
+
+						var fg = _self.data.defaultPositions[pos][1];
+						var bg = _self.data.defaultPositions[pos][2];
+
+						var row = $( "<tr></tr>" ).appendTo( table );
+						$( "<td colspan='2' id='position-sample-" + pos + "' class='position-color' pos='" + pos + "' style='padding:0.8em;color:" + fg + ";background-color:" + bg + ";'></td>" ).text( "役職が【" + pos + "】のチャット表示" ).appendTo( row );
+
+						var colors = $( "<td style='text-align:center;'></td>" ).appendTo( row );
+
+						$( '<input type="text" pos="' + pos + '"/>' ).appendTo( colors ).on( "changeColor", function( event, value ) {
+							$( "#position-sample-" + $( event.target ).attr( "pos" ) ).css( "color", "#" + value );
+						} ).on( "previewColor", function( event, value ) {
+							$( "#position-sample-" + $( event.target ).attr( "pos" ) ).css( "color", "#" + value );
+						} ).colorPicker( {
+							pickerDefault : fg,
+							colors : defaultColors
+						} );
+
+						$( '<input type="text" pos="' + pos + '"/>' ).appendTo( colors ).on( "changeColor", function( event, value ) {
+							$( "#position-sample-" + $( event.target ).attr( "pos" ) ).css( "background-color", "#" + value );
+						} ).on( "previewColor", function( event, value ) {
+							$( "#position-sample-" + $( event.target ).attr( "pos" ) ).css( "background-color", "#" + value );
+						} ).colorPicker( {
+							pickerDefault : bg,
+							colors : defaultColors
+						} );
+					}
+
+					table.append( "<tr><td style='padding:1em;border-bottom:solid 1px gray;font-weight:bold;'>判定</td><td style='padding:1em;border-bottom:solid 1px gray;'></td><td style='padding:1em;border-bottom:solid 1px gray;'></td></tr>" );
+
+					var updateJudgeSample = function() {
+						for ( var judge in _self.data.uraStatus ) {
+							var style = "";
+							if ( $( "#judge-sample-bold-" + judge ).is( ":checked" ) ) {
+								style = "font-weight:bold;";
+							}
+							if ( $( "#judge-sample-italic-" + judge ).is( ":checked" ) ) {
+								style += "font-style:italic;";
+							}
+							if ( $( "#judge-sample-line-" + judge ).is( ":checked" ) && $( "#judge-sample-underline-" + judge ).is( ":checked" ) ) {
+								style += "text-decoration:line-through underline;";
+							} else if ( $( "#judge-sample-line-" + judge ).is( ":checked" ) ) {
+								style += "text-decoration:line-through;";
+							} else if ( $( "#judge-sample-underline-" + judge ).is( ":checked" ) ) {
+								style += "text-decoration:underline;";
+							}
+							if ( $( "#judge-sample-shadow-" + judge ).is( ":checked" ) ) {
+								style += "text-shadow:1px 1px 2px #999;";
+							}
+
+							$( "#judgment-sample-" + judge ).attr( "style", "padding-left:0.8em;" + style );
+						}
+					};
+
+					for ( var judge in _self.data.uraStatus ) {
+						var row = $( "<tr></tr>" ).appendTo( table );
+						$( "<td id='judgment-sample-" + judge + "' class='judgment-style' judge='" + judge + "' style='padding:0.8em;'></td>" ).text( "判定が【" + judge + "】のチャット表示" ).appendTo( row );
+
+						var styles = $( "<td  colspan='2' style=''></td>" ).appendTo( row );
+
+						$( "<input id='judge-sample-bold-" + judge + "' type='checkbox'><label for='judge-sample-bold-" + judge + "'>太字</label></input>" ).appendTo( styles ).attr( "checked", _self.data.uraStatus[judge]["bold"] ).on( "click", updateJudgeSample );
+						$( "<input id='judge-sample-italic-" + judge + "' type='checkbox'><label for='judge-sample-italic-" + judge + "'>斜体</label></input>" ).appendTo( styles ).attr( "checked", _self.data.uraStatus[judge]["italic"] ).on( "click", updateJudgeSample );
+						$( "<input id='judge-sample-line-" + judge + "' type='checkbox'><label for='judge-sample-line-" + judge + "'>取消</label></input>" ).appendTo( styles ).attr( "checked", _self.data.uraStatus[judge]["line"] ).on( "click", updateJudgeSample );
+						$( "<input id='judge-sample-underline-" + judge + "' type='checkbox'><label for='judge-sample-underline-" + judge + "'>下線</label></input>" ).appendTo( styles ).attr( "checked", _self.data.uraStatus[judge]["underline"] ).on( "click", updateJudgeSample );
+						$( "<input id='judge-sample-shadow-" + judge + "' type='checkbox'><label for='judge-sample-shadow-" + judge + "'>影</label></input>" ).appendTo( styles ).attr( "checked", _self.data.uraStatus[judge]["shadow"] ).on( "click", updateJudgeSample );
+					}
+
+					updateJudgeSample();
+
+					var button = $( _self.data.colorDialog ).parents( ".ui-dialog:first" ).find( "button:last" );
+					button.focus();
+				},
+				create : function() {
+				},
+				buttons : {
+					"Save" : function() {
+
+						$( "#ruru-color-table .position-color" ).each( function( i, sample ) {
+							var pos = $( sample ).attr( "pos" );
+
+							var fg = cnvrgb( $( sample ).css( "color" ) );
+							var bg = cnvrgb( $( sample ).css( "background-color" ) );
+
+							if ( fg ) {
+								_self.data.defaultPositions[pos][1] = fg;
+							}
+							if ( bg ) {
+								_self.data.defaultPositions[pos][2] = bg;
+							}
+
+							console.log( pos + " : " + fg + ", " + bg );
+						} );
+
+						$( "#ruru-color-table .judgment-style" ).each( function( i, sample ) {
+							var judge = $( sample ).attr( "judge" );
+							_self.data.uraStatus[judge];
+
+							var bold = $( sample ).css( "font-weight" ) === "bold";
+							var italic = $( sample ).css( "font-style" ) === "italic";
+							var line = $( sample ).css( "text-decoration" ).indexOf( "line-through" ) !== -1;
+							var underline = $( sample ).css( "text-decoration" ).indexOf( "underline" ) !== -1;
+							var shadow = $( sample ).css( "text-shadow" ) !== "none";
+
+							_self.data.uraStatus[judge]["bold"] = bold;
+							_self.data.uraStatus[judge]["italic"] = italic;
+							_self.data.uraStatus[judge]["line"] = line;
+							_self.data.uraStatus[judge]["underline"] = underline;
+							_self.data.uraStatus[judge]["shadow"] = shadow;
+
+							console.log( judge + " : bold[" + bold + "], italic[" + italic + "], line[" + line + "], underline[" + underline + "], shadow[" + shadow + "], " );
+						} );
+
+						localStorage.defaultPositions = $.stringify( _self.data.defaultPositions );
+						localStorage.uraStatus = $.stringify( _self.data.uraStatus );
+
+						_self.updateCss();
+
+						_self.data.colorDialog.dialog( "close" );
+					},
+					"CANCEL" : function() {
+						_self.data.colorDialog.dialog( "close" );
+					}
+				}
 			} );
+
+			$( _self.data.colorDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" ).css( "font-size", "11px" );
 
 			_self.data.menu = $( "<ul style='display:none; position:absolute;z-index:6000;font-size:11px;white-space:nowrap;min-width:130px'></ul>" );
 			_self.data.menu.appendTo( "body" );
@@ -548,8 +709,8 @@ $( function() {
 					}
 
 					if ( _self.data.positions[userPosition][3] === "判定" ) {
-						var white = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村人</a></li>" ).appendTo( _self.data.menu ) );
-						var black = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-bullet'></span>人狼</a></li>" ).appendTo( _self.data.menu ) );
+						var white = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村　人</a></li>" ).appendTo( _self.data.menu ) );
+						var black = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-bullet'></span>人　狼</a></li>" ).appendTo( _self.data.menu ) );
 
 						for ( var name in _self.data.names ) {
 							var targetUser = _self.data.names[name];
@@ -599,7 +760,7 @@ $( function() {
 
 			_self.data.menu.append( "<li id='menu-person'><a href='#'><span class='ui-icon ui-icon-person'></span>内訳</a></li>" );
 
-			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><a href='#'><span class='ui-icon ui-icon-wrench'></span>表示切替</a></li>" ).appendTo( _self.data.menu ) );
+			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><a href='#'><span class='ui-icon ui-icon-wrench'></span>表示設定</a></li>" ).appendTo( _self.data.menu ) );
 
 			if ( _self.data.showuranai ) {
 				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果表示</a></li>" );
@@ -630,6 +791,9 @@ $( function() {
 			} else {
 				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット切り替え</a></li>" );
 			}
+
+			optionalMenu.append( "<hr/>" );
+			optionalMenu.append( "<li id='menu-colors'><a href='#'><span class='ui-icon ui-icon-pencil'></span>カラー詳細</a></li>" );
 		},
 		execAction : function( user, action, selected ) {
 			var _self = this;
@@ -648,40 +812,32 @@ $( function() {
 				_self.data.users[user]["結果"] = {};
 			} else if ( action === "menu-judgment-white" ) {
 				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "村人";
+				_self.data.users[user]["結果"][targetUser] = "村　人";
 			} else if ( action === "menu-judgment-black" ) {
 				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "人狼";
+				_self.data.users[user]["結果"][targetUser] = "人　狼";
 			} else if ( action === "menu-target" ) {
 				var targetUser = $( selected ).attr( "userid" );
 				_self.data.users[user]["結果"][targetUser] = true;
 			} else if ( action === "menu-reverse-log" ) {
 				_self.data.reverseLog = !_self.data.reverseLog;
 				_self.data.balloon( "チャット逆 " + ( _self.data.reverseLog ? "ON" : "OFF" ) );
-				if ( localStorage ) {
-					localStorage.reverseLog = _self.data.reverseLog;
-				}
+				localStorage.reverseLog = _self.data.reverseLog;
 			} else if ( action === "menu-hidecng" ) {
 				_self.data.hidecng = !_self.data.hidecng;
 				_self.data.balloon( "GM表示 " + ( !_self.data.hidecng ? "ON" : "OFF" ) );
 			} else if ( action === "menu-hidecnw" ) {
 				_self.data.hidecnw = !_self.data.hidecnw;
 				_self.data.balloon( "観戦表示 " + ( !_self.data.hidecnw ? "ON" : "OFF" ) );
-				if ( localStorage ) {
-					localStorage.hidecnw = _self.data.hidecnw;
-				}
+				localStorage.hidecnw = _self.data.hidecnw;
 			} else if ( action === "menu-showgray" ) {
 				_self.data.showgray = !_self.data.showgray;
 				_self.data.balloon( "完グレー強調表示 " + ( _self.data.showgray ? "ON" : "OFF" ) );
-				if ( localStorage ) {
-					localStorage.showgray = _self.data.showgray;
-				}
+				localStorage.showgray = _self.data.showgray;
 			} else if ( action === "menu-showuranai" ) {
 				_self.data.showuranai = !_self.data.showuranai;
 				_self.data.balloon( "占い結果強調表示 " + ( _self.data.showuranai ? "ON" : "OFF" ) );
-				if ( localStorage ) {
-					localStorage.showuranai = _self.data.showuranai;
-				}
+				localStorage.showuranai = _self.data.showuranai;
 			} else if ( action === "menu-log" ) {
 				var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
 				var day = $( selected ).data( "last-day" );
@@ -712,6 +868,8 @@ $( function() {
 				_self.data.logDialog.dialog( "open" );
 			} else if ( action === "menu-person" ) {
 				_self.data.positionDialog.dialog( "open" );
+			} else if ( action === "menu-colors" ) {
+				_self.data.colorDialog.dialog( "open" );
 			}
 
 			_self.updateCss();
@@ -731,7 +889,7 @@ $( function() {
 				var user = _self.data.names[name];
 				var userData = _self.data.users[user];
 
-				if ( userData["役職"] ) {
+				if ( userData && userData["役職"] ) {
 					var elm;
 					if ( !poselements[userData["役職"]] ) {
 						elm = $( "<div></div>" );
@@ -746,7 +904,7 @@ $( function() {
 						var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
 						if ( jg === "判定" ) {
 							for ( var targetUser in userData["結果"] ) {
-								if ( userData["結果"][targetUser] === "村人" ) {
+								if ( userData["結果"][targetUser] === "村　人" ) {
 									result.append( $(
 											"<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
 											.attr( "userid", targetUser ) );
@@ -818,31 +976,54 @@ $( function() {
 					var user = _self.data.names[name];
 					var userData = _self.data.users[user];
 
-					if ( userData["役職"] === "占　い" && !userData["役職解除"] ) {
+					if ( userData && userData["役職"] === "占　い" && !userData["役職解除"] ) {
 						uraCount++;
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;}" );
 						for ( var targetUser in userData["結果"] ) {
-							if ( userData["結果"][targetUser] === "村人" ) {
+							if ( userData["結果"][targetUser] === "村　人" ) {
 								if ( usersStatus[targetUser] ) {
-									usersStatus[targetUser]["white"]++;
+									usersStatus[targetUser]["村　人"]++;
 								} else {
 									usersStatus[targetUser] = {
-										"white" : 1,
-										"black" : 0
+										"村　人" : 1,
+										"人　狼" : 0
 									};
 								}
 							} else {
 								if ( usersStatus[targetUser] ) {
-									usersStatus[targetUser]["black"]++;
+									usersStatus[targetUser]["人　狼"]++;
 								} else {
 									usersStatus[targetUser] = {
-										"white" : 0,
-										"black" : 1
+										"村　人" : 0,
+										"人　狼" : 1
 									};
 								}
 							}
 						}
 					}
+				}
+
+				var judgmentStyles = {};
+
+				for ( var type in _self.data.uraStatus ) {
+					var status = _self.data.uraStatus[type];
+					var style = "";
+					if ( status["bold"] ) {
+						style = "font-weight:bold;";
+					}
+					if ( status["italic"] ) {
+						style += "font-style:italic;";
+					}
+					if ( status["line"] && status["underline"] ) {
+						style += "text-decoration:line-through underline;";
+					} else if ( status["line"] ) {
+						style += "text-decoration:line-through";
+					} else if ( status["underline"] ) {
+						style += "text-decoration:underline;";
+					}
+					if ( status["shadow"] ) {
+						style += "text-shadow:1px 1px 2px #999;";
+					}
+					judgmentStyles[type] = style;
 				}
 
 				for ( var name in _self.data.names ) {
@@ -852,18 +1033,17 @@ $( function() {
 					var style = "";
 
 					if ( usersStatus[user] && _self.data.showuranai ) {
-						if ( usersStatus[user]["white"] > 0 ) {
-							style += "font-weight:bold;";
-						}
-						if ( usersStatus[user]["black"] > 0 ) {
-							style += "font-style:italic;text-shadow:2px 2px 2px #999;";
+						for ( var type in judgmentStyles ) {
+							if ( usersStatus[user][type] > 0 ) {
+								style += judgmentStyles[type];
+							}
 						}
 					}
 
-					if ( userData["役職"] && !userData["役職解除"] ) {
+					if ( userData && userData["役職"] && !userData["役職解除"] ) {
 						var cl = _self.data.positions[userData["役職"]][1];
 						var bg = _self.data.positions[userData["役職"]][2];
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:" + bg + ";color:" + cl + ";}" );
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:" + bg + ";color:" + cl + ";" + style + "}" );
 					} else if ( !usersStatus[user] && _self.data.showgray ) {
 						_self.data.styleSheet.insertRule( "." + user + " {background-color:#696969;color:#FFFFFF;}" );
 					} else {
