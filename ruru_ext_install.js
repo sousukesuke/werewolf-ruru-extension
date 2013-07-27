@@ -13,7 +13,7 @@ $( function() {
 	var nameMap = {};
 
 	var checkDate = function( date ) {
-		if ( date !== undefined ) {
+		if ( date ) {
 			date = date.slice( date.indexOf( ">" ) + 1, date.indexOf( "</" ) );
 			var index = date.indexOf( "&nbsp;" );
 			if ( index !== -1 ) {
