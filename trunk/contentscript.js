@@ -23,7 +23,36 @@ $( function() {
 			positionDialog : undefined,
 			colorDialog : undefined,
 			log : {},
-			dialogStyleSheet : undefined
+			dialogStyleSheet : undefined,
+			defaultPositions : {
+				"占　い" : [ "search", "#4169E1", "#E6E6FA", "判定", "占" ],
+				"霊　能" : [ "heart", "#DC143C", "#E6E6FA", "判定", "霊" ],
+				"狩　人" : [ "note", "#DC143C", "#98fb98", "対象", "狩" ],
+				"共　有" : [ "link", "#4169E1", "#98fb98", "", "共" ],
+				"狂　人" : [ "circle-minus", "#00FFFF", "#000000", "", "狂" ],
+				"人　狼" : [ "circle-close", "#FF0000", "#000000", "", "狼" ],
+				"妖　狐" : [ "alert", "#FF0000", "#EEE8AA", "", "狐" ],
+				"狂信者" : [ "alert", "#00FFFF", "#000000", "", "信" ],
+				"背徳者" : [ "alert", "#00FFFF", "#EEE8AA", "", "背" ],
+				"猫　又" : [ "alert", "#FFFF00", "#E6E6FA", "", "猫" ]
+			},
+			positions : {},
+			uraStatus : {
+				"村人" : {
+					"bold" : true,
+					"italic" : false,
+					"line" : false,
+					"underline" : false,
+					"shadow" : false
+				},
+				"人狼" : {
+					"bold" : false,
+					"italic" : true,
+					"line" : false,
+					"underline" : false,
+					"shadow" : true
+				}
+			}
 		},
 		init : function() {
 			// RuruExt.data.step
@@ -35,6 +64,8 @@ $( function() {
 			// 5 : セットアップ完了
 
 			var _self = this;
+
+			_self.data.positions = _self.data.defaultPositions;
 
 			if ( localStorage ) {
 				if ( localStorage.installed ) {
@@ -59,6 +90,10 @@ $( function() {
 				}
 			}
 
+			for ( var pos in _self.data.defaultPositions ) {
+				_self.data.positions[pos] = _self.data.defaultPositions[pos];
+			}
+
 			chrome.extension.sendRequest( {
 				action : "init"
 			}, function( responce ) {
@@ -73,14 +108,15 @@ $( function() {
 			} );
 		},
 		marking : function( target, user ) {
-			$( target ).addClass( user ).attr( "userid", user );
+			var cls = target.getAttribute( "class" ) + " " + user;
+			target.setAttribute( "class", cls );
+			target.setAttribute( "userid", user );
 		},
 		onPageAction : function( request, sender, sendResponse ) {
 			var _self = this;
 
-			if ( request.action == "updateChat" ) {
+			if ( request.action === "updateChat" ) {
 				_self.onUpdateChat();
-				sendResponse( {} );
 			} else if ( request.action === "click" ) {
 				if ( _self.data.step !== 0 ) {
 					sendResponse( {
@@ -106,9 +142,6 @@ $( function() {
 				sendResponse( {
 					active : true
 				} );
-
-			} else {
-				sendResponse( {} );
 			}
 		},
 		startup : function() {
@@ -174,7 +207,7 @@ $( function() {
 			_self.data.colorDialog = $( "<div style='font-size:11px;overflow-y:scroll;'><table style='width:100%;background:white;'><tbody id='ruru-color-table'></tbody></table></div>" ).appendTo( "body" ).dialog( {
 				autoOpen : false,
 				minWidth : 450,
-				height : 600,
+				height : 300,
 				title : "カラー設定",
 				buttons : [ {
 					text : "Ok"
@@ -262,8 +295,24 @@ $( function() {
 
 			_self.data.step = 4;
 
+			var posText = $( "#No00" ).text();
+			var from = posText.indexOf( "役職" );
+			var to = posText.indexOf( "昼" );
+			posText = posText.slice( from, to );
+
+			_self.data.balloon( posText );
+
+			for ( var pos in _self.data.positions ) {
+				if ( posText.indexOf( _self.data.positions[pos][4] ) === -1 ) {
+					delete _self.data.positions[pos];
+				}
+			}
+
 			$( "#No01 td" ).each( function( i, td ) {
 				var text = $( td ).text();
+				if ( _self.data.status === 5 && $( td ).hasClass( "name" ) ) {
+					text = $( ">span:first", td ).text();
+				}
 				if ( text !== "　" ) {
 					var line = Math.floor( i / 6 );
 					var position = ( i % 6 );
@@ -366,9 +415,10 @@ $( function() {
 			_self.startup();
 
 			var date = $( "#No08>span" ).text();
-			if ( date.match( /([^\s]+)\s+([^\s]+)/ ) ) {
-				var d1 = RegExp.$1;
-				var d2 = RegExp.$2;
+			var index = date.indexOf( "\xa0" );
+			if ( index !== -1 ) {
+				var d1 = date.slice( 0, index );
+				var d2 = date.slice( index + 2 );
 
 				_self.data.day = d1;
 				_self.data.prevstatus = _self.data.status;
@@ -389,7 +439,10 @@ $( function() {
 				}
 
 				if ( _self.data.step === 5 ) {
-					$( "#No01 td" ).each( function( i, td ) {
+					var tds = $( "#No01 td" ).get();
+					for ( var i = 0; i < tds.length; i++ ) {
+						var td = tds[i];
+
 						var text = $( td ).text();
 						if ( text !== "　" ) {
 							var line = Math.floor( i / 6 );
@@ -410,7 +463,7 @@ $( function() {
 								break;
 							}
 						}
-					} );
+					}
 				} else {
 					_self.setup();
 				}
@@ -427,7 +480,7 @@ $( function() {
 					_self.data.log[_self.data.day] = mslist;
 				}
 
-				tbody.empty().append( mslist );
+				tbody.append( mslist );
 
 				if ( _self.data.step === 5 ) {
 					for ( var i = 0; i < mslist.length; i++ ) {
@@ -469,189 +522,63 @@ $( function() {
 			if ( user ) {
 				var userData = _self.data.users[user];
 
-				if ( userData["役職"] === "占い" ) {
-					var post;
+				var userPosition = userData["役職"];
 
+				if ( userPosition ) {
+					var post;
 					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い</a></li>" );
+						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>" + userPosition + "</a></li>" );
 					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>占い</a></li>" );
+						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>" + userPosition + "</a></li>" );
 					}
 
 					_self.data.menu.append( post );
 					_self.data.menu.append( "<hr/>" );
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
+
 					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
-					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
-					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
-					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
 
-					var white = $( "<ul></ul>" ).appendTo( $( "<li id='menu-ura-white'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村人</a></li>" ).appendTo( _self.data.menu ) );
-					var black = $( "<ul></ul>" ).appendTo( $( "<li id='menu-ura-black'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人狼</a></li>" ).appendTo( _self.data.menu ) );
-
-					for ( var name in _self.data.names ) {
-						var targetUser = _self.data.names[name];
-
-						if ( !userData["結果"][targetUser] && targetUser !== user ) {
-							$( "<li id='menu-ura-result-white'><a href='#'><span class='ui-icon ui-icon-search'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( white );
-							$( "<li id='menu-ura-result-black'><a href='#'><span class='ui-icon ui-icon-search'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( black );
+					for ( var pos in _self.data.positions ) {
+						if ( userPosition === pos ) {
+							continue;
 						}
+
+						postsub.append( "<li id='menu-position' pos='" + pos + "'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[pos][0] + "'></span>" + pos + "</a></li>" );
 					}
 
-					_self.data.menu.append( "<hr/>" );
+					if ( _self.data.positions[userPosition][3] === "判定" ) {
+						var white = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村人</a></li>" ).appendTo( _self.data.menu ) );
+						var black = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-bullet'></span>人狼</a></li>" ).appendTo( _self.data.menu ) );
 
-				} else if ( userData["役職"] === "霊能" ) {
-					var post;
+						for ( var name in _self.data.names ) {
+							var targetUser = _self.data.names[name];
 
-					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>霊能</a></li>" );
-					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>霊能</a></li>" );
-					}
-
-					_self.data.menu.append( post );
-					_self.data.menu.append( "<hr/>" );
-
-					var postsub = $( "<ul></ul>" ).appendTo( post );
-					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
-					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
-					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
-					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
-
-					var white = $( "<ul></ul>" ).appendTo( $( "<li id='menu-rei-white'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村人</a></li>" ).appendTo( _self.data.menu ) );
-					var black = $( "<ul></ul>" ).appendTo( $( "<li id='menu-rei-black'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人狼</a></li>" ).appendTo( _self.data.menu ) );
-
-					for ( var name in _self.data.names ) {
-						var targetUser = _self.data.names[name];
-
-						if ( !userData["結果"][targetUser] && targetUser !== user && name !== "第一犠牲者" ) {
-							$( "<li id='menu-rei-result-white'><a href='#'><span class='ui-icon ui-icon-heart'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( white );
-							$( "<li id='menu-rei-result-black'><a href='#'><span class='ui-icon ui-icon-heart'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( black );
+							if ( !userData["結果"][targetUser] && targetUser !== user ) {
+								$( "<li id='menu-judgment-white'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( white );
+								$( "<li id='menu-judgment-black'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( black );
+							}
 						}
+
+						_self.data.menu.append( "<hr/>" );
+					} else if ( _self.data.positions[userPosition][3] === "対象" ) {
+						var target = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-flag'></span>対象</a></li>" ).appendTo( _self.data.menu ) );
+
+						for ( var name in _self.data.names ) {
+							var targetUser = _self.data.names[name];
+
+							if ( targetUser !== user ) {
+								$( "<li id='menu-target'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( target );
+							}
+						}
+
+						_self.data.menu.append( "<hr/>" );
 					}
 
-					_self.data.menu.append( "<hr/>" );
-
-				} else if ( userData["役職"] === "狩人" ) {
-
-					var post;
-
-					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>狩人</a></li>" );
-					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>狩人</a></li>" );
-					}
-
-					_self.data.menu.append( post );
-					_self.data.menu.append( "<hr/>" );
-
-					var postsub = $( "<ul></ul>" ).appendTo( post );
-					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
-					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
-					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
-					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
-				} else if ( userData["役職"] === "共有" ) {
-
-					var post;
-
-					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>共有</a></li>" );
-					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>共有</a></li>" );
-					}
-
-					_self.data.menu.append( post );
-					_self.data.menu.append( "<hr/>" );
-
-					var postsub = $( "<ul></ul>" ).appendTo( post );
-					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
-					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
-					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
-					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
-				} else if ( userData["役職"] === "狂人" ) {
-
-					var post;
-
-					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>狂人</a></li>" );
-					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>狂人</a></li>" );
-					}
-
-					_self.data.menu.append( post );
-					_self.data.menu.append( "<hr/>" );
-
-					var postsub = $( "<ul></ul>" ).appendTo( post );
-					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
-					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
-					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
-					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
-					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
-				} else if ( userData["役職"] === "人狼" ) {
-
-					var post;
-
-					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>人狼</a></li>" );
-					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>人狼</a></li>" );
-					}
-
-					_self.data.menu.append( post );
-					_self.data.menu.append( "<hr/>" );
-
-					var postsub = $( "<ul></ul>" ).appendTo( post );
-					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
-					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
-					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
-					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
-					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					postsub.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
-				} else if ( userData["役職"] === "狐" ) {
-
-					var post;
-
-					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>狐</a></li>" );
-					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>狐</a></li>" );
-					}
-
-					_self.data.menu.append( post );
-					_self.data.menu.append( "<hr/>" );
-
-					var postsub = $( "<ul></ul>" ).appendTo( post );
-					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					postsub.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
-					postsub.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
-					postsub.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
-					postsub.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
-					postsub.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					postsub.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
 				} else {
-					_self.data.menu.append( "<li id='menu-ura'><a href='#'><span class='ui-icon ui-icon-search'></span>占い</a></li>" );
-					_self.data.menu.append( "<li id='menu-rei'><a href='#'><span class='ui-icon ui-icon-heart'></span>霊能</a></li>" );
-					_self.data.menu.append( "<li id='menu-kari'><a href='#'><span class='ui-icon ui-icon-note'></span>狩人</a></li>" );
-					_self.data.menu.append( "<li id='menu-kyo'><a href='#'><span class='ui-icon ui-icon-link'></span>共有</a></li>" );
-					_self.data.menu.append( "<li id='menu-mad'><a href='#'><span class='ui-icon ui-icon-circle-minus'></span>狂人</a></li>" );
-					_self.data.menu.append( "<li id='menu-wolf'><a href='#'><span class='ui-icon ui-icon-circle-close'></span>人狼</a></li>" );
-					_self.data.menu.append( "<li id='menu-fox'><a href='#'><span class='ui-icon ui-icon-alert'></span>狐</a></li>" );
+					for ( var pos in _self.data.positions ) {
+						_self.data.menu.append( "<li id='menu-position' pos='" + pos + "'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[pos][0] + "'></span>" + pos + "</a></li>" );
+					}
 					_self.data.menu.append( "<hr/>" );
 				}
 			}
@@ -713,37 +640,21 @@ $( function() {
 				_self.data.users[user]["役職"] = undefined;
 				_self.data.users[user]["役職解除"] = false;
 				_self.data.users[user]["結果"] = {};
-			} else if ( action === "menu-ura" ) {
+			} else if ( action === "menu-position" ) {
+				var pos = $( selected ).attr( "pos" );
 				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = "占い";
+				_self.data.users[user]["役職"] = pos;
 				_self.data.users[user]["役職解除"] = false;
 				_self.data.users[user]["結果"] = {};
-			} else if ( action === "menu-rei" ) {
-				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = "霊能";
-				_self.data.users[user]["役職解除"] = false;
-				_self.data.users[user]["結果"] = {};
-			} else if ( action === "menu-kari" ) {
-				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = "狩人";
-				_self.data.users[user]["役職解除"] = false;
-				_self.data.users[user]["結果"] = {};
-			} else if ( action === "menu-kyo" ) {
-				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = "共有";
-				_self.data.users[user]["役職解除"] = false;
-			} else if ( action === "menu-mad" ) {
-				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = "狂人";
-				_self.data.users[user]["役職解除"] = false;
-			} else if ( action === "menu-wolf" ) {
-				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = "人狼";
-				_self.data.users[user]["役職解除"] = false;
-			} else if ( action === "menu-fox" ) {
-				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = "狐";
-				_self.data.users[user]["役職解除"] = false;
+			} else if ( action === "menu-judgment-white" ) {
+				var targetUser = $( selected ).attr( "userid" );
+				_self.data.users[user]["結果"][targetUser] = "村人";
+			} else if ( action === "menu-judgment-black" ) {
+				var targetUser = $( selected ).attr( "userid" );
+				_self.data.users[user]["結果"][targetUser] = "人狼";
+			} else if ( action === "menu-target" ) {
+				var targetUser = $( selected ).attr( "userid" );
+				_self.data.users[user]["結果"][targetUser] = true;
 			} else if ( action === "menu-reverse-log" ) {
 				_self.data.reverseLog = !_self.data.reverseLog;
 				_self.data.balloon( "チャット逆 " + ( _self.data.reverseLog ? "ON" : "OFF" ) );
@@ -801,18 +712,6 @@ $( function() {
 				_self.data.logDialog.dialog( "open" );
 			} else if ( action === "menu-person" ) {
 				_self.data.positionDialog.dialog( "open" );
-			} else if ( action === "menu-ura-result-white" ) {
-				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "村人";
-			} else if ( action === "menu-ura-result-black" ) {
-				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "人狼";
-			} else if ( action === "menu-rei-result-white" ) {
-				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "村人";
-			} else if ( action === "menu-rei-result-black" ) {
-				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "人狼";
 			}
 
 			_self.updateCss();
@@ -823,103 +722,54 @@ $( function() {
 
 			var dialog = $( "#ruru-ext-position-dialog" ).empty();
 
-			var uranai = undefined;
-			var reinou = undefined;
-			var karido = undefined;
-			var kyouyu = undefined;
-			var kyojin = undefined;
-			var jinrou = undefined;
-			var kitune = undefined;
+			var poselements = {};
+			for ( var pos in _self.data.positions ) {
+				poselements[pos] = false;
+			}
 
 			for ( var name in _self.data.names ) {
 				var user = _self.data.names[name];
 				var userData = _self.data.users[user];
 
-				if ( userData["役職"] === "占い" ) {
-					if ( !uranai ) {
-						uranai = $( "<div></div>" );
+				if ( userData["役職"] ) {
+					var elm;
+					if ( !poselements[userData["役職"]] ) {
+						elm = $( "<div></div>" );
+						poselements[userData["役職"]] = elm;
+					} else {
+						elm = poselements[userData["役職"]];
 					}
-					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( uranai ).attr( "userid", user );
-					var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
-					for ( var targetUser in userData["結果"] ) {
-						if ( userData["結果"][targetUser] === "村人" ) {
-							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.attr( "userid", targetUser ) );
-						} else {
-							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.attr( "userid", targetUser ) );
+
+					var jg = _self.data.positions[userData["役職"]][3];
+					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + ( jg ? "&nbsp;&nbsp;：" : "" ) + "</div>" ).appendTo( elm ).attr( "userid", user );
+					if ( jg ) {
+						var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
+						if ( jg === "判定" ) {
+							for ( var targetUser in userData["結果"] ) {
+								if ( userData["結果"][targetUser] === "村人" ) {
+									result.append( $(
+											"<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
+											.attr( "userid", targetUser ) );
+								} else {
+									result.append( $(
+											"<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
+											.attr( "userid", targetUser ) );
+								}
+							}
+						} else if ( jg === "対象" ) {
+							for ( var targetUser in userData["結果"] ) {
+								result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'>" + _self.data.nameMap[targetUser] + "</div>" ).attr( "userid", targetUser ) );
+							}
 						}
 					}
-				} else if ( userData["役職"] === "霊能" ) {
-					if ( !reinou ) {
-						reinou = $( "<div></div>" );
-					}
-					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + "&nbsp;&nbsp;：</div>" ).appendTo( reinou ).attr( "userid", user );
-					var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
-					for ( var targetUser in userData["結果"] ) {
-						if ( userData["結果"][targetUser] === "村人" ) {
-							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.attr( "userid", targetUser ) );
-						} else {
-							result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-									.attr( "userid", targetUser ) );
-						}
-					}
-				} else if ( userData["役職"] === "狩人" ) {
-					if ( !karido ) {
-						karido = $( "<div></div>" );
-					}
-					karido.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
-				} else if ( userData["役職"] === "共有" ) {
-					if ( !kyouyu ) {
-						kyouyu = $( "<div></div>" );
-					}
-					kyouyu.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
-				} else if ( userData["役職"] === "狂人" ) {
-					if ( !kyojin ) {
-						kyojin = $( "<div></div>" );
-					}
-					kyojin.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
-				} else if ( userData["役職"] === "人狼" ) {
-					if ( !jinrou ) {
-						jinrou = $( "<div></div>" );
-					}
-					jinrou.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
-				} else if ( userData["役職"] === "狐" ) {
-					if ( !kitune ) {
-						kitune = $( "<div></div>" );
-					}
-					kitune.append( $( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position position-user " + user + "'>" + name + "</div>" ).attr( "userid", user ) );
 				}
 			}
 
-			if ( uranai ) {
-				dialog.append( "<h3>占い</h3>" );
-				dialog.append( uranai );
-			}
-			if ( reinou ) {
-				dialog.append( "<h3>霊能</h3>" );
-				dialog.append( reinou );
-			}
-			if ( karido ) {
-				dialog.append( "<h3>狩人</h3>" );
-				dialog.append( karido );
-			}
-			if ( kyouyu ) {
-				dialog.append( "<h3>共有</h3>" );
-				dialog.append( kyouyu );
-			}
-			if ( kyojin ) {
-				dialog.append( "<h3>狂人</h3>" );
-				dialog.append( kyojin );
-			}
-			if ( jinrou ) {
-				dialog.append( "<h3>人狼</h3>" );
-				dialog.append( jinrou );
-			}
-			if ( kitune ) {
-				dialog.append( "<h3>狐</h3>" );
-				dialog.append( kitune );
+			for ( var pos in poselements ) {
+				if ( poselements[pos] ) {
+					dialog.append( "<h3>" + pos + "</h3>" );
+					dialog.append( poselements[pos] );
+				}
 			}
 
 			$( ".position-user", dialog ).on( "dblclick", function( e ) {
@@ -968,7 +818,7 @@ $( function() {
 					var user = _self.data.names[name];
 					var userData = _self.data.users[user];
 
-					if ( userData["役職"] === "占い" && !userData["役職解除"] ) {
+					if ( userData["役職"] === "占　い" && !userData["役職解除"] ) {
 						uraCount++;
 						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;}" );
 						for ( var targetUser in userData["結果"] ) {
@@ -1010,20 +860,10 @@ $( function() {
 						}
 					}
 
-					if ( userData["役職"] === "占い" && !userData["役職解除"] ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#4169E1;" + style + "}" );
-					} else if ( userData["役職"] === "霊能" && !userData["役職解除"] ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#E6E6FA;color:#DC143C;" + style + "}" );
-					} else if ( userData["役職"] === "狩人" && !userData["役職解除"] ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#EEE8AA;color:#DC143C;" + style + "}" );
-					} else if ( userData["役職"] === "共有" && !userData["役職解除"] ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#EEE8AA;color:#228B22;" + style + "}" );
-					} else if ( userData["役職"] === "狂人" && !userData["役職解除"] ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#00FFFF;" + style + "}" );
-					} else if ( userData["役職"] === "人狼" && !userData["役職解除"] ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#FF0000;" + style + "}" );
-					} else if ( userData["役職"] === "狐" && !userData["役職解除"] ) {
-						_self.data.styleSheet.insertRule( "." + user + " {background-color:#000000;color:#FFFF00;" + style + "}" );
+					if ( userData["役職"] && !userData["役職解除"] ) {
+						var cl = _self.data.positions[userData["役職"]][1];
+						var bg = _self.data.positions[userData["役職"]][2];
+						_self.data.styleSheet.insertRule( "." + user + " {background-color:" + bg + ";color:" + cl + ";}" );
 					} else if ( !usersStatus[user] && _self.data.showgray ) {
 						_self.data.styleSheet.insertRule( "." + user + " {background-color:#696969;color:#FFFFFF;}" );
 					} else {
