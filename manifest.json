@@ -1,6 +1,6 @@
 {
   "name" : "汝は人狼なりや？るる鯖拡張機能",
-  "version" : "1.5",
+  "version" : "2.0",
   "description" : "るる鯖の便利拡張です",
   "background" : {
     "scripts": ["jquery.js", "background.js"]
@@ -35,7 +35,8 @@
     "images/ui-icons_0b54d5_256x240.png",
     "images/ui-icons_5fa5e3_256x240.png",
     "images/ui-icons_fcdd4a_256x240.png",
-    "images/ui-icons_ffffff_256x240.png"
+    "images/ui-icons_ffffff_256x240.png",
+    "ruru_ext_install.js"
   ],
   "permissions" : [
     "tabs",
