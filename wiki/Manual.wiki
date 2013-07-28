@@ -8,18 +8,16 @@
 
 <hr>
 
-== インストール ==
+== インストール方法 ==
 
-まずはサイトのトップページ、または *[https://docs.google.com/file/d/0B60Wj811teVLdm9seWxHSDYwUTA/edit?usp=sharing こちら]* からプラグインファイルをダウンロードしてください。
+プラグインファイルをダウンロードしてインストールマニュアルの通りにしてみてください。
+
+ファイル ： *[https://docs.google.com/file/d/0B60Wj811teVLdm9seWxHSDYwUTA/edit?usp=sharing ruru_extension.crx]*
 
 
-ファイル : *[https://docs.google.com/file/d/0B60Wj811teVLdm9seWxHSDYwUTA/edit?usp=sharing ruru_extension.crx]*
+マニュアル ： *[https://docs.google.com/drawings/d/1vtzyJENpn7-O5BAKFt47-GkTinRoIYZxxFhVraq13EE/edit?usp=sharing インストールマニュアル]*
 
 
-ダウンロードが済んだら、chrome の拡張機能画面を開きます。<br>
-
-ブラウザ右上の
-<img src="https://googledrive.com/host/0B60Wj811teVLcFRHb1V0aXViSlE/">
 
 <br>
 == 使ってみる ==
