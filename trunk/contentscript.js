@@ -27,7 +27,9 @@ $( function() {
 	_RuruExt.prototype = {
 		data : {
 			installed : false,
+			days : undefined,
 			day : undefined,
+			dayIndex : 0,
 			prevstatus : "開始前",
 			status : undefined,
 			users : {},
@@ -37,8 +39,10 @@ $( function() {
 			hidecng : false,
 			hidecnw : false,
 			showgray : false,
+			showposition : true,
 			showuranai : true,
 			reverseLog : false,
+			showhistory : true,
 			balloon : undefined,
 			menu : undefined,
 			styleSheet : undefined,
@@ -46,6 +50,8 @@ $( function() {
 			positionDialog : undefined,
 			colorDialog : undefined,
 			log : {},
+			dead : {},
+			hang : {},
 			dialogStyleSheet : undefined,
 			defaultPositions : {
 				"占　い" : [ "search", "#4169E1", "#dbeef3", "判定", "占" ],
@@ -75,36 +81,51 @@ $( function() {
 					"underline" : false,
 					"shadow" : true
 				}
-			}
+			},
+			graycolor : "#d8d8d8"
 		},
 		init : function() {
 			var _self = this;
 
 			if ( localStorage.installed ) {
+				_self.data.showposition = localStorage.showposition == "true";
 				_self.data.hidecnw = localStorage.hidecnw == "true";
 				_self.data.showgray = localStorage.showgray == "true";
 				_self.data.showuranai = localStorage.showuranai == "true";
 				_self.data.reverseLog = localStorage.reverseLog == "true";
+				_self.data.showhistory = localStorage.showhistory == "true";
 
 				if ( localStorage.defaultPositions ) {
-					_self.data.defaultPositions = $.parseJSON( localStorage.defaultPositions );
+					var tmp = $.parseJSON( localStorage.defaultPositions );
+					for ( var key in tmp ) {
+						if ( _self.data.defaultPositions[key] ) {
+							_self.data.defaultPositions[key] = tmp[key];
+						}
+					}
 				}
 
 				if ( localStorage.uraStatus ) {
 					_self.data.uraStatus = $.parseJSON( localStorage.uraStatus );
 				}
 
+				if ( localStorage.graycolor ) {
+					_self.data.graycolor = localStorage.graycolor;
+				}
+
 				console.log( "設定読み込み", $.stringify( {
 					"観戦OFF" : _self.data.showgray,
 					"完グレ強調" : _self.data.showgray,
 					"占い強調" : _self.data.showuranai,
-					"ログ逆" : _self.data.reverseLog
+					"ログ逆" : _self.data.reverseLog,
+					"死亡履歴" : _self.data.showhistory
 				} ) );
 			} else {
+				localStorage.showposition = _self.data.showposition;
 				localStorage.hidecnw = _self.data.hidecnw;
 				localStorage.showgray = _self.data.showgray;
 				localStorage.showuranai = _self.data.showuranai;
 				localStorage.reverseLog = _self.data.reverseLog;
+				localStorage.showhistory = _self.data.showhistory;
 
 				localStorage.installed = "true";
 			}
@@ -112,6 +133,25 @@ $( function() {
 			_self.data.positions = {};
 			for ( var pos in _self.data.defaultPositions ) {
 				_self.data.positions[pos] = _self.data.defaultPositions[pos];
+			}
+
+			_self.data.days = [];
+			for ( var i = 1; i < 30; i++ ) {
+				var ord = "" + i;
+				switch ( ord % 10 ) {
+				case 1:
+					ord += "stDAY";
+					break;
+				case 2:
+					ord += "ndDAY";
+					break;
+				case 3:
+					ord += "rdDAY";
+					break;
+				default:
+					ord += "thDAY";
+				}
+				_self.data.days.push( ord );
 			}
 
 			chrome.extension.sendRequest( {
@@ -203,9 +243,18 @@ $( function() {
 
 			var balloonContainer = $( "<div style='display:inline-block;width:150px;position:absolute;top:5px;left:5px;'></div>" ).appendTo( "body" );
 
-			_self.data.balloon = function( message ) {
-				console.log( message );
-				var balloon = $( "<div class='ui-state-highlight ui-corner-all ruru-ext-balloon' style='font-size:11px;margin-bottom:5px;padding:1em;'></div>" ).text( message ).hide();
+			_self.data.balloon = function( message, alert, html ) {
+				var balloon = $( "<div class='ui-corner-all ruru-ext-balloon' style='font-size:11px;margin-bottom:5px;padding:1em;'></div>" ).addClass( alert ? "ui-state-error" : "ui-state-highligh" ).hide();
+
+				balloon.addClass( alert ? "ui-state-error" : "ui-state-highlight" );
+
+				if ( html ) {
+					balloon.html( message );
+				} else {
+					console.log( message );
+					balloon.text( message );
+				}
+
 				balloon.prependTo( balloonContainer ).show( "slide", {}, 300, function() {
 					setTimeout( function() {
 						balloon.fadeOut( "normal", function() {
@@ -297,6 +346,26 @@ $( function() {
 						} );
 					}
 
+					{
+						table.append( "<tr><td style='padding:1em;border-bottom:solid 1px gray;font-weight:bold;'>グレー表示</td><td style='padding:1em;border-bottom:solid 1px gray;'></td><td style='padding:1em;border-bottom:solid 1px gray;'></td></tr>" );
+
+						var bg = _self.data.graycolor;
+
+						var row = $( "<tr></tr>" ).appendTo( table );
+						$( "<td colspan='2' id='color-gray-sample' style='padding:0.8em;background-color:" + bg + ";'></td>" ).text( "グレーな村人のチャット表示" ).appendTo( row );
+
+						var colors = $( "<td style='text-align:center;'></td>" ).appendTo( row );
+
+						$( '<input type="text"/>' ).appendTo( colors ).on( "changeColor", function( event, value ) {
+							$( "#color-gray-sample" ).css( "background-color", "#" + value );
+						} ).on( "previewColor", function( event, value ) {
+							$( "#color-gray-sample" ).css( "background-color", "#" + value );
+						} ).colorPicker( {
+							pickerDefault : bg,
+							colors : defaultColors
+						} );
+					}
+
 					table.append( "<tr><td style='padding:1em;border-bottom:solid 1px gray;font-weight:bold;'>判定</td><td style='padding:1em;border-bottom:solid 1px gray;'></td><td style='padding:1em;border-bottom:solid 1px gray;'></td></tr>" );
 
 					var updateJudgeSample = function() {
@@ -360,6 +429,8 @@ $( function() {
 							console.log( pos + " : " + fg + ", " + bg );
 						} );
 
+						_self.data.graycolor = cnvrgb( $( "#color-gray-sample" ).css( "background-color" ) );
+
 						$( "#ruru-color-table .judgment-style" ).each( function( i, sample ) {
 							var judge = $( sample ).attr( "judge" );
 							_self.data.uraStatus[judge];
@@ -380,7 +451,7 @@ $( function() {
 						} );
 
 						localStorage.defaultPositions = $.stringify( _self.data.defaultPositions );
-						localStorage.uraStatus = $.stringify( _self.data.uraStatus );
+						localStorage.graycolor = _self.data.graycolor;
 
 						_self.updateCss();
 
@@ -449,17 +520,17 @@ $( function() {
 				return false;
 			} ).on( "preparemenu", function( event ) {
 
-				var user = $( event.target ).attr( "userid" );
+				var userid = $( event.target ).attr( "userid" );
 
-				_self.createMenu( user );
+				_self.createMenu( userid );
 
 			} ).on( "execmenu", function( event, target ) {
 				hidemenu();
 
 				var action = $( event.target ).attr( "id" );
-				var user = $( target ).attr( "userid" );
+				var userid = $( target ).attr( "userid" );
 
-				_self.execAction( user, action, event.target );
+				_self.execAction( userid, action, event.target );
 			} );
 
 			_self.data.balloon( "コンポーネントロード" );
@@ -498,10 +569,10 @@ $( function() {
 			var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" ).css( "font-size", "11px" ).empty();
 
 			for ( var name in _self.data.names ) {
-				var user = _self.data.names[name];
-				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + user + "' value='" + user + "' style='vertical-align:sub;'/>" ).attr( "checked", true ).attr( "userid", user );
-				var count = $( "<span class='dialog-user-count count-" + user + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;'>[0]</span>" ).attr( "userid", user );
-				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + user + "' class='" + user + "' style='display:inline-block;min-width:80px;'>" + name + "</label>" ).append( count ) );
+				var userid = _self.data.names[name];
+				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + userid + "' value='" + userid + "' style='vertical-align:sub;'/>" ).attr( "checked", true ).attr( "userid", userid );
+				var count = $( "<span class='dialog-user-count count-" + userid + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;'>[0]</span>" ).attr( "userid", userid );
+				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + userid + "' class='" + userid + "' style='display:inline-block;min-width:80px;'>" + name + "</label>" ).append( count ) );
 			}
 
 			var updateDialogCss = function() {
@@ -512,8 +583,8 @@ $( function() {
 				$( "input.dialog-user-checkbox", buttonPanel ).each( function( i, checkbox ) {
 					var checked = $( checkbox ).is( ":checked" );
 					if ( !checked ) {
-						var user = $( checkbox ).attr( "userid" );
-						_self.data.dialogStyleSheet.insertRule( "#ruru-log-table ." + user + " {display:none;}" );
+						var userid = $( checkbox ).attr( "userid" );
+						_self.data.dialogStyleSheet.insertRule( "#ruru-log-table ." + userid + " {display:none;}" );
 					}
 				} );
 			};
@@ -521,13 +592,14 @@ $( function() {
 			$( "input.dialog-user-checkbox", buttonPanel ).on( "click", updateDialogCss );
 
 			$( "span.dialog-user-count", buttonPanel ).on( "click", function() {
-				var user = $( this ).attr( "userid" );
+				var userid = $( this ).attr( "userid" );
 
 				$( "input.dialog-user-checkbox", buttonPanel ).removeAttr( "checked", false );
 
-				// $( "#dialog-checkbox-" + user, buttonPanel ).attr( "checked",
+				// $( "#dialog-checkbox-" + userid, buttonPanel ).attr(
+				// "checked",
 				// true );
-				$( "#dialog-checkbox-" + user )[0].checked = true;
+				$( "#dialog-checkbox-" + userid )[0].checked = true;
 
 				updateDialogCss();
 			} );
@@ -555,12 +627,53 @@ $( function() {
 			var time = _self.data.status.attr( "time" );
 
 			if ( _self.data.prevstatus !== time ) {
-				_self.data.balloon( time + " になりました" );
-			}
+				var tmp = _self.data.day.match( /^([0-9]+)[^0-9]*$/ );
+				_self.data.dayIndex = parseInt( tmp[1] - 1 );
+				_self.data.days[_self.data.dayIndex] = _self.data.day;
 
-			if ( time === "夕刻" && _self.data.prevstatus !== time ) {
-				_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
-				_self.data.log[_self.data.day] = $( "#No09>table>tbody>tr" ).get();
+				_self.data.balloon( time + " になりました" );
+
+				var all = $( "#No01 td.name>span" ).length;
+				var dead = $( "#No01 td.name>span.dead" ).length;
+				var rest = all - dead;
+
+				var reststep = "" + rest;
+				rest -= 2;
+				var count = 0;
+				while ( rest > 0 ) {
+					reststep += " > ";
+					reststep += rest;
+					rest -= 2;
+					count++;
+				}
+
+				_self.data.positionDialog.dialog( "option", "title", "内訳　【 " + reststep + " == " + count + " 】" );
+
+				var updateHistory = false;
+
+				if ( time === "夕刻" ) {
+					_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
+					_self.data.log[_self.data.day] = $( "#No09>table>tbody>tr" ).get();
+				} else if ( time === "昼" ) {
+					var dead = [];
+					$( "#No09 td.cs>span.death>span.name" ).each( function( i, name ) {
+						dead.push( _self.data.names[$( name ).text()] );
+						updateHistory = true;
+					} );
+					_self.data.dead[_self.data.days[_self.data.dayIndex - 1]] = dead;
+				} else if ( time === "夜" ) {
+					var hang = [];
+					$( "#No09 td.cs>span.death>span.name" ).each( function( i, name ) {
+						hang.push( _self.data.names[$( name ).text()] );
+						updateHistory = true;
+					} );
+					_self.data.hang[_self.data.day] = hang;
+				} else if ( time === "ゲーム終了" ) {
+				}
+
+				if ( updateHistory && _self.data.showhistory ) {
+					_self.updateCss();
+				}
 			}
 
 			_self.data.prevstatus = time;
@@ -570,11 +683,11 @@ $( function() {
 				$( '#chatscr2_1' ).scrollTop( h1 );
 			}
 		},
-		createMenu : function( user ) {
+		createMenu : function( userid ) {
 			var _self = this;
 
-			if ( user ) {
-				var userData = _self.data.users[user];
+			if ( userid ) {
+				var userData = _self.data.users[userid];
 
 				var userPosition = userData["役職"];
 
@@ -606,11 +719,11 @@ $( function() {
 						var black = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-bullet'></span>人　狼</a></li>" ).appendTo( _self.data.menu ) );
 
 						for ( var name in _self.data.names ) {
-							var targetUser = _self.data.names[name];
+							var targetUserid = _self.data.names[name];
 
-							if ( !userData["結果"][targetUser] && targetUser !== user ) {
-								$( "<li id='menu-judgment-white'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( white );
-								$( "<li id='menu-judgment-black'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( black );
+							if ( !userData["結果"][targetUserid] && targetUserid !== userid ) {
+								$( "<li id='menu-judgment-white'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUserid ).appendTo( white );
+								$( "<li id='menu-judgment-black'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUserid ).appendTo( black );
 							}
 						}
 
@@ -619,10 +732,10 @@ $( function() {
 						var target = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-flag'></span>対象</a></li>" ).appendTo( _self.data.menu ) );
 
 						for ( var name in _self.data.names ) {
-							var targetUser = _self.data.names[name];
+							var targetUserid = _self.data.names[name];
 
-							if ( targetUser !== user ) {
-								$( "<li id='menu-target'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUser ).appendTo( target );
+							if ( targetUserid !== userid ) {
+								$( "<li id='menu-target'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUserid ).appendTo( target );
 							}
 						}
 
@@ -635,6 +748,22 @@ $( function() {
 					}
 					_self.data.menu.append( "<hr/>" );
 				}
+			}
+
+			if ( $( "#No01 td." + userid + ".icon.dv" ).length !== 0 ) {
+				var hangmenu = $( "<li id='menu-hang'><a href='#'><span class='ui-icon ui-icon-power'></span>吊り</a></li>" ).appendTo( _self.data.menu );
+				var deadmenu = $( "<li id='menu-dead'><a href='#'><span class='ui-icon ui-icon-scissors'></span>噛み</a></li>" ).appendTo( _self.data.menu );
+				var hangsub = $( "<ul></ul>" ).appendTo( hangmenu );
+				var deadsub = $( "<ul></ul>" ).appendTo( deadmenu );
+				for ( var i = 0; i <= _self.data.dayIndex; i++ ) {
+					var day = _self.data.days[i];
+
+					if ( i !== 0 ) {
+						hangsub.append( "<li id='menu-input-hang' dayindex='" + i + "'><a href='#'><span class='ui-icon ui-icon-power'></span>" + day + "</a></li>" );
+					}
+					deadsub.append( "<li id='menu-input-dead' dayindex='" + i + "'><a href='#'><span class='ui-icon ui-icon-scissors'></span>" + day + "</a></li>" );
+				}
+				_self.data.menu.append( "<hr/>" );
 			}
 
 			var logmenu = $( "<li id='menu-log'><a href='#'><span class='ui-icon ui-icon-comment'></span>ログ</a></li>" );
@@ -655,16 +784,22 @@ $( function() {
 
 			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><a href='#'><span class='ui-icon ui-icon-wrench'></span>表示設定</a></li>" ).appendTo( _self.data.menu ) );
 
-			if ( _self.data.showuranai ) {
-				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果表示</a></li>" );
+			if ( _self.data.showposition ) {
+				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-check'></span>役職強調ON</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い結果非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-closethick'></span>役職強調OFF</a></li>" );
+			}
+
+			if ( _self.data.showuranai ) {
+				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果強調ON</a></li>" );
+			} else {
+				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い結果強調OFF</a></li>" );
 			}
 
 			if ( _self.data.showgray ) {
-				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-check'></span>グレー表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-check'></span>完グレー強調ON</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-closethick'></span>グレー非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-closethick'></span>完グレー強調OFF</a></li>" );
 			}
 
 			if ( _self.data.hidecng ) {
@@ -680,38 +815,44 @@ $( function() {
 			}
 
 			if ( _self.data.reverseLog ) {
-				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-check'></span>チャット反転</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-check'></span>チャット反転ON</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット切り替え</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット反転OFF</a></li>" );
+			}
+
+			if ( _self.data.showhistory ) {
+				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-check'></span>吊噛表示ON</a></li>" );
+			} else {
+				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-closethick'></span>吊噛表示OFF</a></li>" );
 			}
 
 			optionalMenu.append( "<hr/>" );
 			optionalMenu.append( "<li id='menu-colors'><a href='#'><span class='ui-icon ui-icon-pencil'></span>カラー詳細</a></li>" );
 		},
-		execAction : function( user, action, selected ) {
+		execAction : function( userid, action, selected ) {
 			var _self = this;
 
 			if ( action === "menu-toggle-post" ) {
-				_self.data.users[user]["役職解除"] = !_self.data.users[user]["役職解除"];
+				_self.data.users[userid]["役職解除"] = !_self.data.users[userid]["役職解除"];
 			} else if ( action === "menu-remove-position" ) {
-				_self.data.users[user]["役職"] = undefined;
-				_self.data.users[user]["役職解除"] = false;
-				_self.data.users[user]["結果"] = {};
+				_self.data.users[userid]["役職"] = undefined;
+				_self.data.users[userid]["役職解除"] = false;
+				_self.data.users[userid]["結果"] = {};
 			} else if ( action === "menu-position" ) {
 				var pos = $( selected ).attr( "pos" );
-				_self.data.users[user] = {};
-				_self.data.users[user]["役職"] = pos;
-				_self.data.users[user]["役職解除"] = false;
-				_self.data.users[user]["結果"] = {};
+				_self.data.users[userid] = {};
+				_self.data.users[userid]["役職"] = pos;
+				_self.data.users[userid]["役職解除"] = false;
+				_self.data.users[userid]["結果"] = {};
 			} else if ( action === "menu-judgment-white" ) {
-				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "村　人";
+				var targetUserid = $( selected ).attr( "userid" );
+				_self.data.users[userid]["結果"][targetUserid] = "村　人";
 			} else if ( action === "menu-judgment-black" ) {
-				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = "人　狼";
+				var targetUserid = $( selected ).attr( "userid" );
+				_self.data.users[userid]["結果"][targetUserid] = "人　狼";
 			} else if ( action === "menu-target" ) {
-				var targetUser = $( selected ).attr( "userid" );
-				_self.data.users[user]["結果"][targetUser] = true;
+				var targetUserid = $( selected ).attr( "userid" );
+				_self.data.users[userid]["結果"][targetUserid] = true;
 			} else if ( action === "menu-reverse-log" ) {
 				_self.data.reverseLog = !_self.data.reverseLog;
 				_self.data.status.attr( "reverselog", _self.data.reverseLog );
@@ -724,6 +865,10 @@ $( function() {
 				_self.data.hidecnw = !_self.data.hidecnw;
 				_self.data.balloon( "観戦表示 " + ( !_self.data.hidecnw ? "ON" : "OFF" ) );
 				localStorage.hidecnw = _self.data.hidecnw;
+			} else if ( action === "menu-showposition" ) {
+				_self.data.showposition = !_self.data.showposition;
+				_self.data.balloon( "役職強調表示 " + ( _self.data.showposition ? "ON" : "OFF" ) );
+				localStorage.showposition = _self.data.showposition;
 			} else if ( action === "menu-showgray" ) {
 				_self.data.showgray = !_self.data.showgray;
 				_self.data.balloon( "完グレー強調表示 " + ( _self.data.showgray ? "ON" : "OFF" ) );
@@ -732,6 +877,10 @@ $( function() {
 				_self.data.showuranai = !_self.data.showuranai;
 				_self.data.balloon( "占い結果強調表示 " + ( _self.data.showuranai ? "ON" : "OFF" ) );
 				localStorage.showuranai = _self.data.showuranai;
+			} else if ( action === "menu-showhistory" ) {
+				_self.data.showhistory = !_self.data.showhistory;
+				_self.data.balloon( "吊噛履歴表示 " + ( _self.data.showhistory ? "ON" : "OFF" ) );
+				localStorage.showhistory = _self.data.showhistory;
 			} else if ( action === "menu-log" ) {
 				var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
 				var day = $( selected ).data( "last-day" );
@@ -739,10 +888,10 @@ $( function() {
 
 				$( "#ruru-log-table", _self.data.logDialog ).empty().append( _self.data.log[day] );
 				for ( var name in _self.data.names ) {
-					var targetUser = _self.data.names[name];
+					var targetUserid = _self.data.names[name];
 
-					var count = $( "." + targetUser, _self.data.log[day] ).length / 2;
-					$( ".count-" + targetUser, buttonPanel ).text( "[" + count + "]" );
+					var count = $( "." + targetUserid, _self.data.log[day] ).length / 2;
+					$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
 				}
 
 				_self.data.logDialog.dialog( "open" );
@@ -753,10 +902,10 @@ $( function() {
 				$( "#ruru-log-table", _self.data.logDialog ).empty().append( _self.data.log[day] );
 
 				for ( var name in _self.data.names ) {
-					var targetUser = _self.data.names[name];
+					var targetUserid = _self.data.names[name];
 
-					var count = $( "." + targetUser, _self.data.log[day] ).length / 2;
-					$( ".count-" + targetUser, buttonPanel ).text( "[" + count + "]" );
+					var count = $( "." + targetUserid, _self.data.log[day] ).length / 2;
+					$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
 				}
 
 				_self.data.logDialog.dialog( "open" );
@@ -764,10 +913,59 @@ $( function() {
 				_self.data.positionDialog.dialog( "open" );
 			} else if ( action === "menu-colors" ) {
 				_self.data.colorDialog.dialog( "open" );
+			} else if ( action === "menu-input-dead" ) {
+				var dayindex = parseInt( $( selected ).attr( "dayindex" ) );
+				var day = _self.data.days[dayindex];
+				_self.cleanDead( userid );
+
+				var dead = _self.data.dead[day];
+				if ( dead && dead.length !== 0 ) {
+					dead.push( userid );
+				} else {
+					dead = [ userid ];
+				}
+
+				_self.data.dead[day] = dead;
+			} else if ( action === "menu-input-hang" ) {
+				var dayindex = parseInt( $( selected ).attr( "dayindex" ) );
+				var day = _self.data.days[dayindex];
+				_self.cleanDead( userid );
+
+				var hang = _self.data.hang[day];
+				if ( hang && hang.length !== 0 ) {
+					hang.push( userid );
+				} else {
+					hang = [ userid ];
+				}
+
+				_self.data.hang[day] = hang;
 			}
 
 			_self.updateCss();
 			_self.updatePosition();
+		},
+		cleanDead : function( userid ) {
+			var _self = this;
+
+			for ( var day in _self.data.dead ) {
+				var dead = _self.data.dead[day];
+				if ( dead && dead.indexOf ) {
+					var index = dead.indexOf( userid );
+					if ( index != -1 ) {
+						dead.splice( index, 1 );
+					}
+				}
+			}
+
+			for ( var day in _self.data.hang ) {
+				var hang = _self.data.hang[day];
+				if ( hang && hang.indexOf ) {
+					var index = hang.indexOf( userid );
+					if ( index != -1 ) {
+						hang.splice( index, 1 );
+					}
+				}
+			}
 		},
 		updatePosition : function() {
 			var _self = this;
@@ -780,8 +978,8 @@ $( function() {
 			}
 
 			for ( var name in _self.data.names ) {
-				var user = _self.data.names[name];
-				var userData = _self.data.users[user];
+				var userid = _self.data.names[name];
+				var userData = _self.data.users[userid];
 
 				if ( userData && userData["役職"] ) {
 					var elm;
@@ -793,24 +991,24 @@ $( function() {
 					}
 
 					var jg = _self.data.positions[userData["役職"]][3];
-					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:65px;padding:3px;margin-right:5px;' class='position-user " + user + "'>" + name + ( jg ? "&nbsp;&nbsp;：" : "" ) + "</div>" ).appendTo( elm ).attr( "userid", user );
+					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:50px;padding:3px;margin-right:3px;' class='position-user " + userid + "'>" + name + "</div>" ).append( jg ? "&nbsp;&nbsp;：" : "" ).appendTo( elm ).attr( "userid", userid );
 					if ( jg ) {
 						var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
 						if ( jg === "判定" ) {
-							for ( var targetUser in userData["結果"] ) {
-								if ( userData["結果"][targetUser] === "村　人" ) {
+							for ( var targetUserid in userData["結果"] ) {
+								if ( userData["結果"][targetUserid] === "村　人" ) {
 									result.append( $(
-											"<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-											.attr( "userid", targetUser ) );
+											"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUserid]
+													+ "</div>" ).attr( "userid", targetUserid ) );
 								} else {
 									result.append( $(
-											"<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUser] + "</div>" )
-											.attr( "userid", targetUser ) );
+											"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUserid] + "</div>" )
+											.attr( "userid", targetUserid ) );
 								}
 							}
 						} else if ( jg === "対象" ) {
-							for ( var targetUser in userData["結果"] ) {
-								result.append( $( "<div style='display:inline-block;padding:3px;margin-right:5px;' class='position-target " + targetUser + "'>" + _self.data.nameMap[targetUser] + "</div>" ).attr( "userid", targetUser ) );
+							for ( var targetUserid in userData["結果"] ) {
+								result.append( $( "<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'>" + _self.data.nameMap[targetUserid] + "</div>" ).attr( "userid", targetUserid ) );
 							}
 						}
 					}
@@ -865,26 +1063,26 @@ $( function() {
 			var usersStatus = {};
 
 			for ( var name in _self.data.names ) {
-				var user = _self.data.names[name];
-				var userData = _self.data.users[user];
+				var userid = _self.data.names[name];
+				var userData = _self.data.users[userid];
 
 				if ( userData && userData["役職"] === "占　い" && !userData["役職解除"] ) {
 					uraCount++;
-					for ( var targetUser in userData["結果"] ) {
-						if ( userData["結果"][targetUser] === "村　人" ) {
-							if ( usersStatus[targetUser] ) {
-								usersStatus[targetUser]["村　人"]++;
+					for ( var targetUserid in userData["結果"] ) {
+						if ( userData["結果"][targetUserid] === "村　人" ) {
+							if ( usersStatus[targetUserid] ) {
+								usersStatus[targetUserid]["村　人"]++;
 							} else {
-								usersStatus[targetUser] = {
+								usersStatus[targetUserid] = {
 									"村　人" : 1,
 									"人　狼" : 0
 								};
 							}
 						} else {
-							if ( usersStatus[targetUser] ) {
-								usersStatus[targetUser]["人　狼"]++;
+							if ( usersStatus[targetUserid] ) {
+								usersStatus[targetUserid]["人　狼"]++;
 							} else {
-								usersStatus[targetUser] = {
+								usersStatus[targetUserid] = {
 									"村　人" : 0,
 									"人　狼" : 1
 								};
@@ -919,27 +1117,27 @@ $( function() {
 			}
 
 			for ( var name in _self.data.names ) {
-				var user = _self.data.names[name];
-				var userData = _self.data.users[user];
+				var userid = _self.data.names[name];
+				var userData = _self.data.users[userid];
 
 				var style = "";
 
-				if ( usersStatus[user] && _self.data.showuranai ) {
+				if ( usersStatus[userid] && _self.data.showuranai ) {
 					for ( var type in judgmentStyles ) {
-						if ( usersStatus[user][type] > 0 ) {
+						if ( usersStatus[userid][type] > 0 ) {
 							style += judgmentStyles[type];
 						}
 					}
 				}
 
-				if ( userData && userData["役職"] && !userData["役職解除"] ) {
+				if ( _self.data.showposition && userData && userData["役職"] && !userData["役職解除"] ) {
 					var cl = _self.data.positions[userData["役職"]][1];
 					var bg = _self.data.positions[userData["役職"]][2];
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:" + bg + ";color:" + cl + ";" + style + "}" );
-				} else if ( !usersStatus[user] && _self.data.showgray ) {
-					_self.data.styleSheet.insertRule( "." + user + " {background-color:#696969;color:#FFFFFF;}" );
+					_self.data.styleSheet.insertRule( "." + userid + " {background-color:" + bg + ";color:" + cl + ";" + style + "}" );
+				} else if ( style === "" && _self.data.showgray ) {
+					_self.data.styleSheet.insertRule( "." + userid + " {background-color:" + _self.data.graycolor + ";}" );
 				} else {
-					_self.data.styleSheet.insertRule( "." + user + " {" + style + "}" );
+					_self.data.styleSheet.insertRule( "." + userid + " {" + style + "}" );
 				}
 			}
 
@@ -951,6 +1149,24 @@ $( function() {
 			if ( _self.data.hidecnw ) {
 				_self.data.styleSheet.insertRule( ".cnw {display:none;}" );
 				_self.data.styleSheet.insertRule( ".ccw {display:none;}" );
+			}
+
+			if ( _self.data.showhistory ) {
+				var bgi = chrome.extension.getURL( "claw.png" );
+				for ( var key in _self.data.dead ) {
+					var dead = _self.data.dead[key];
+					for ( var i = 0; i < dead.length; i++ ) {
+						_self.data.styleSheet.insertRule( "#No01 td." + dead[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: blue;padding: 2px 5px;color:white;}" );
+						_self.data.styleSheet.insertRule( "#ruru-ext-position-dialog div." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
+					}
+				}
+
+				for ( var key in _self.data.hang ) {
+					var hang = _self.data.hang[key];
+					for ( var i = 0; i < hang.length; i++ ) {
+						_self.data.styleSheet.insertRule( "#No01 td." + hang[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: red;padding: 2px 5px;color:white;}" );
+					}
+				}
 			}
 		}
 	};
