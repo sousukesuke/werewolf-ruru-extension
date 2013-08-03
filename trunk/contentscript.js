@@ -785,21 +785,21 @@ $( function() {
 			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><a href='#'><span class='ui-icon ui-icon-wrench'></span>表示設定</a></li>" ).appendTo( _self.data.menu ) );
 
 			if ( _self.data.showposition ) {
-				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-check'></span>役職強調ON</a></li>" );
+				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-check'></span>役職強調</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-closethick'></span>役職強調OFF</a></li>" );
+				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-closethick'></span>役職強調切り替え</a></li>" );
 			}
 
 			if ( _self.data.showuranai ) {
-				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果強調ON</a></li>" );
+				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果強調</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い結果強調OFF</a></li>" );
+				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い結果強調切り替え</a></li>" );
 			}
 
 			if ( _self.data.showgray ) {
-				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-check'></span>完グレー強調ON</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-check'></span>完グレー強調</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-closethick'></span>完グレー強調OFF</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-closethick'></span>完グレー強調切り替え</a></li>" );
 			}
 
 			if ( _self.data.hidecng ) {
@@ -815,15 +815,15 @@ $( function() {
 			}
 
 			if ( _self.data.reverseLog ) {
-				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-check'></span>チャット反転ON</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-check'></span>チャット反転</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット反転OFF</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット反転切り替え</a></li>" );
 			}
 
 			if ( _self.data.showhistory ) {
-				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-check'></span>吊噛表示ON</a></li>" );
+				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-check'></span>吊噛表示</a></li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-closethick'></span>吊噛表示OFF</a></li>" );
+				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-closethick'></span>吊噛表示切り替え</a></li>" );
 			}
 
 			optionalMenu.append( "<hr/>" );
