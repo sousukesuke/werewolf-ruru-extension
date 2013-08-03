@@ -1,6 +1,6 @@
 {
   "name" : "汝は人狼なりや？るる鯖拡張機能",
-  "version" : "2.3",
+  "version" : "2.4",
   "description" : "るる鯖の便利拡張です",
   "background" : {
     "scripts": ["jquery.js", "background.js"]
@@ -15,7 +15,7 @@
       "matches" : [
         "http://werewolf.ddo.jp/village.jsp"
       ],
-      "css" : ["jquery-ui.css", "colorPicker.css"],
+      "css" : ["jquery-ui.css", "colorPicker.css", "ruru-extension.css"],
       "js" : ["jquery.js", "jquery-ui.js", "jquery.colorPicker.js", "contentscript.js"],
       "run_at" : "document_idle",
       "all_frames" : false
@@ -23,18 +23,18 @@
   ],
   "web_accessible_resources": [
     "images/animated-overlay.gif",
-    "images/ui-bg_diagonals-small_25_c5ddfc_40x40.png",
-    "images/ui-bg_diagonals-thick_20_e69700_40x40.png",
-    "images/ui-bg_diagonals-thick_22_1484e6_40x40.png",
-    "images/ui-bg_diagonals-thick_26_2293f7_40x40.png",
-    "images/ui-bg_flat_0_e69700_40x100.png",
-    "images/ui-bg_flat_0_e6b900_40x100.png",
-    "images/ui-bg_highlight-soft_100_f9f9f9_1x100.png",
-    "images/ui-bg_inset-hard_100_eeeeee_1x100.png",
-    "images/ui-icons_0a82eb_256x240.png",
-    "images/ui-icons_0b54d5_256x240.png",
-    "images/ui-icons_5fa5e3_256x240.png",
-    "images/ui-icons_fcdd4a_256x240.png",
+    "images/ui-bg_flat_0_aaaaaa_40x100.png",
+    "images/ui-bg_flat_0_eeeeee_40x100.png",
+    "images/ui-bg_flat_55_e4f3fd_40x100.png",
+    "images/ui-bg_flat_55_f6dcdc_40x100.png",
+    "images/ui-bg_flat_75_ffffff_40x100.png",
+    "images/ui-bg_glass_65_ffffff_1x400.png",
+    "images/ui-bg_highlight-soft_100_f6f6f6_1x100.png",
+    "images/ui-bg_highlight-soft_25_0073ea_1x100.png",
+    "images/ui-bg_highlight-soft_50_dddddd_1x100.png",
+    "images/ui-icons_0073ea_256x240.png",
+    "images/ui-icons_666666_256x240.png",
+    "images/ui-icons_ff0084_256x240.png",
     "images/ui-icons_ffffff_256x240.png",
     "claw.png",
     "ruru_ext_install.js"
