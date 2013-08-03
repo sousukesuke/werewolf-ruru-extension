@@ -65,6 +65,18 @@ $( function() {
 				"背徳者" : [ "alert", "#366092", "#e5b9b7", "", "背" ],
 				"猫　又" : [ "alert", "#000000", "#9bbb59", "", "猫" ]
 			},
+			positionOrders : {
+				"占　い" : [],
+				"霊　能" : [],
+				"狩　人" : [],
+				"共　有" : [],
+				"狂　人" : [],
+				"人　狼" : [],
+				"妖　狐" : [],
+				"狂信者" : [],
+				"背徳者" : [],
+				"猫　又" : []
+			},
 			positions : {},
 			uraStatus : {
 				"村　人" : {
@@ -275,13 +287,45 @@ $( function() {
 				}
 			}
 
-			_self.data.logDialog = $( "<div style='font-size:11px;overflow-y:scroll;'><table style='width:100%;background:white;'><tbody id='ruru-log-table'></tbody></table></div>" ).appendTo( "body" ).dialog( {
+			_self.data.logDialog = $( "<div style='font-size:11px;overflow:hidden;'><div id='ruru-log-table' style='overflow:hidden;'></div></div>" ).appendTo( "body" ).dialog( {
+				title : "ログ",
 				autoOpen : false,
 				minWidth : 450,
+				width : 570,
 				height : 600,
 				buttons : [ {
 					text : "Ok"
-				} ]
+				} ],
+				open : function() {
+					var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
+
+					for ( var name in _self.data.names ) {
+						var targetUserid = _self.data.names[name];
+
+						var count = $( "#ruru-log-table .ui-accordion-content-active ." + targetUserid ).length / 2;
+						$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
+					}
+
+					$( "#ruru-log-table" ).accordion( "refresh" );
+				},
+				resize : function() {
+					$( "#ruru-log-table" ).accordion( "refresh" );
+				}
+			} );
+
+			$( "#ruru-log-table" ).accordion( {
+				animate : 100,
+				heightStyle : "fill",
+				activate : function() {
+					var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
+
+					for ( var name in _self.data.names ) {
+						var targetUserid = _self.data.names[name];
+
+						var count = $( "#ruru-log-table .ui-accordion-content-active ." + targetUserid ).length / 2;
+						$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
+					}
+				}
 			} );
 
 			var userBox = $( ".d1>.d12>.d122>.d1221" );
@@ -653,7 +697,10 @@ $( function() {
 
 				if ( time === "夕刻" ) {
 					_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
-					_self.data.log[_self.data.day] = $( "#No09>table>tbody>tr" ).get();
+					var table = $( "#No09>table" ).clone( true ).get();
+					_self.data.log[_self.data.day] = table;
+					$( "#ruru-log-table" ).append( "<h3>" + _self.data.day + "</h3>" ).append( $( "<div style='background:white;padding:0px 2px 20px 2px;overflow-y:scroll;'></div>" ).append( table ) );
+					$( "#ruru-log-table" ).accordion( "refresh" );
 				} else if ( time === "昼" ) {
 					var dead = [];
 					$( "#No09 td.cs>span.death>span.name" ).each( function( i, name ) {
@@ -773,7 +820,7 @@ $( function() {
 			for ( var day in _self.data.log ) {
 				logsub.append( "<li id='menu-log-of-day'><a href='#'><span class='ui-icon ui-icon-comment'></span>" + day + "</a></li>" );
 				haslog = true;
-				logmenu.data( "last-day", day );
+				logmenu.attr( "last-day", day );
 			}
 
 			if ( haslog ) {
@@ -838,12 +885,15 @@ $( function() {
 				_self.data.users[userid]["役職"] = undefined;
 				_self.data.users[userid]["役職解除"] = false;
 				_self.data.users[userid]["結果"] = {};
+				_self.cleanPositionOrders( userid );
 			} else if ( action === "menu-position" ) {
 				var pos = $( selected ).attr( "pos" );
 				_self.data.users[userid] = {};
 				_self.data.users[userid]["役職"] = pos;
 				_self.data.users[userid]["役職解除"] = false;
 				_self.data.users[userid]["結果"] = {};
+				_self.cleanPositionOrders( userid );
+				_self.data.positionOrders[pos].push( userid );
 			} else if ( action === "menu-judgment-white" ) {
 				var targetUserid = $( selected ).attr( "userid" );
 				_self.data.users[userid]["結果"][targetUserid] = "村　人";
@@ -882,33 +932,39 @@ $( function() {
 				_self.data.balloon( "吊噛履歴表示 " + ( _self.data.showhistory ? "ON" : "OFF" ) );
 				localStorage.showhistory = _self.data.showhistory;
 			} else if ( action === "menu-log" ) {
-				var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
-				var day = $( selected ).data( "last-day" );
-				_self.data.logDialog.dialog( "option", "title", day );
+				var day = $( selected ).attr( "last-day" );
 
-				$( "#ruru-log-table", _self.data.logDialog ).empty().append( _self.data.log[day] );
-				for ( var name in _self.data.names ) {
-					var targetUserid = _self.data.names[name];
+				var index = -1;
+				for ( var d in _self.data.log ) {
+					index++;
+					if ( d === day ) {
+						break;
+					}
+				}
 
-					var count = $( "." + targetUserid, _self.data.log[day] ).length / 2;
-					$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
+				if ( index !== -1 ) {
+					$( "#ruru-log-table" ).accordion( "option", "active", index );
 				}
 
 				_self.data.logDialog.dialog( "open" );
+				$( "#ruru-log-table" ).accordion( "refresh" );
 			} else if ( action === "menu-log-of-day" ) {
-				var buttonPanel = $( _self.data.logDialog ).parents( ".ui-dialog:first" ).children( ".ui-dialog-buttonpane:first" );
 				var day = $( selected ).text();
-				_self.data.logDialog.dialog( "option", "title", day );
-				$( "#ruru-log-table", _self.data.logDialog ).empty().append( _self.data.log[day] );
 
-				for ( var name in _self.data.names ) {
-					var targetUserid = _self.data.names[name];
+				var index = -1;
+				for ( var d in _self.data.log ) {
+					index++;
+					if ( d === day ) {
+						break;
+					}
+				}
 
-					var count = $( "." + targetUserid, _self.data.log[day] ).length / 2;
-					$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
+				if ( index !== -1 ) {
+					$( "#ruru-log-table" ).accordion( "option", "active", index );
 				}
 
 				_self.data.logDialog.dialog( "open" );
+				$( "#ruru-log-table" ).accordion( "refresh" );
 			} else if ( action === "menu-person" ) {
 				_self.data.positionDialog.dialog( "open" );
 			} else if ( action === "menu-colors" ) {
@@ -967,73 +1023,98 @@ $( function() {
 				}
 			}
 		},
+		cleanPositionOrders : function( userid ) {
+			var _self = this;
+
+			for ( var position in _self.data.positionOrders ) {
+				var order = _self.data.positionOrders[position];
+				if ( order && order.indexOf ) {
+					var index = order.indexOf( userid );
+					if ( index != -1 ) {
+						order.splice( index, 1 );
+					}
+				}
+			}
+		},
 		updatePosition : function() {
 			var _self = this;
 
 			var dialog = $( "#ruru-ext-position-dialog" ).empty();
 
-			var poselements = {};
-			for ( var pos in _self.data.positions ) {
-				poselements[pos] = false;
-			}
+			for ( var pos in _self.data.positionOrders ) {
+				var order = _self.data.positionOrders[pos];
 
-			for ( var name in _self.data.names ) {
-				var userid = _self.data.names[name];
-				var userData = _self.data.users[userid];
+				if ( order.length !== 0 ) {
+					dialog.append( "<h3>" + pos + "</h3>" );
 
-				if ( userData && userData["役職"] ) {
-					var elm;
-					if ( !poselements[userData["役職"]] ) {
-						elm = $( "<div></div>" );
-						poselements[userData["役職"]] = elm;
-					} else {
-						elm = poselements[userData["役職"]];
-					}
+					var elm = $( "<div pos='" + pos + "'></div>" ).appendTo( dialog );
 
-					var jg = _self.data.positions[userData["役職"]][3];
-					var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:50px;padding:3px;margin-right:3px;' class='position-user " + userid + "'>" + name + "</div>" ).append( jg ? "&nbsp;&nbsp;：" : "" ).appendTo( elm ).attr( "userid", userid );
-					if ( jg ) {
-						var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
-						if ( jg === "判定" ) {
-							for ( var targetUserid in userData["結果"] ) {
-								if ( userData["結果"][targetUserid] === "村　人" ) {
-									result.append( $(
-											"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUserid]
-													+ "</div>" ).attr( "userid", targetUserid ) );
-								} else {
-									result.append( $(
-											"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUserid] + "</div>" )
-											.attr( "userid", targetUserid ) );
+					for ( var i = 0; i < order.length; i++ ) {
+						var userid = order[i];
+						var userData = _self.data.users[userid];
+						var name = _self.data.nameMap[userid];
+
+						var jg = _self.data.positions[userData["役職"]][3];
+						var position = $( "<div class='position'></div>" ).append( "<div style='display:inline-block;min-width:50px;padding:3px;margin-right:3px;' class='position-user " + userid + "'>" + name + "</div>" ).append( jg ? "&nbsp;&nbsp;：" : "" ).appendTo( elm ).attr( "userid", userid );
+						if ( jg ) {
+							var result = $( "<div style='display:inline-block;'></div>" ).appendTo( position );
+							if ( jg === "判定" ) {
+								for ( var targetUserid in userData["結果"] ) {
+									if ( userData["結果"][targetUserid] === "村　人" ) {
+										result.append( $(
+												"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.nameMap[targetUserid]
+														+ "</div>" ).attr( "userid", targetUserid ) );
+									} else {
+										result.append( $(
+												"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.nameMap[targetUserid]
+														+ "</div>" ).attr( "userid", targetUserid ) );
+									}
 								}
-							}
-						} else if ( jg === "対象" ) {
-							for ( var targetUserid in userData["結果"] ) {
-								result.append( $( "<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'>" + _self.data.nameMap[targetUserid] + "</div>" ).attr( "userid", targetUserid ) );
+							} else if ( jg === "対象" ) {
+								for ( var targetUserid in userData["結果"] ) {
+									result.append( $( "<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'>" + _self.data.nameMap[targetUserid] + "</div>" ).attr( "userid", targetUserid ) );
+								}
 							}
 						}
 					}
-				}
-			}
 
-			for ( var pos in poselements ) {
-				if ( poselements[pos] ) {
-					dialog.append( "<h3>" + pos + "</h3>" );
-					dialog.append( poselements[pos] );
+					elm.sortable( {
+						update : function() {
+							var pos = $( this ).attr( "pos" );
+							var order = [];
+
+							$( ".position-user", this ).each( function( i, div ) {
+								var userid = undefined;
+								if ( $( div ).hasClass( "position" ) ) {
+									userid = $( div ).attr( "userid" );
+								} else {
+									userid = $( div ).parents( ".position:first" ).attr( "userid" );
+								}
+
+								order.push( userid );
+							} );
+
+							_self.data.positionOrders[pos] = order;
+						}
+					} );
+					elm.disableSelection();
 				}
 			}
 
 			$( ".position-user", dialog ).on( "dblclick", function( e ) {
-				var delUser;
+				var delUserid;
 				if ( $( this ).hasClass( "position" ) ) {
-					delUser = $( this ).attr( "userid" );
+					delUserid = $( this ).attr( "userid" );
 				} else {
-					delUser = $( this ).parents( ".position:first" ).attr( "userid" );
+					delUserid = $( this ).parents( ".position:first" ).attr( "userid" );
 				}
 
-				if ( delUser ) {
-					_self.data.users[delUser]["役職"] = undefined;
-					_self.data.users[delUser]["役職解除"] = false;
-					_self.data.users[delUser]["結果"] = {};
+				if ( delUserid ) {
+					_self.data.users[delUserid]["役職"] = undefined;
+					_self.data.users[delUserid]["役職解除"] = false;
+					_self.data.users[delUserid]["結果"] = {};
+
+					_self.cleanPositionOrders( delUserid );
 
 					_self.updateCss();
 					_self.updatePosition();
