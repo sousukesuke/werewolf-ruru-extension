@@ -697,7 +697,8 @@ $( function() {
 
 				if ( time === "夕刻" ) {
 					_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
-					var table = $( "#No09>table" ).clone( true ).get();
+					var table = $( "#No09>table" ).clone().css( "width", "100%" ).get();
+					$( "td.cn", table ).removeAttr( "onclick" );
 					_self.data.log[_self.data.day] = table;
 					$( "#ruru-log-table" ).append( "<h3>" + _self.data.day + "</h3>" ).append( $( "<div style='background:white;padding:0px 2px 20px 2px;overflow-y:scroll;'></div>" ).append( table ) );
 					$( "#ruru-log-table" ).accordion( "refresh" );
