@@ -26,6 +26,7 @@
 インストール後に確認したブラウザのURL右にあるアイコンをクリックすることで機能を有効にすることができます。<br>
 
 
+
 <br>
 == 機能一覧 ==
 
@@ -33,3 +34,10 @@
 （書きかけ）
 
 *[https://docs.google.com/document/d/1xxkO4R1wsv2aPcNCkOhGtKFvvWlZAHi9r9vr56-Yuqw/edit?usp=sharing るる鯖拡張プラグイン 機能一覧]*
+
+
+
+<br>
+== その他 ==
+
+[Template 村進行テンプレ]
