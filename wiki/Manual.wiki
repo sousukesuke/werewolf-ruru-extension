@@ -36,8 +36,3 @@
 *[https://docs.google.com/document/d/1xxkO4R1wsv2aPcNCkOhGtKFvvWlZAHi9r9vr56-Yuqw/edit?usp=sharing るる鯖拡張プラグイン 機能一覧]*
 
 
-
-<br>
-== その他 ==
-
-[Template 村進行テンプレ]
