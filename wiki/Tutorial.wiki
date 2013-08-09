@@ -20,9 +20,6 @@ atdk
 
 【テンプレ】
 chrome専用 るる鯖拡張プラグイン「ruru_extension」のテストを行います。
-↓にプラグイン、インストール方法があります
-
-https://code.google.com/p/werewolf-ruru-extension/wiki/Manual?tm=6
 
 このプラグインは「るる鯖拡張プラグイン」です
 「人狼推理補助ツール」をご存知の方はあれをイメージしてください
@@ -31,8 +28,13 @@ https://code.google.com/p/werewolf-ruru-extension/wiki/Manual?tm=6
 他にはるる鯖この機能使い辛いな・・・てとこを
 ツールで補って行こうと考えています
 
+↓にプラグイン、インストール方法があります
+
+https://code.google.com/p/werewolf-ruru-extension/wiki/Manual?tm=6
+
 他のブラウザの方はごめんなさい
 chrome を利用中の方はご協力いただけるとうれしいです
+
 
 【注意事項】
 ・るる鯖「禁止事項とアクセス制限」厳守
@@ -166,5 +168,6 @@ URLの→にアイコンが表示されるます
 
 あと、出来れば対戦内容の考察よりプラグインの考察のほうが
 GMは喜びます
+
 
 }}}
