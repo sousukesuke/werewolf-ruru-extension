@@ -550,7 +550,7 @@ $( function() {
 					"<div style='font-size:11px;overflow:auto;' id='ruru-ext-gray-table-dialog'><span id='ruru-ext-gray-table-rest' style='margin-right:20px;vertical-align:middle;font-weight:bold;font-size:13px;'></span><input type='checkbox' style='vertical-align:middle;' id='ruru-ext-gray-table-show'/><label style='vertical-align:middle;' for='ruru-ext-gray-table-show'>逝った村は非表示</label><table class='ui-widget-content ui-corner-all'><thead id='ruru-ext-gray-head'></thead><tbody id='ruru-ext-gray-body'></tbody></table></div>" )
 					.appendTo( "body" ).dialog( {
 						autoOpen : false,
-						width : 350,
+						width : 390,
 						height : 300,
 						title : "役職テーブル"
 					} );
@@ -1308,6 +1308,8 @@ $( function() {
 						black = true;
 					} else if ( result === "村　人" ) {
 						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span></td>" );
+					} else if ( uranaiUsers[j]["userid"] == userid ) {
+						bodyRow.append( "<td class='gray-table-data'>-</td>" );
 					} else {
 						bodyRow.append( "<td class='gray-table-data'></td>" );
 					}
