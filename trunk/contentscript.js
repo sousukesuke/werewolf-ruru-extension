@@ -1302,29 +1302,38 @@ $( function() {
 				var black = false;
 
 				for ( var j = 0; j < uranaiUsers.length; j++ ) {
+					var col = $( "<td class='gray-table-data'></td>" ).appendTo( bodyRow );
+
 					var result = uranaiUsers[j]["結果"][userid];
 					if ( result === "人　狼" ) {
-						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span></td>" );
+						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span>" );
 						black = true;
 					} else if ( result === "村　人" ) {
-						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span></td>" );
+						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span>" );
 					} else if ( uranaiUsers[j]["userid"] == userid ) {
-						bodyRow.append( "<td class='gray-table-data'>-</td>" );
-					} else {
-						bodyRow.append( "<td class='gray-table-data'></td>" );
+						col.text( "-" );
+					}
+
+					if ( userData["hang"] || userData["dead"] ) {
+						col.css( "background-color", "#fdeada" );
 					}
 				}
 
 				for ( var j = 0; j < reiUsers.length; j++ ) {
+					var col = $( "<td class='gray-table-data'></td>" ).appendTo( bodyRow );
+
 					var result = reiUsers[j]["結果"][userid];
 					if ( result === "人　狼" ) {
-						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span></td>" );
+						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span>" );
+						black = true;
 					} else if ( result === "村　人" ) {
-						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span></td>" );
+						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span>" );
 					} else if ( reiUsers[j]["userid"] == userid ) {
-						bodyRow.append( "<td class='gray-table-data'>-</td>" );
-					} else {
-						bodyRow.append( "<td class='gray-table-data'></td>" );
+						col.text( "-" );
+					}
+
+					if ( userData["hang"] || userData["dead"] ) {
+						col.css( "background-color", "#fdeada" );
 					}
 				}
 
