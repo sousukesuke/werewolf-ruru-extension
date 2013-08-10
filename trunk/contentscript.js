@@ -26,7 +26,7 @@ $( function() {
 
 	_RuruExt.prototype = {
 		data : {
-			debug : false,
+			debug : true,
 			installed : false,
 			days : undefined,
 			day : undefined,
