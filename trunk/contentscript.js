@@ -26,6 +26,7 @@ $( function() {
 
 	_RuruExt.prototype = {
 		data : {
+			debug : true,
 			installed : false,
 			days : undefined,
 			day : undefined,
@@ -94,7 +95,10 @@ $( function() {
 					"shadow" : true
 				}
 			},
-			graycolor : "#d8d8d8"
+			graycolor : "#d8d8d8",
+			temporary : {
+				selectedLog : 0
+			}
 		},
 		init : function() {
 			var _self = this;
@@ -306,7 +310,16 @@ $( function() {
 						$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
 					}
 
-					$( "#ruru-log-table" ).accordion( "refresh" );
+					var accordion = $( "#ruru-log-table" );
+
+					accordion.accordion( "refresh" );
+
+					if ( accordion.accordion( "option", "active" ) !== _self.data.temporary.selectedLog ) {
+						$( "#ruru-log-table" ).accordion( "option", "active", _self.data.temporary.selectedLog );
+					}
+
+					// フォーカスが残る 追跡めんどくさい
+					accordion.find( ".ui-state-focus" ).removeClass( "ui-state-focus" );
 				},
 				resize : function() {
 					$( "#ruru-log-table" ).accordion( "refresh" );
@@ -578,6 +591,28 @@ $( function() {
 			} );
 
 			_self.data.balloon( "コンポーネントロード" );
+
+			if ( _self.data.debug ) {
+				_self.setupDebugComponents();
+			}
+		},
+		setupDebugComponents : function() {
+			var _self = this;
+
+			var debugPanel = $( "<div style='position:absolute;right:10px;bottom:10px;background:white;z-index:1000;'></div>" ).appendTo( "body" );
+
+			$( "<button>ログ強制保存</button>" ).button().on( "click", function() {
+				var title = "DEBUG : " + new Date().getTime();
+
+				var table = $( "#No09>table" ).clone().css( "width", "100%" ).get();
+				$( "td.cn", table ).removeAttr( "onclick" );
+				_self.data.log[title] = table;
+				$( "#ruru-log-table" ).append( "<h3>" + title + "</h3>" ).append( $( "<div style='background:white;padding:0px 2px 20px 2px;overflow-y:scroll;'></div>" ).append( table ) );
+
+				$( "#ruru-log-table" ).accordion( "refresh" );
+			} ).appendTo( debugPanel );
+
+			_self.data.balloon( "デバッグ機能有効", true );
 		},
 		setup : function() {
 			var _self = this;
@@ -944,11 +979,10 @@ $( function() {
 				}
 
 				if ( index !== -1 ) {
-					$( "#ruru-log-table" ).accordion( "option", "active", index );
+					_self.data.temporary.selectedLog = index;
 				}
 
 				_self.data.logDialog.dialog( "open" );
-				$( "#ruru-log-table" ).accordion( "refresh" );
 			} else if ( action === "menu-log-of-day" ) {
 				var day = $( selected ).text();
 
@@ -961,11 +995,10 @@ $( function() {
 				}
 
 				if ( index !== -1 ) {
-					$( "#ruru-log-table" ).accordion( "option", "active", index );
+					_self.data.temporary.selectedLog = index;
 				}
 
 				_self.data.logDialog.dialog( "open" );
-				$( "#ruru-log-table" ).accordion( "refresh" );
 			} else if ( action === "menu-person" ) {
 				_self.data.positionDialog.dialog( "open" );
 			} else if ( action === "menu-colors" ) {
