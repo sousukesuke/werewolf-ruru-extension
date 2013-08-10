@@ -9,8 +9,6 @@ $( function() {
 	var step = 0;
 
 	var names = {};
-	var users = {};
-	var nameMap = {};
 
 	var checkDate = function( date ) {
 		if ( date ) {
@@ -91,21 +89,17 @@ $( function() {
 
 					switch ( position ) {
 					case 0:
-						users["user-" + ( line * 2 )] = {};
 						mark( td, "user-" + ( line * 2 ) );
 						break;
 					case 1:
 						names[text] = "user-" + ( line * 2 );
-						nameMap["user-" + ( line * 2 )] = text;
 						mark( td, "user-" + ( line * 2 ) );
 						break;
 					case 2:
-						users["user-" + ( ( line * 2 ) + 1 )] = {};
 						mark( td, "user-" + ( ( line * 2 ) + 1 ) );
 						break;
 					case 3:
 						names[text] = "user-" + ( ( line * 2 ) + 1 );
-						nameMap["user-" + ( ( line * 2 ) + 1 )] = text;
 						mark( td, "user-" + ( ( line * 2 ) + 1 ) );
 						break;
 					case 4:
