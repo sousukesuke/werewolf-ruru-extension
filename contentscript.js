@@ -711,6 +711,7 @@ $( function() {
 				if ( name ) {
 					var userid = $( td ).attr( "userid" );
 					_self.data.users[userid] = {
+						userid : userid,
 						name : name,
 						dead : false,
 						hang : false
@@ -831,16 +832,15 @@ $( function() {
 						updateHistory = true;
 					} );
 					_self.data.hang[_self.data.day] = hang;
+				} else if ( time === "夜明け" ) {
 				} else if ( time === "ゲーム終了" ) {
 				}
 
-				if ( updateHistory ) {
-					if ( _self.data.showhistory ) {
-						_self.updateCss();
-					}
-
-					_self.updateGrayTable();
+				if ( updateHistory && _self.data.showhistory ) {
+					_self.updateCss();
 				}
+
+				_self.updateGrayTable();
 			}
 
 			_self.data.time = time;
@@ -1305,6 +1305,7 @@ $( function() {
 					var result = uranaiUsers[j]["結果"][userid];
 					if ( result === "人　狼" ) {
 						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span></td>" );
+						black = true;
 					} else if ( result === "村　人" ) {
 						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span></td>" );
 					} else {
@@ -1318,6 +1319,8 @@ $( function() {
 						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span></td>" );
 					} else if ( result === "村　人" ) {
 						bodyRow.append( "<td class='gray-table-data'><span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span></td>" );
+					} else if ( reiUsers[j]["userid"] == userid ) {
+						bodyRow.append( "<td class='gray-table-data'>-</td>" );
 					} else {
 						bodyRow.append( "<td class='gray-table-data'></td>" );
 					}
