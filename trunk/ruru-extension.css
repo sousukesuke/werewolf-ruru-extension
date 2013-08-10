@@ -6,6 +6,10 @@
 	box-shadow: 3px 3px 6px black;
 }
 
+.ui-dialog-titlebar {
+	font-size: 12px;
+}
+
 .ui-menu {
 	box-shadow: 2px 2px 4px black;
 }
@@ -49,6 +53,19 @@
 	cursor: pointer;
 	-webkit-user-select: none;
 	user-select: none;
+}
+
+#ruru-ext-gray-head td {
+	min-width: 6em;
+}
+
+#ruru-ext-gray-body td {
+	border-top: 1px solid #dddddd;
+}
+
+#ruru-ext-gray-table-dialog td.gray-table-data {
+	text-align: center;
+	border-left: 1px solid #dddddd;
 }
 
 div.colorPicker-picker {
