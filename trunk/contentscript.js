@@ -26,7 +26,7 @@ $( function() {
 
 	_RuruExt.prototype = {
 		data : {
-			debug : true,
+			debug : false,
 			installed : false,
 			days : undefined,
 			day : undefined,
@@ -599,9 +599,9 @@ $( function() {
 		setupDebugComponents : function() {
 			var _self = this;
 
-			var debugPanel = $( "<div style='position:absolute;right:10px;bottom:10px;background:white;z-index:1000;'></div>" ).appendTo( "body" );
+			var debugPanel = $( "<div style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1000;'></div>" ).appendTo( "body" );
 
-			$( "<button>ログ強制保存</button>" ).button().on( "click", function() {
+			$( "<button style='display:block;'>ログ保存</button>" ).button().on( "click", function() {
 				var title = "DEBUG : " + new Date().getTime();
 
 				var table = $( "#No09>table" ).clone().css( "width", "100%" ).get();
@@ -610,6 +610,32 @@ $( function() {
 				$( "#ruru-log-table" ).append( "<h3>" + title + "</h3>" ).append( $( "<div style='background:white;padding:0px 2px 20px 2px;overflow-y:scroll;'></div>" ).append( table ) );
 
 				$( "#ruru-log-table" ).accordion( "refresh" );
+			} ).appendTo( debugPanel );
+
+			var aaaauto = "none";
+
+			var autoUpdate = function() {
+				if ( $( messageInput ).val().length ) {
+					clearInterval( aaaauto );
+					aaaauto = "none";
+					_self.data.balloon( "自動更新解除" );
+				} else {
+					_self.data.balloon( "自動更新中", true );
+					$( "#todob" ).click();
+				}
+			};
+
+			$( "<button style='display:block;'>自動更新</button>" ).button().on( "click", function() {
+				if ( aaaauto === "none" ) {
+					$( "#todob" ).click();
+
+					aaaauto = setInterval( autoUpdate, 10000 );
+					_self.data.balloon( "自動更新ON", true );
+				} else {
+					clearInterval( aaaauto );
+					aaaauto = "none";
+					_self.data.balloon( "自動更新解除" );
+				}
 			} ).appendTo( debugPanel );
 
 			_self.data.balloon( "デバッグ機能有効", true );
@@ -1271,7 +1297,7 @@ $( function() {
 				for ( var key in _self.data.dead ) {
 					var dead = _self.data.dead[key];
 					for ( var i = 0; i < dead.length; i++ ) {
-						_self.data.styleSheet.insertRule( "#No01 td." + dead[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: blue;padding: 2px 5px;color:white;}" );
+						_self.data.styleSheet.insertRule( "#No01 td." + dead[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: red;padding: 2px 5px;color:white;}" );
 						_self.data.styleSheet.insertRule( "#ruru-ext-position-dialog div." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
 					}
 				}
@@ -1279,7 +1305,7 @@ $( function() {
 				for ( var key in _self.data.hang ) {
 					var hang = _self.data.hang[key];
 					for ( var i = 0; i < hang.length; i++ ) {
-						_self.data.styleSheet.insertRule( "#No01 td." + hang[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: red;padding: 2px 5px;color:white;}" );
+						_self.data.styleSheet.insertRule( "#No01 td." + hang[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: blue;padding: 2px 5px;color:white;}" );
 					}
 				}
 			}
