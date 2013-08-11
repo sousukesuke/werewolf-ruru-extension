@@ -1281,16 +1281,20 @@ $( function() {
 			var uranaiUsers = [];
 			for ( var i = 0; i < uranais.length; i++ ) {
 				var userData = _self.data.users[uranais[i]];
-				headRow.append( "<td class='" + uranais[i] + " gray-table-data'>" + userData["name"] + "</td>" );
-				uranaiUsers.push( userData );
+				if ( !userData["役職解除"] ) {
+					headRow.append( "<td class='" + uranais[i] + " gray-table-data'>" + userData["name"] + "</td>" );
+					uranaiUsers.push( userData );
+				}
 			}
 
 			var reis = _self.data.positionOrders["霊　能"];
 			var reiUsers = [];
 			for ( var i = 0; i < reis.length; i++ ) {
 				var userData = _self.data.users[reis[i]];
-				headRow.append( "<td class='" + reis[i] + " gray-table-data'>" + userData["name"] + "</td>" );
-				reiUsers.push( userData );
+				if ( !userData["役職解除"] ) {
+					headRow.append( "<td class='" + reis[i] + " gray-table-data'>" + userData["name"] + "</td>" );
+					reiUsers.push( userData );
+				}
 			}
 
 			for ( var userid in _self.data.users ) {
