@@ -55,12 +55,21 @@
 	user-select: none;
 }
 
+#ruru-ext-gray-table-dialog td {
+	cursor: default;
+}
+
 #ruru-ext-gray-head td {
 	min-width: 6em;
 }
 
 #ruru-ext-gray-body td {
 	border-top: 1px solid #dddddd;
+}
+
+#ruru-ext-gray-table-dialog td.gray-table-head {
+	text-align: center;
+	border-left: 1px solid #dddddd;
 }
 
 #ruru-ext-gray-table-dialog td.gray-table-data {
