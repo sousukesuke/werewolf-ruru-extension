@@ -577,7 +577,7 @@ $( function() {
 				}
 			};
 
-			$( document ).on( "contextmenu", "#No01 td, #No09 td", function( event ) {
+			$( document ).on( "contextmenu", "#No01 td, #No09 td, #ruru-ext-gray-table-dialog td", function( event ) {
 				var menuTarget = event.target;
 				var parents = $( menuTarget ).parents( "td:first" );
 				if ( parents.length ) {
@@ -616,7 +616,7 @@ $( function() {
 
 				var userid = $( event.target ).attr( "userid" );
 
-				_self.createMenu( userid );
+				_self.createMenu( event.target, userid );
 
 			} ).on( "execmenu", function( event, target ) {
 				hidemenu();
@@ -853,7 +853,7 @@ $( function() {
 		refreshLog : function() {
 			$( "#ruru-log-table" ).accordion( "refresh" );
 		},
-		createMenu : function( userid ) {
+		createMenu : function( ui, userid ) {
 			var _self = this;
 
 			if ( userid ) {
@@ -918,6 +918,24 @@ $( function() {
 					}
 					_self.data.menu.append( "<hr/>" );
 				}
+			}
+
+			if ( $( ui ).hasClass( "gray-table-data" ) ) {
+				var from = $( ui ).attr( "fromuserid" );
+				var to = $( ui ).attr( "touserid" );
+
+				if ( $( ui ).hasClass( "gray-table-data-white" ) ) {
+					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人　狼</a></li>" );
+				} else if ( $( ui ).hasClass( "gray-table-data-black" ) ) {
+					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村　人</a></li>" );
+				} else {
+					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村　人</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人　狼</a></li>" );
+				}
+
+				_self.data.menu.append( "<hr/>" );
 			}
 
 			if ( $( "#No01 td." + userid + ".icon.dv" ).length !== 0 ) {
@@ -1127,6 +1145,21 @@ $( function() {
 				_self.data.users[userid]["dead"] = false;
 
 				_self.data.hang[day] = hang;
+			} else if ( action === "menu-gray-table-delete" ) {
+				var from = $( selected ).attr( "fromuserid" );
+				var to = $( selected ).attr( "touserid" );
+
+				delete _self.data.users[from]["結果"][to];
+			} else if ( action === "menu-gray-table-black" ) {
+				var from = $( selected ).attr( "fromuserid" );
+				var to = $( selected ).attr( "touserid" );
+
+				_self.data.users[from]["結果"][to] = "人　狼";
+			} else if ( action === "menu-gray-table-white" ) {
+				var from = $( selected ).attr( "fromuserid" );
+				var to = $( selected ).attr( "touserid" );
+
+				_self.data.users[from]["結果"][to] = "村　人";
 			}
 
 			_self.updateCss();
@@ -1282,7 +1315,7 @@ $( function() {
 			for ( var i = 0; i < uranais.length; i++ ) {
 				var userData = _self.data.users[uranais[i]];
 				if ( !userData["役職解除"] ) {
-					headRow.append( "<td class='" + uranais[i] + " gray-table-data'>" + userData["name"] + "</td>" );
+					headRow.append( "<td class='" + uranais[i] + " gray-table-head' userid='" + uranais[i] + "'>" + userData["name"] + "</td>" );
 					uranaiUsers.push( userData );
 				}
 			}
@@ -1292,7 +1325,7 @@ $( function() {
 			for ( var i = 0; i < reis.length; i++ ) {
 				var userData = _self.data.users[reis[i]];
 				if ( !userData["役職解除"] ) {
-					headRow.append( "<td class='" + reis[i] + " gray-table-data'>" + userData["name"] + "</td>" );
+					headRow.append( "<td class='" + reis[i] + " gray-table-head' userid='" + reis[i] + "'>" + userData["name"] + "</td>" );
 					reiUsers.push( userData );
 				}
 			}
@@ -1301,19 +1334,21 @@ $( function() {
 				var userData = _self.data.users[userid];
 
 				var bodyRow = $( "<tr></tr>" );
-				bodyRow.append( "<td class='" + userid + "'>" + userData["name"] + "</td>" );
+				bodyRow.append( "<td class='" + userid + "' userid='" + userid + "'>" + userData["name"] + "</td>" );
 
 				var black = false;
 
 				for ( var j = 0; j < uranaiUsers.length; j++ ) {
-					var col = $( "<td class='gray-table-data'></td>" ).appendTo( bodyRow );
+					var col = $( "<td class='gray-table-data' fromuserid='" + uranaiUsers[j]["userid"] + "' touserid='" + userid + "'></td>" ).appendTo( bodyRow );
 
 					var result = uranaiUsers[j]["結果"][userid];
 					if ( result === "人　狼" ) {
 						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span>" );
+						col.addClass( "gray-table-data-black" );
 						black = true;
 					} else if ( result === "村　人" ) {
 						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span>" );
+						col.addClass( "gray-table-data-white" );
 					} else if ( uranaiUsers[j]["userid"] == userid ) {
 						col.text( "-" );
 					}
@@ -1324,14 +1359,16 @@ $( function() {
 				}
 
 				for ( var j = 0; j < reiUsers.length; j++ ) {
-					var col = $( "<td class='gray-table-data'></td>" ).appendTo( bodyRow );
+					var col = $( "<td class='gray-table-data' fromuserid='" + reiUsers[j]["userid"] + "' touserid='" + userid + "'></td>" ).appendTo( bodyRow );
 
 					var result = reiUsers[j]["結果"][userid];
 					if ( result === "人　狼" ) {
 						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span>" );
+						col.addClass( "gray-table-data-black" );
 						black = true;
 					} else if ( result === "村　人" ) {
 						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span>" );
+						col.addClass( "gray-table-data-white" );
 					} else if ( reiUsers[j]["userid"] == userid ) {
 						col.text( "-" );
 					}
