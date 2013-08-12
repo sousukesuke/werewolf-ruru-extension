@@ -39,4 +39,5 @@
 <br>
 == その他 ==
 
-Googleアカウントをお持ちでない方（または *[https://code.google.com/p/werewolf-ruru-extension/issues/list Issues]* への投稿に抵抗がある方）の為に<br/>別途 *[http://www3.rocketbbs.com/731/ruruext.html 掲示板]* を借りました。 *[http://www3.rocketbbs.com/731/ruruext.html こちら]* も気軽にご利用下さい。
+Googleアカウントをお持ちでない方（または *[https://code.google.com/p/werewolf-ruru-extension/issues/list Issues]* への投稿に抵抗がある方）の為に
+別途 *[http://www3.rocketbbs.com/731/ruruext.html 掲示板]* を借りました。 *[http://www3.rocketbbs.com/731/ruruext.html こちら]* も気軽にご利用下さい。
