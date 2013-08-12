@@ -36,3 +36,7 @@
 *[https://docs.google.com/document/d/1xxkO4R1wsv2aPcNCkOhGtKFvvWlZAHi9r9vr56-Yuqw/edit?usp=sharing るる鯖拡張プラグイン 機能一覧]*
 
 
+<br>
+== その他 ==
+
+Googleアカウントをお持ちでない方（または *[https://code.google.com/p/werewolf-ruru-extension/issues/list Issues]* への投稿に抵抗がある方）の為に別途 *[http://www3.rocketbbs.com/731/ruruext.html 掲示板]* を借りました。 *[http://www3.rocketbbs.com/731/ruruext.html こちら]* も気軽にご利用下さい。
