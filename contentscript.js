@@ -668,7 +668,7 @@ $( function() {
 				if ( aaaauto === "none" ) {
 					$( "#todob" ).click();
 
-					aaaauto = setInterval( autoUpdate, 20000 );
+					aaaauto = setInterval( autoUpdate, 10000 );
 					_self.data.balloon( "自動更新ON", true );
 				} else {
 					clearInterval( aaaauto );
@@ -682,6 +682,14 @@ $( function() {
 					_self.data.balloon( "自動更新解除" );
 				}
 			} ).appendTo( debugPanel );
+
+			$( document ).on( "keydown", function() {
+				if ( aaaauto !== "none" ) {
+					clearInterval( aaaauto );
+					aaaauto = "none";
+					_self.data.balloon( "自動更新解除" );
+				}
+			} );
 
 			_self.data.balloon( "デバッグ機能有効", true );
 		},
