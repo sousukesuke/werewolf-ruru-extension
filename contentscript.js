@@ -1092,8 +1092,8 @@ $( function() {
 			}
 
 			_self.data.menu.append( "<li id='menu-person'><a href='#'><span class='ui-icon ui-icon-person'></span>内訳</a></li>" );
-			_self.data.menu.append( "<li id='menu-diary'><a href='#'><span class='ui-icon ui-icon-pencil'></span>メモ帳</a></li>" );
 			_self.data.menu.append( "<li id='menu-gray-table'><a href='#'><span class='ui-icon ui-icon-calculator'></span>役職テーブル</a></li>" );
+			_self.data.menu.append( "<li id='menu-diary'><a href='#'><span class='ui-icon ui-icon-pencil'></span>メモ帳</a></li>" );
 
 			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><a href='#'><span class='ui-icon ui-icon-wrench'></span>表示設定</a></li>" ).appendTo( _self.data.menu ) );
 
@@ -1140,7 +1140,7 @@ $( function() {
 			}
 
 			optionalMenu.append( "<hr/>" );
-			optionalMenu.append( "<li id='menu-colors'><a href='#'><span class='ui-icon ui-icon-pencil'></span>カラー詳細</a></li>" );
+			optionalMenu.append( "<li id='menu-colors'><a href='#'><span class='ui-icon ui-icon-image'></span>カラー詳細</a></li>" );
 			optionalMenu.append( "<li id='menu-reset'><a href='#'><span class='ui-icon ui-icon-alert'></span>設定リセット</a></li>" );
 		},
 		execAction : function( userid, action, selected ) {
