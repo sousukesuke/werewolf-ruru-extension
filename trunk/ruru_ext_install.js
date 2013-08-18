@@ -115,6 +115,16 @@ $( function() {
 			}
 
 			step = 3;
+		} else {
+			var tds = $( "#No01 td.val" ).get();
+			for ( var i = 0; i < tds.length; i++ ) {
+				var td = $( tds[i] );
+
+				if ( td.text() !== "　" ) {
+					td.attr( "onclick", "gloss('" + ( i + 1 ) + "');" );
+					td.attr( "onmouseout", "nd();" );
+				}
+			}
 		}
 
 		if ( status.attr( "reverselog" ) === "true" ) {
