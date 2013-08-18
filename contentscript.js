@@ -645,7 +645,7 @@ $( function() {
 				}
 			};
 
-			$( document ).on( "contextmenu", "#No01 td, #No09 td, #ruru-ext-gray-table-dialog td", function( event ) {
+			$( document ).on( "contextmenu", "#No01 td, #No09 td, #ruru-ext-gray-table-dialog td, #ruru-log-table td", function( event ) {
 				var menuTarget = event.target;
 				var parents = $( menuTarget ).parents( "td:first" );
 				if ( parents.length ) {

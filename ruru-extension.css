@@ -82,3 +82,7 @@ div.colorPicker-picker {
 	display: inline-block;
 	margin-right: 5px;
 }
+
+#ruru-log-table td {
+	cursor: default;
+}
