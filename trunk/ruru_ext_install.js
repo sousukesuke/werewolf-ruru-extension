@@ -121,7 +121,7 @@ $( function() {
 				var td = $( tds[i] );
 
 				if ( td.text() !== "　" ) {
-					td.attr( "onclick", "gloss('" + ( i + 1 ) + "');" );
+					td.attr( "onclick", "gloss('" + i + "');" );
 					td.attr( "onmouseout", "nd();" );
 				}
 			}
