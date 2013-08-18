@@ -758,7 +758,12 @@ $( function() {
 
 			var debugPanel = $( "<div style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1000;'></div>" ).appendTo( "body" );
 
-			$( "<button style='display:block;'>ログ保存</button>" ).button().on( "click", function() {
+			$( "<button style='display:block;'>ログ保存</button>" ).button( {
+				icons : {
+					primary : "ui-icon-disk"
+				},
+				text : false
+			} ).on( "click", function() {
 				var title = "DEBUG : " + new Date().getTime();
 
 				var table = $( "#No09>table" ).clone().css( "width", "100%" ).get();
@@ -782,7 +787,12 @@ $( function() {
 				}
 			};
 
-			$( "<button style='display:block;'>自動更新</button>" ).button().on( "click", function() {
+			$( "<button style='display:block;'>自動更新</button>" ).button( {
+				icons : {
+					primary : "ui-icon-refresh"
+				},
+				text : false
+			} ).on( "click", function() {
 				if ( aaaauto === "none" ) {
 					$( "#todob" ).click();
 
