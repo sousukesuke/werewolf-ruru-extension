@@ -70,16 +70,16 @@ $( function() {
 			hang : {},
 			dialogStyleSheet : undefined,
 			defaultPositions : {
-				"占　い" : [ "search", "#4169E1", "#dbeef3", "判定", "占" ],
-				"霊　能" : [ "heart", "#c00000", "#dbeef3", "判定", "霊" ],
-				"狩　人" : [ "note", "#c00000", "#c3d69b", "対象", "狩" ],
-				"共　有" : [ "link", "#4169E1", "#c3d69b", "", "共" ],
-				"狂　人" : [ "circle-minus", "#92cddc", "#000000", "", "狂" ],
-				"人　狼" : [ "circle-close", "#c00000", "#000000", "", "狼" ],
-				"妖　狐" : [ "alert", "#c00000", "#e5b9b7", "", "狐" ],
-				"狂信者" : [ "alert", "#92cddc", "#000000", "", "信" ],
-				"背徳者" : [ "alert", "#366092", "#e5b9b7", "", "背" ],
-				"猫　又" : [ "alert", "#000000", "#9bbb59", "", "猫" ]
+				"占　い" : [ "search", "#82cafa", "#ffffff", "判定", "占" ],
+				"霊　能" : [ "heart", "#0000a0", "#ffffff", "判定", "霊" ],
+				"狩　人" : [ "note", "#a52a2a", "#ffffff", "対象", "狩" ],
+				"共　有" : [ "link", "#008000", "#ffffff", "", "共" ],
+				"狂　人" : [ "circle-minus", "#faafbe", "#000000", "", "狂" ],
+				"人　狼" : [ "circle-close", "#ff0000", "#000000", "", "狼" ],
+				"妖　狐" : [ "alert", "#000000", "#e5b9b7", "", "狐" ],
+				"狂信者" : [ "circle-plus", "#ff00ff", "#000000", "", "信" ],
+				"背徳者" : [ "info", "#c0c0c0", "#e5b9b7", "", "背" ],
+				"猫　又" : [ "calender", "#8a2be2", "#ffffff", "", "猫" ]
 			},
 			positionOrders : {
 				"占　い" : [],
@@ -110,7 +110,7 @@ $( function() {
 					"shadow" : true
 				}
 			},
-			graycolor : "#d8d8d8",
+			graycolor : "#d3d3d3",
 			temporary : {
 				selectedLog : -1
 			}
@@ -1561,7 +1561,7 @@ $( function() {
 				if ( status["line"] && status["underline"] ) {
 					style += "text-decoration:line-through underline;";
 				} else if ( status["line"] ) {
-					style += "text-decoration:line-through";
+					style += "text-decoration:line-through;";
 				} else if ( status["underline"] ) {
 					style += "text-decoration:underline;";
 				}
