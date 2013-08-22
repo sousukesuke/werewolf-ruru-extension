@@ -747,9 +747,10 @@ $( function() {
 		saveDialogPosition : function( dialog, rect ) {
 			var _self = this;
 
-			rect.width = $( dialog ).dialog( "option", "width" );
-			rect.height = $( dialog ).dialog( "option", "height" );
-			rect.position = $( dialog ).dialog( "option", "position" );
+			var parent = $( dialog ).parent( ".ui-dialog:first" );
+			rect.width = parseInt( parent.css( "width" ) );
+			rect.height = parseInt( parent.css( "height" ) ) + 7;// +ceil(padding&border-width)
+			rect.position = [ parseInt( parent.css( "left" ) ), parseInt( parent.css( "top" ) ) ];
 
 			localStorage.dialogRects = $.stringify( _self.data.dialogRects );
 		},
