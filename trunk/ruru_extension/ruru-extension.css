@@ -15,6 +15,14 @@
 	box-shadow: 2px 2px 4px black;
 }
 
+.ui-dialog-content .cs {
+	display: none;
+}
+
+.ui-dialog-content .cv {
+	display: none;
+}
+
 .ui-dialog-content .cng {
 	display: none;
 }

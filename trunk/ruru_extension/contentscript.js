@@ -1,4 +1,5 @@
 $( function() {
+
 	var _RuruExt = function() {
 	};
 
@@ -356,7 +357,7 @@ $( function() {
 						var targetUserid = _self.data.names[name];
 
 						var count = $( "#ruru-log-table .ui-accordion-content-active ." + targetUserid ).length / 2;
-						$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
+						$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" ).css( "color", count === 0 ? "whitesmoke" : ( count === 1 ? "red" : "black" ) );
 					}
 
 					_self.refreshLog();
@@ -391,7 +392,7 @@ $( function() {
 						var targetUserid = _self.data.names[name];
 
 						var count = $( "#ruru-log-table .ui-accordion-content-active ." + targetUserid ).length / 2;
-						$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" );
+						$( ".count-" + targetUserid, buttonPanel ).text( "[" + count + "]" ).css( "color", count === 0 ? "whitesmoke" : ( count === 1 ? "red" : "black" ) );
 					}
 				}
 			} );
@@ -862,7 +863,7 @@ $( function() {
 			for ( var name in _self.data.names ) {
 				var userid = _self.data.names[name];
 				var checkbox = $( "<input class='dialog-user-checkbox' type='checkbox' id='dialog-checkbox-" + userid + "' value='" + userid + "' style='vertical-align:sub;'/>" ).attr( "checked", true ).attr( "userid", userid );
-				var count = $( "<span class='dialog-user-count count-" + userid + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;'>[0]</span>" ).attr( "userid", userid );
+				var count = $( "<span class='dialog-user-count count-" + userid + "' style='display:inline-block;min-width:30px;cursor:pointer;font-weight:bold;color:whitesmoke;'>[0]</span>" ).attr( "userid", userid );
 				buttonPanel.append( $( "<div style='display:inline-block;white-space:nowrap;'></div>" ).append( checkbox ).append( "<label for='dialog-checkbox-" + userid + "' class='" + userid + "' style='display:inline-block;min-width:80px;'>" + name + "</label>" ).append( count ) );
 			}
 
@@ -1217,7 +1218,12 @@ $( function() {
 					_self.data.temporary.selectedLog = index;
 				}
 
-				_self.data.logDialog.dialog( "open" );
+				if ( _self.data.logDialog.dialog( "isOpen" ) ) {
+					$( "#ruru-log-table" ).accordion( "option", "active", _self.data.temporary.selectedLog );
+				} else {
+					_self.data.logDialog.dialog( "open" );
+				}
+
 			} else if ( action === "menu-log-of-day" ) {
 				var day = $( selected ).text();
 
@@ -1227,7 +1233,11 @@ $( function() {
 					_self.data.temporary.selectedLog = index;
 				}
 
-				_self.data.logDialog.dialog( "open" );
+				if ( _self.data.logDialog.dialog( "isOpen" ) ) {
+					$( "#ruru-log-table" ).accordion( "option", "active", _self.data.temporary.selectedLog );
+				} else {
+					_self.data.logDialog.dialog( "open" );
+				}
 			} else if ( action === "menu-person" ) {
 				_self.data.positionDialog.dialog( "open" );
 			} else if ( action === "menu-diary" ) {
