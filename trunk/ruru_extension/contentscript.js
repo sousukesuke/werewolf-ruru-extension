@@ -59,14 +59,18 @@ $( function() {
 				grayTableDialog : {
 					width : 390,
 					height : 300
-				}
+				},
+				voteDialog : {}
 			},
 			logDialog : undefined,
 			positionDialog : undefined,
 			colorDialog : undefined,
 			diaryDialog : undefined,
 			grayTableDialog : undefined,
+			voteDialog : undefined,
 			logTags : [],
+			voteCounts : [],
+			voteIndex : -1,
 			dead : {},
 			hang : {},
 			dialogStyleSheet : undefined,
@@ -145,7 +149,12 @@ $( function() {
 				}
 
 				if ( localStorage.dialogRects ) {
-					_self.data.dialogRects = $.parseJSON( localStorage.dialogRects );
+					var tmp = $.parseJSON( localStorage.dialogRects );
+					for ( var key in tmp ) {
+						if ( _self.data.dialogRects[key] ) {
+							_self.data.dialogRects[key] = tmp[key];
+						}
+					}
 				}
 
 				console.log( "設定読み込み", $.stringify( {
@@ -173,21 +182,7 @@ $( function() {
 
 			_self.data.days = [];
 			for ( var i = 1; i < 30; i++ ) {
-				var ord = "" + i;
-				switch ( ord % 10 ) {
-				case 1:
-					ord += "stDAY";
-					break;
-				case 2:
-					ord += "ndDAY";
-					break;
-				case 3:
-					ord += "rdDAY";
-					break;
-				default:
-					ord += "thDAY";
-				}
-				_self.data.days.push( ord );
+				_self.data.days.push( _self.ord( i ) + "DAY" );
 			}
 
 			chrome.extension.sendRequest( {
@@ -256,7 +251,7 @@ $( function() {
 					_self.onUpdateChat();
 				} catch ( e ) {
 					_self.data.balloon( "エラーが発生しました。", true );
-					console.error( e );
+					throw e;
 				}
 			};
 
@@ -270,7 +265,7 @@ $( function() {
 					}
 				} catch ( e ) {
 					_self.data.balloon( "エラーが発生しました。", true );
-					console.error( e );
+					throw e;
 				}
 			};
 
@@ -289,7 +284,7 @@ $( function() {
 					}
 				} catch ( e ) {
 					_self.data.balloon( "エラーが発生しました。", true );
-					console.error( e );
+					throw e;
 				}
 			};
 
@@ -628,7 +623,21 @@ $( function() {
 				_self.updateGrayTable();
 			} );
 
-			_self.data.menu = $( "<ul style='display:none; position:absolute;z-index:6000;font-size:11px;white-space:nowrap;min-width:130px'></ul>" );
+			_self.data.voteDialog = $( "<div style='font-size:11px;overflow:auto;' id='ruru-ext-vote-dialog'><table class='ui-widget-content ui-corner-all'><thead id='ruru-ext-vote-head'></thead><tbody id='ruru-ext-vote-body'></tbody></table></div>" ).appendTo( "body" ).dialog( {
+				autoOpen : false,
+				width : _self.data.dialogRects.voteDialog.width,
+				height : _self.data.dialogRects.voteDialog.height,
+				position : _self.data.dialogRects.voteDialog.position,
+				title : "投票結果",
+				resizeStop : function() {
+					_self.saveDialogPosition( this, _self.data.dialogRects.voteDialog );
+				},
+				dragStop : function() {
+					_self.saveDialogPosition( this, _self.data.dialogRects.voteDialog );
+				}
+			} );
+
+			_self.data.menu = $( "<ul id='ruru-ext-menu' style='display:none; position:absolute;z-index:6000;font-size:11px;white-space:nowrap;min-width:130px'></ul>" );
 			_self.data.menu.appendTo( "body" );
 			_self.data.menu.menu();
 
@@ -646,7 +655,7 @@ $( function() {
 				}
 			};
 
-			$( document ).on( "contextmenu", "#No01 td, #No09 td, #ruru-ext-gray-table-dialog td, #ruru-log-table td", function( event ) {
+			$( document ).on( "contextmenu", "#No01 td, #No09 td, #ruru-ext-gray-table-dialog td, #ruru-log-table td, #ruru-ext-vote-dialog td", function( event ) {
 				var menuTarget = event.target;
 				var parents = $( menuTarget ).parents( "td:first" );
 				if ( parents.length ) {
@@ -689,7 +698,7 @@ $( function() {
 					_self.createMenu( event.target, userid );
 				} catch ( e ) {
 					_self.data.balloon( "エラーが発生しました。", true );
-					console.error( e );
+					throw e;
 				}
 
 			} ).on( "execmenu", function( event, target ) {
@@ -702,7 +711,7 @@ $( function() {
 					_self.execAction( userid, action, event.target );
 				} catch ( e ) {
 					_self.data.balloon( "エラーが発生しました。", true );
-					console.error( e );
+					throw e;
 				}
 			} );
 
@@ -852,7 +861,8 @@ $( function() {
 						userid : userid,
 						name : name,
 						dead : false,
-						hang : false
+						hang : false,
+						vote : []
 					};
 					_self.data.names[name] = userid;
 				}
@@ -946,12 +956,13 @@ $( function() {
 				var updateHistory = false;
 
 				if ( time === "夕刻" ) {
-					_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
 					var table = $( "#No09>table" ).clone().css( "width", "100%" ).get();
 					$( "td.cn", table ).removeAttr( "onclick" );
 					_self.data.logTags.push( _self.data.day );
 					$( "#ruru-log-table" ).append( "<h3>" + _self.data.day + "</h3>" ).append( $( "<div style='background:white;padding:0px 2px 20px 2px;overflow-y:scroll;'></div>" ).append( table ) );
 					_self.refreshLog();
+
+					_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
 				} else if ( time === "昼" ) {
 					var dead = [];
 					$( "#No09 td.cs>span.death>span.name" ).each( function( i, name ) {
@@ -970,6 +981,43 @@ $( function() {
 						updateHistory = true;
 					} );
 					_self.data.hang[_self.data.day] = hang;
+
+					var tables;
+					if ( _self.data.reverseLog ) {
+						tables = $( "#No09 td.cv tbody" ).get();
+					} else {
+						tables = $( "#No09 td.cv tbody" ).get().reverse();
+					}
+
+					if ( tables.length ) {
+						for ( var i = 0; i < tables.length; i++ ) {
+							var voteCount = {
+								day : _self.data.day,
+								orderCount : tables.length,
+								order : i,
+								count : {},
+							};
+							$( "tr", tables[i] ).each( function( i, row ) {
+								var names = $( "span.name", row ).get();
+								var fromuserid = _self.data.names[$( names[0] ).text()];
+								var touserid = _self.data.names[$( names[1] ).text()];
+
+								_self.data.users[fromuserid]["vote"].push( touserid );
+
+								if ( voteCount.count[touserid] ) {
+									voteCount.count[touserid]++;
+								} else {
+									voteCount.count[touserid] = 1;
+								}
+							} );
+							_self.data.voteCounts.push( voteCount );
+						}
+
+						_self.data.voteIndex = -1;
+						_self.refreshVote();
+
+						_self.data.balloon( "投票結果を保存しました 【" + _self.data.day + "】" );
+					}
 				} else if ( time === "夜明け" ) {
 				} else if ( time === "ゲーム終了" ) {
 				}
@@ -990,6 +1038,119 @@ $( function() {
 		},
 		refreshLog : function() {
 			$( "#ruru-log-table" ).accordion( "refresh" );
+		},
+		refreshVote : function() {
+			var _self = this;
+
+			if ( _self.data.voteCounts.length == 0 ) {
+				return;
+			}
+
+			var selectedIndex = _self.data.voteIndex === -1 ? _self.data.voteCounts.length - 1 : _self.data.voteIndex;
+
+			var votehead = $( "#ruru-ext-vote-head" ).empty();
+			var votebody = $( "#ruru-ext-vote-body" ).empty();
+
+			var headtr1 = $( "<tr></tr>" ).appendTo( votehead );
+			var headtr2 = $( "<tr></tr>" ).appendTo( votehead );
+			if ( _self.data.voteIndex === -1 ) {
+				headtr1.append( "<td class='vote-head-order-reset' rowspan='2' voteorder='-1' style='background-color:lightblue;'></td>" );
+			} else {
+				headtr1.append( "<td class='vote-head-order-reset' rowspan='2' voteorder='-1'></td>" );
+			}
+			for ( var i = 0; i < _self.data.voteCounts.length; i++ ) {
+				var count = _self.data.voteCounts[i];
+				if ( count.order === 0 ) {
+					headtr1.append( "<td class='vote-head-day' colspan='" + count.orderCount + "'>" + count.day + "</td>" );
+				}
+
+				if ( _self.data.voteIndex === i ) {
+					headtr2.append( "<td class='vote-head-order' voteorder='" + i + "' style='background-color:lightblue;'>" + ( count.order + 1 ) + " 回目</td>" );
+				} else {
+					headtr2.append( "<td class='vote-head-order' voteorder='" + i + "'>" + ( count.order + 1 ) + " 回目</td>" );
+				}
+			}
+
+			$( "#ruru-ext-vote-head td.vote-head-order,#ruru-ext-vote-head td.vote-head-order-reset" ).on( "click", function() {
+				var index = parseInt( $( this ).attr( "voteorder" ) );
+				_self.data.voteIndex = index;
+				_self.refreshVote();
+			} );
+
+			var votes = [];
+
+			var selectedCounts = _self.data.voteCounts[selectedIndex]["count"];
+
+			for ( var userid in _self.data.users ) {
+				var userData = _self.data.users[userid];
+				var vote = userData["vote"];
+				var count = selectedCounts[userid] === undefined ? -1 : selectedCounts[userid];
+				var point = parseInt( userid.slice( 5 ) ) * -1;
+
+				if ( _self.data.voteIndex === -1 ) {
+					point += count * 100000;
+
+					if ( vote[selectedIndex] ) {
+						point += selectedCounts[vote[selectedIndex]] * 10000;
+						point += vote[selectedIndex].slice( 5 ) * 100;
+					}
+				} else {
+					if ( vote[selectedIndex] ) {
+						point += selectedCounts[vote[selectedIndex]] * 100000;
+						point += vote[selectedIndex].slice( 5 ) * 10000;
+					}
+					if ( selectedCounts[userid] ) {
+						point += selectedCounts[userid] * 100;
+					}
+				}
+
+				votes.push( {
+					userid : userid,
+					name : userData["name"],
+					count : count,
+					vote : vote,
+					point : point
+				} );
+			}
+
+			votes.sort( function( left, right ) {
+				return right.point - left.point;
+			} );
+
+			for ( var ii = 0; ii < votes.length; ii++ ) {
+				var userData = votes[ii];
+				var userid = userData["userid"];
+
+				var row = $( "<tr></tr>" ).appendTo( votebody );
+				row.append( "<td class='" + userid + " vote-body-user' userid='" + userid + "'>" + userData["name"] + ( userData["count"] > 0 ? "<span style='font-weight:bold;float:right;'> [" + userData["count"] + "]" : "</span>" ) + "</td>" );
+				var vote = userData["vote"];
+				for ( var i = 0; i < vote.length; i++ ) {
+					var voteuserid = vote[i];
+					var cel = $( "<td class='" + voteuserid + " vote-body-vote' userid='" + voteuserid + "'></td>" );
+
+					var mu = _self.data.users[voteuserid]["vote"][i] === userid;
+
+					if ( _self.data.voteCounts[i]["order"] !== 0 ) {
+						if ( vote[i - 1] !== voteuserid ) {
+							if ( mu ) {
+								cel.append( "<span class='ui-icon ui-icon-transferthick-e-w'></span>" );
+							} else {
+								cel.append( "<span class='ui-icon ui-icon-arrowreturnthick-1-e'></span>" );
+							}
+						} else if ( mu ) {
+							cel.append( "<span class='ui-icon ui-icon-transfer-e-w'></span>" );
+						}
+					} else if ( mu ) {
+						cel.append( "<span class='ui-icon ui-icon-transfer-e-w'></span>" );
+					}
+
+					cel.append( _self.data.users[voteuserid]["name"] ).appendTo( row );
+				}
+
+				if ( vote.length < _self.data.voteCounts.length ) {
+					row.append( "<td class='vote-body-vote vote-body-vote-none' colspan='" + ( _self.data.voteCounts.length - vote.length ) + "'></td>" );
+				}
+			}
 		},
 		createMenu : function( ui, userid ) {
 			var _self = this;
@@ -1101,6 +1262,10 @@ $( function() {
 					logsub.append( "<li id='menu-log-of-day'><a href='#'><span class='ui-icon ui-icon-comment'></span>" + day + "</a></li>" );
 					logmenu.attr( "last-day", day );
 				}
+			}
+
+			if ( _self.data.voteCounts.length ) {
+				_self.data.menu.append( "<li id='menu-vote'><a href='#'><span class='ui-icon ui-icon-tag'></span>投票結果</a></li>" );
 			}
 
 			_self.data.menu.append( "<li id='menu-person'><a href='#'><span class='ui-icon ui-icon-person'></span>内訳</a></li>" );
@@ -1224,6 +1389,8 @@ $( function() {
 					_self.data.logDialog.dialog( "open" );
 				}
 
+			} else if ( action === "menu-vote" ) {
+				_self.data.voteDialog.dialog( "open" );
 			} else if ( action === "menu-log-of-day" ) {
 				var day = $( selected ).text();
 
@@ -1627,6 +1794,7 @@ $( function() {
 						_self.data.styleSheet.insertRule( "#ruru-ext-position-dialog div." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
 						_self.data.styleSheet.insertRule( "#ruru-log-users label." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
 						_self.data.styleSheet.insertRule( "#ruru-ext-gray-table-dialog td." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
+						_self.data.styleSheet.insertRule( "#ruru-ext-vote-dialog td." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
 					}
 				}
 
@@ -1636,6 +1804,18 @@ $( function() {
 						_self.data.styleSheet.insertRule( "#No01 td." + hang[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: blue;padding: 2px 5px;color:white;}" );
 					}
 				}
+			}
+		},
+		ord : function( count ) {
+			switch ( count % 10 ) {
+			case 1:
+				return count + "st";
+			case 2:
+				return count + "nd";
+			case 3:
+				return count + "rd";
+			default:
+				return count + "th";
 			}
 		}
 	};
