@@ -9017,8 +9017,8 @@ $.widget( "ui.dialog", {
 	_moveToTop: function( event, silent ) {
 		/* fixed #9166 (http://bugs.jqueryui.com/ticket/9166) */
 		var $parent = this.uiDialog.parent();
-		var $elementsOnSameLevel = $parent.children();
-		
+		var $elementsOnSameLevel = $parent.children(":not(#ruru-ext-menu)");
+
 		var heighestZIndex = 0;
 		$.each($elementsOnSameLevel, function(index, element) {
 			var zIndexOfElement = $(element).css('z-index');
