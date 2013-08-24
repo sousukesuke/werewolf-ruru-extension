@@ -638,7 +638,7 @@ $( function() {
 			} );
 
 			_self.data.menu = $( "<ul id='ruru-ext-menu' style='display:none; position:absolute;z-index:6000;font-size:11px;white-space:nowrap;min-width:130px'></ul>" );
-			_self.data.menu.appendTo( "body" );
+			_self.data.menu.appendTo( "body" ).wrap( "<div style='position:absolute;width:0px;height:0px;top:0px;left:0px;margin:0px;padding:0px;border:none;'></div>" );
 			_self.data.menu.menu();
 
 			var hidemenu = function( event, target ) {
