@@ -32,6 +32,7 @@
 	var selectorOwner = undefined;
 	var selectorParent = undefined;
 	var activePalette = undefined;
+	var holder = $( '<div style="position:absolute;width:0px;height:0px;top:0px;left:0px;margin:0px;padding:0px;border:none;"></div>' ).appendTo( "body" );
 	var cItterate = 0;
 	var templates = {
 		control : $( '<div class="colorPicker-picker">&nbsp;</div>' ),
@@ -109,7 +110,7 @@
 				newHexLabel.hide();
 			}
 
-			$( "body" ).append( newPalette );
+			$( holder ).append( newPalette );
 
 			newPalette.hide();
 

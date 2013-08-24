@@ -9017,7 +9017,7 @@ $.widget( "ui.dialog", {
 	_moveToTop: function( event, silent ) {
 		/* fixed #9166 (http://bugs.jqueryui.com/ticket/9166) */
 		var $parent = this.uiDialog.parent();
-		var $elementsOnSameLevel = $parent.children(":not(#ruru-ext-menu)");
+		var $elementsOnSameLevel = $parent.children();
 
 		var heighestZIndex = 0;
 		$.each($elementsOnSameLevel, function(index, element) {
@@ -9030,7 +9030,7 @@ $.widget( "ui.dialog", {
 			}
 		});
 		var currentZIndex = this.uiDialog.css('z-index');
-		
+
 		var moved;
 		if (currentZIndex >= heighestZIndex) {
 			moved = false;
