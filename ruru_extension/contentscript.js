@@ -304,6 +304,9 @@ $( function() {
 		setupComponents : function() {
 			var _self = this;
 
+			// z-indexの計算対象にならないように ラップ
+			$( "#overDiv" ).wrap( "<div></div>" ).css( "z-index", "9999" );
+
 			var balloonContainer = $( "<div style='display:inline-block;width:150px;position:absolute;top:5px;left:5px;'></div>" ).appendTo( "body" );
 
 			_self.data.balloon = function( message, alert, html ) {
@@ -767,7 +770,7 @@ $( function() {
 		setupDebugComponents : function() {
 			var _self = this;
 
-			var debugPanel = $( "<div style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1000;'></div>" ).appendTo( "body" );
+			var debugPanel = $( "<div style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1010;'></div>" ).appendTo( "body" );
 
 			$( "<button style='display:block;'>ログ保存</button>" ).button( {
 				icons : {
