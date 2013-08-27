@@ -116,12 +116,15 @@ $( function() {
 
 			step = 3;
 		} else {
+			var icons = $( "#No01 td.icon" ).get();
 			var tds = $( "#No01 td.val" ).get();
 			for ( var i = 0; i < tds.length; i++ ) {
 				var td = $( tds[i] );
 
 				if ( td.text() !== "　" ) {
-					td.attr( "onclick", "gloss('" + i + "');" );
+					var icon = $( icons[i] );
+
+					td.attr( "onclick", icon.attr( "onclick" ) );
 					td.attr( "onmouseout", "nd();" );
 				}
 			}
