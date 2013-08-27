@@ -46,9 +46,7 @@
     "ruru_ext_install.js"
   ],
   "permissions" : [
-    "tabs",
-    "webRequest",
-    "*://werewolf.ddo.jp/*"
+    "tabs"
   ],
   "manifest_version": 2
 }
