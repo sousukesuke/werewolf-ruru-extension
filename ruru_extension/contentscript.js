@@ -243,8 +243,19 @@ $( function() {
 		install : function() {
 			var _self = this;
 
-			_self.data.status = $( "<span id='ruru-ext-status' reverselog='" + _self.data.reverseLog + "' day='1rdDAY' time='開始前'></span>" ).appendTo( "body" );
-			var dispatcher = $( "<button id='ruru-ext-event-dispatcher' style='display:none;'></button>" ).appendTo( "body" );
+			var installedScript;
+
+			_self.data.status = $( "#ruru-ext-status" );
+			if ( installedScript = _self.data.status.length !== 0 ) {
+				_self.data.status.attr( "reverselog", _self.data.reverseLog );
+			} else {
+				_self.data.status = $( "<span id='ruru-ext-status' reverselog='" + _self.data.reverseLog + "' useindex='false' day='1rdDAY' time='開始前'></span>" ).appendTo( "body" );
+			}
+
+			var dispatcher = $( "#ruru-ext-event-dispatcher" );
+			if ( dispatcher.length === 0 ) {
+				dispatcher = $( "<button id='ruru-ext-event-dispatcher' style='display:none;'></button>" ).appendTo( "body" );
+			}
 
 			var idle = function() {
 				try {
@@ -288,18 +299,22 @@ $( function() {
 				}
 			};
 
-			dispatcher.on( "click", setupComponent );
+			if ( installedScript ) {
+				setupComponent();
+			} else {
+				dispatcher.on( "click", setupComponent );
 
-			$.get( chrome.extension.getURL( "ruru_ext_install.js" ), function( data ) {
+				$.get( chrome.extension.getURL( "ruru_ext_install.js" ), function( data ) {
 
-				var head = document.getElementsByTagName( "head" ).item( 0 );
+					var head = document.getElementsByTagName( "head" ).item( 0 );
 
-				var scr = document.createElement( "script" );
-				scr.setAttribute( "type", "text/javascript" );
-				scr.innerText = data;
+					var scr = document.createElement( "script" );
+					scr.setAttribute( "type", "text/javascript" );
+					scr.innerText = data;
 
-				head.appendChild( scr );
-			} );
+					head.appendChild( scr );
+				} );
+			}
 		},
 		setupComponents : function() {
 			var _self = this;
