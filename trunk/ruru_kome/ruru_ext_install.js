@@ -159,19 +159,29 @@ $( function() {
 			var h1 = $( "#chatscr2_1>.d1215" ).height();
 			$( '#chatscr2_1' ).scrollTop( h1 );
 		} else {
-			var mslist = $( "#No09>table>tbody>tr" ).get();
-
 			if ( step === 3 ) {
-				for ( var i = 0; i < mslist.length; i++ ) {
-					var row = mslist[i];
-					var cn = $( "td.cn:first>span.name", row );
-					if ( cn.length !== 0 ) {
+				if ( useindex ) {
+					var mslist = $( "#No09>table>tbody>tr>td.cn>span.name" );
+					chatIndex = mslist.length;
+
+					console.log( "chat index : " + chatIndex );
+
+					for ( var i = 0; i < mslist.length; i++ ) {
+						var cn = mslist.eq( i );
 						var name = cn.text();
 						var user = names[name];
+						cn.parent().attr( "id", "chat-" + --chatIndex ).addClass( user ).attr( "userid", user ).next().addClass( user ).attr( "userid", user );
+					}
+				} else {
+					var mslist = $( "#No09>table>tbody>tr" ).get();
 
-						if ( useindex ) {
-							cn.parent().attr( "id", "chat-" + chatIndex++ ).addClass( user ).attr( "userid", user ).next().addClass( user ).attr( "userid", user );
-						} else {
+					for ( var i = 0; i < mslist.length; i++ ) {
+						var row = mslist[i];
+						var cn = $( "td.cn:first>span.name", row );
+						if ( cn.length !== 0 ) {
+							var name = cn.text();
+							var user = names[name];
+
 							cn.parent().addClass( user ).attr( "userid", user ).next().addClass( user ).attr( "userid", user );
 						}
 					}

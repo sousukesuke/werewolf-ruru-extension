@@ -1,0 +1,15 @@
+.ruru-kome-balloon {
+	font-size: 11px;
+	margin-bottom: 5px;
+	padding: 1em;
+	box-shadow: 3px 3px 6px black;
+}
+
+.ui-dialog {
+	box-shadow: 3px 3px 6px black;
+	font-size: 11px;
+}
+
+.ui-dialog-titlebar {
+	font-size: 12px;
+}
