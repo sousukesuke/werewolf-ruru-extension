@@ -40,3 +40,7 @@
 == その他 ==
 
 *[http://www3.rocketbbs.com/731/ruruext.html 掲示板]*
+
+
+
+お勧めの色募集しています。見やすい色は初期カラーに設定させて頂きますのでご協力下さい → *[https://code.google.com/p/werewolf-ruru-extension/issues/detail?id=28 Issues]*
