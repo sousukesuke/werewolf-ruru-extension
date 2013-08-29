@@ -21,13 +21,14 @@
       "matches" : [
         "http://werewolf.ddo.jp/village.jsp"
       ],
-      "css" : ["jquery-ui.css", "ruru-kome.css"],
       "js" : ["jquery.js", "jquery-ui.js", "contentscript.js"],
       "run_at" : "document_idle",
       "all_frames" : false
     }
   ],
   "web_accessible_resources": [
+    "jquery-ui.css",
+    "ruru-kome.css",
     "images/animated-overlay.gif",
     "images/ui-bg_flat_0_aaaaaa_40x100.png",
     "images/ui-bg_flat_55_fbf9ee_40x100.png",

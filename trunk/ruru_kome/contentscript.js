@@ -136,6 +136,11 @@ $( function() {
 		setupComponents : function() {
 			var _self = this;
 
+			if ( $( "#ruru-ext-style-jquery-ui" ).length === 0 ) {
+				$( "head" ).append( "<link id='ruru-ext-style-jquery-ui' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'jquery-ui.css' ) + "'/>" );
+			}
+			$( "head" ).append( "<link id='ruru-kome-style-base' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'ruru-kome.css' ) + "'/>" );
+
 			var balloonContainer = $( "<div style='display:inline-block;width:150px;position:absolute;bottom:5px;left:5px;'></div>" ).appendTo( "body" );
 
 			_self.data.balloon = function( message, alert, html ) {
@@ -173,7 +178,10 @@ $( function() {
 		setupDebugComponents : function() {
 			var _self = this;
 
-			var debugPanel = $( "<div style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1010;'></div>" ).appendTo( "body" );
+			var debugPanel = $( "#ruru-ext-debug-container" );
+			if ( debugPanel.length === 0 ) {
+				debugPanel = $( "<div id='ruru-ext-debug-container' style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1010;'></div>" ).appendTo( "body" );
+			}
 
 			var aaaauto = "none";
 
