@@ -349,12 +349,19 @@ $( function() {
 			$( "head" ).append( "<style id='ruru-ext-dialog-styles' type='text/css'></style>" );
 			for ( var i = 0; i < document.styleSheets.length; i++ ) {
 				var styleTag = document.styleSheets.item( i ).ownerNode;
-				if ( $( styleTag ).attr( "id" ) === "ruru-ext-styles" ) {
+				var styleid = $( styleTag ).attr( "id" );
+				if ( styleid === "ruru-ext-styles" ) {
 					_self.data.styleSheet = document.styleSheets.item( i );
-				} else if ( $( styleTag ).attr( "id" ) === "ruru-ext-dialog-styles" ) {
+				} else if ( styleid === "ruru-ext-dialog-styles" ) {
 					_self.data.dialogStyleSheet = document.styleSheets.item( i );
 				}
 			}
+
+			if ( $( "#ruru-ext-style-jquery-ui" ).length === 0 ) {
+				$( "head" ).append( "<link id='ruru-ext-style-jquery-ui' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'jquery-ui.css' ) + "'/>" );
+			}
+			$( "head" ).append( "<link id='ruru-ext-style-colorPicker' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'colorPicker.css' ) + "'/>" );
+			$( "head" ).append( "<link id='ruru-ext-style-base' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'ruru-extension.css' ) + "'/>" );
 
 			_self.data.logDialog = $( "<div style='font-size:11px;overflow:hidden;'><div id='ruru-log-table' style='overflow:hidden;'></div><div id='ruru-log-users'></div></div>" ).appendTo( "body" ).dialog( {
 				title : "ログ",
@@ -785,7 +792,10 @@ $( function() {
 		setupDebugComponents : function() {
 			var _self = this;
 
-			var debugPanel = $( "<div style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1010;'></div>" ).appendTo( "body" );
+			var debugPanel = $( "#ruru-ext-debug-container" );
+			if ( debugPanel.length === 0 ) {
+				debugPanel = $( "<div id='ruru-ext-debug-container' style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1010;'></div>" ).appendTo( "body" );
+			}
 
 			$( "<button style='display:block;'>ログ保存</button>" ).button( {
 				icons : {
