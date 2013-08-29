@@ -357,12 +357,6 @@ $( function() {
 				}
 			}
 
-			if ( $( "#ruru-ext-style-jquery-ui" ).length === 0 ) {
-				$( "head" ).append( "<link id='ruru-ext-style-jquery-ui' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'jquery-ui.css' ) + "'/>" );
-			}
-			$( "head" ).append( "<link id='ruru-ext-style-colorPicker' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'colorPicker.css' ) + "'/>" );
-			$( "head" ).append( "<link id='ruru-ext-style-base' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'ruru-extension.css' ) + "'/>" );
-
 			_self.data.logDialog = $( "<div style='font-size:11px;overflow:hidden;'><div id='ruru-log-table' style='overflow:hidden;'></div><div id='ruru-log-users'></div></div>" ).appendTo( "body" ).dialog( {
 				title : "ログ",
 				autoOpen : false,

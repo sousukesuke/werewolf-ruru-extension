@@ -136,11 +136,6 @@ $( function() {
 		setupComponents : function() {
 			var _self = this;
 
-			if ( $( "#ruru-ext-style-jquery-ui" ).length === 0 ) {
-				$( "head" ).append( "<link id='ruru-ext-style-jquery-ui' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'jquery-ui.css' ) + "'/>" );
-			}
-			$( "head" ).append( "<link id='ruru-kome-style-base' rel='stylesheet' type='text/css' href='" + chrome.extension.getURL( 'ruru-kome.css' ) + "'/>" );
-
 			var balloonContainer = $( "<div style='display:inline-block;width:150px;position:absolute;bottom:5px;left:5px;'></div>" ).appendTo( "body" );
 
 			_self.data.balloon = function( message, alert, html ) {
