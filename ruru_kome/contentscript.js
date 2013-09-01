@@ -159,8 +159,9 @@ $( function() {
 				} );
 			};
 
-			$( document ).on( "keypress", function( event ) {
-				if ( event.ctrlKey ) {
+			$( "#messageInput" ).on( "keypress", function( event ) {
+				if ( event.ctrlKey && event.which == 32 ) {
+					return false;
 				}
 			} );
 
