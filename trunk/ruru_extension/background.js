@@ -8,7 +8,6 @@ function onRequest( request, sender, sendResponse ) {
 		chrome.pageAction.show( sender.tab.id );
 	} else if ( request.action === "copy" ) {
 		var textarea = $( "<textarea>" ).appendTo( "body" ).val( request.text ).focus().select();
-		console.log( request.text );
 
 		document.execCommand( "Copy", false, null );
 
