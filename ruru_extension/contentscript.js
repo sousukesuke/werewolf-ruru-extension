@@ -1177,6 +1177,12 @@ $( function() {
 		createMenu : function( ui, userid ) {
 			var _self = this;
 
+			var selection = window.getSelection();
+			if ( !selection.isCollapsed ) {
+				_self.data.menu.append( "<li id='menu-copy'><a href='#'><span class='ui-icon ui-icon-copy'></span>コピー(C)</a></li>" );
+				_self.data.menu.append( "<hr/>" );
+			}
+
 			if ( userid ) {
 				var userData = _self.data.users[userid];
 
@@ -1484,6 +1490,13 @@ $( function() {
 				_self.data.users[from]["結果"][to] = "村　人";
 			} else if ( action === "menu-reset" ) {
 				_self.reset();
+			} else if ( action === "menu-copy" ) {
+				var text = document.getSelection().toString();
+				chrome.extension.sendRequest( {
+					action : "copy",
+					text : text
+				}, function( responce ) {
+				} );
 			}
 
 			_self.updateCss();
