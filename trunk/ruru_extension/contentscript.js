@@ -1179,7 +1179,7 @@ $( function() {
 
 			var selection = window.getSelection();
 			if ( !selection.isCollapsed ) {
-				_self.data.menu.append( "<li id='menu-copy'><a href='#'><span class='ui-icon ui-icon-copy'></span>コピー(C)</a></li>" );
+				_self.data.menu.append( "<li id='menu-copy'><a href='#'><span class='ui-icon ui-icon-copy'></span>コピー</a></li>" );
 				_self.data.menu.append( "<hr/>" );
 			}
 
