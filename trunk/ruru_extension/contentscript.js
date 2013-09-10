@@ -1097,8 +1097,12 @@ $( function() {
 
 			$( "#ruru-ext-vote-head td.vote-head-order,#ruru-ext-vote-head td.vote-head-order-reset" ).on( "click", function() {
 				var index = parseInt( $( this ).attr( "voteorder" ) );
+				if ( _self.data.voteIndex !== index ) {
+					_self.data.vorteOrder = true;
+				} else {
+					_self.data.vorteOrder = !_self.data.vorteOrder;
+				}
 				_self.data.voteIndex = index;
-				_self.data.vorteOrder = !_self.data.vorteOrder;
 				_self.refreshVote();
 			} );
 
