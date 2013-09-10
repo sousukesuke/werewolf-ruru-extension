@@ -71,6 +71,7 @@ $( function() {
 			logTags : [],
 			voteCounts : [],
 			voteIndex : -1,
+			vorteOrder : true,
 			dead : {},
 			hang : {},
 			dialogStyleSheet : undefined,
@@ -1036,6 +1037,7 @@ $( function() {
 						}
 
 						_self.data.voteIndex = -1;
+						_self.data.vorteOrder = true;
 						_self.refreshVote();
 
 						_self.data.balloon( "投票結果を保存しました 【" + _self.data.day + "】" );
@@ -1096,6 +1098,7 @@ $( function() {
 			$( "#ruru-ext-vote-head td.vote-head-order,#ruru-ext-vote-head td.vote-head-order-reset" ).on( "click", function() {
 				var index = parseInt( $( this ).attr( "voteorder" ) );
 				_self.data.voteIndex = index;
+				_self.data.vorteOrder = !_self.data.vorteOrder;
 				_self.refreshVote();
 			} );
 
@@ -1117,12 +1120,21 @@ $( function() {
 						point += vote[selectedIndex].slice( 5 ) * 100;
 					}
 				} else {
-					if ( vote[selectedIndex] ) {
-						point += selectedCounts[vote[selectedIndex]] * 100000;
-						point += vote[selectedIndex].slice( 5 ) * 10000;
-					}
-					if ( selectedCounts[userid] ) {
-						point += selectedCounts[userid] * 100;
+					if ( _self.data.vorteOrder ) {
+						if ( vote[selectedIndex] ) {
+							point += selectedCounts[vote[selectedIndex]] * 100000;
+							point += vote[selectedIndex].slice( 5 ) * 10000;
+						}
+						if ( selectedCounts[userid] ) {
+							point += selectedCounts[userid] * 100;
+						}
+					} else {
+						point += count * 100000;
+
+						if ( vote[selectedIndex] ) {
+							point += selectedCounts[vote[selectedIndex]] * 10000;
+							point += vote[selectedIndex].slice( 5 ) * 100;
+						}
 					}
 				}
 
