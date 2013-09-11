@@ -27,7 +27,8 @@ $( function() {
 
 	_RuruExt.prototype = {
 		data : {
-			debug : true,
+			debug : false,
+			debugPanel : undefined,
 			installed : false,
 			days : undefined,
 			day : undefined,
@@ -357,6 +358,58 @@ $( function() {
 					_self.data.dialogStyleSheet = document.styleSheets.item( i );
 				}
 			}
+
+			_self.data.debugPanel = $( "#ruru-ext-debug-container" );
+			if ( _self.data.debugPanel.length === 0 ) {
+				_self.data.debugPanel = $( "<div id='ruru-ext-debug-container' style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1010;'></div>" ).appendTo( "body" );
+			}
+
+			( function() {
+				var aaaauto = "none";
+
+				var autoUpdate = function() {
+					if ( $( "#messageInput" ).val().length ) {
+						clearInterval( aaaauto );
+						aaaauto = "none";
+						_self.data.balloon( "自動更新解除" );
+					} else {
+						_self.data.balloon( "自動更新中", true );
+						$( "#todob" ).click();
+					}
+				};
+
+				$( "<button id='ruru-ext-auto-button' style='display:block;'>自動更新</button>" ).button( {
+					icons : {
+						primary : "ui-icon-refresh"
+					},
+					text : false
+				} ).on( "click", function() {
+					if ( aaaauto === "none" ) {
+						$( "#todob" ).click();
+
+						aaaauto = setInterval( autoUpdate, 13000 );
+						_self.data.balloon( "自動更新ON", true );
+					} else {
+						clearInterval( aaaauto );
+						aaaauto = "none";
+						_self.data.balloon( "自動更新解除" );
+					}
+				} ).on( "mouseleave", function() {
+					if ( aaaauto !== "none" ) {
+						clearInterval( aaaauto );
+						aaaauto = "none";
+						_self.data.balloon( "自動更新解除" );
+					}
+				} ).appendTo( _self.data.debugPanel ).hide();
+
+				$( document ).on( "keydown", function() {
+					if ( aaaauto !== "none" ) {
+						clearInterval( aaaauto );
+						aaaauto = "none";
+						_self.data.balloon( "自動更新解除" );
+					}
+				} );
+			} )();
 
 			_self.data.logDialog = $( "<div style='font-size:11px;overflow:hidden;'><div id='ruru-log-table' style='overflow:hidden;'></div><div id='ruru-log-users'></div></div>" ).appendTo( "body" ).dialog( {
 				title : "ログ",
@@ -787,11 +840,6 @@ $( function() {
 		setupDebugComponents : function() {
 			var _self = this;
 
-			var debugPanel = $( "#ruru-ext-debug-container" );
-			if ( debugPanel.length === 0 ) {
-				debugPanel = $( "<div id='ruru-ext-debug-container' style='font-size:10px;position:absolute;right:10px;bottom:10px;z-index:1010;'></div>" ).appendTo( "body" );
-			}
-
 			$( "<button style='display:block;'>ログ保存</button>" ).button( {
 				icons : {
 					primary : "ui-icon-disk"
@@ -806,52 +854,9 @@ $( function() {
 				$( "#ruru-log-table" ).append( "<h3>" + title + "</h3>" ).append( $( "<div style='background:white;padding:0px 2px 20px 2px;overflow-y:scroll;'></div>" ).append( table ) );
 
 				_self.refreshLog();
-			} ).appendTo( debugPanel );
+			} ).appendTo( _self.data.debugPanel );
 
-			var aaaauto = "none";
-
-			var autoUpdate = function() {
-				if ( $( "#messageInput" ).val().length ) {
-					clearInterval( aaaauto );
-					aaaauto = "none";
-					_self.data.balloon( "自動更新解除" );
-				} else {
-					_self.data.balloon( "自動更新中", true );
-					$( "#todob" ).click();
-				}
-			};
-
-			$( "<button style='display:block;'>自動更新</button>" ).button( {
-				icons : {
-					primary : "ui-icon-refresh"
-				},
-				text : false
-			} ).on( "click", function() {
-				if ( aaaauto === "none" ) {
-					$( "#todob" ).click();
-
-					aaaauto = setInterval( autoUpdate, 10000 );
-					_self.data.balloon( "自動更新ON", true );
-				} else {
-					clearInterval( aaaauto );
-					aaaauto = "none";
-					_self.data.balloon( "自動更新解除" );
-				}
-			} ).on( "mouseleave", function() {
-				if ( aaaauto !== "none" ) {
-					clearInterval( aaaauto );
-					aaaauto = "none";
-					_self.data.balloon( "自動更新解除" );
-				}
-			} ).appendTo( debugPanel );
-
-			$( document ).on( "keydown", function() {
-				if ( aaaauto !== "none" ) {
-					clearInterval( aaaauto );
-					aaaauto = "none";
-					_self.data.balloon( "自動更新解除" );
-				}
-			} );
+			$( "#ruru-ext-auto-button" ).show();
 
 			_self.data.balloon( "デバッグ機能有効", true );
 		},
@@ -970,6 +975,10 @@ $( function() {
 					reststep += rest;
 					rest -= 2;
 					count++;
+				}
+
+				if ( $( "#No02>.oc98" ).text() === "観戦者" ) {
+					$( "#ruru-ext-auto-button" ).show();
 				}
 
 				_self.data.positionDialog.dialog( "option", "title", "内訳　【 " + reststep + " == " + count + " 】" );
