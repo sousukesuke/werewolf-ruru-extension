@@ -1,0 +1,142 @@
+.ruru-ext-balloon {
+	box-shadow: 3px 3px 6px black;
+}
+
+.ui-dialog {
+	box-shadow: 3px 3px 6px black;
+	font-size: 11px;
+}
+
+.ui-dialog-titlebar {
+	font-size: 12px;
+}
+
+.ui-menu {
+	box-shadow: 2px 2px 4px black;
+}
+
+.ui-dialog-content .cs {
+	display: none;
+}
+
+.ui-dialog-content .cv {
+	display: none;
+}
+
+.ui-dialog-content .cng {
+	display: none;
+}
+
+.ui-dialog-content .ccg {
+	display: none;
+}
+
+.ui-dialog-content .cnw {
+	display: none;
+}
+
+.ui-dialog-content .ccw {
+	display: none;
+}
+
+#ruru-ext-position-dialog {
+	font-size: 10px;
+}
+
+#ruru-ext-position-dialog h3 {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+#ruru-ext-position-dialog>div {
+	margin-bottom: 6px;
+}
+
+#ruru-ext-position-dialog .position-user {
+	cursor: pointer;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#ruru-ext-position-dialog .position-target {
+	cursor: pointer;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+#ruru-ext-gray-table-dialog td {
+	cursor: default;
+}
+
+#ruru-ext-gray-head td {
+	min-width: 6em;
+}
+
+#ruru-ext-gray-body td {
+	border-top: 1px solid #dddddd;
+}
+
+#ruru-ext-gray-table-dialog td.gray-table-head {
+	text-align: center;
+	border-left: 1px solid #dddddd;
+}
+
+#ruru-ext-gray-table-dialog td.gray-table-data {
+	text-align: center;
+	border-left: 1px solid #dddddd;
+}
+
+div.colorPicker-picker {
+	display: inline-block;
+	margin-right: 5px;
+}
+
+#ruru-log-table td {
+	cursor: default;
+}
+
+#ruru-ext-vote-dialog td {
+	cursor: default;
+}
+
+#ruru-ext-vote-head td {
+	min-width: 7em;
+}
+
+#ruru-ext-vote-body td {
+	border-top: 1px solid #dddddd;
+	padding-right: 0.5em;
+}
+
+#ruru-ext-vote-dialog td.vote-head-day {
+	text-align: center;
+	border-left: 1px solid #dddddd;
+}
+
+#ruru-ext-vote-dialog td.vote-head-order-reset {
+	cursor: pointer;
+}
+
+#ruru-ext-vote-dialog td.vote-head-order {
+	cursor: pointer;
+	font-weight: bold;
+	text-align: center;
+	border-top: 1px solid #dddddd;
+	border-left: 1px solid #dddddd;
+}
+
+#ruru-ext-vote-dialog td.vote-body-vote {
+	border-left: 1px solid #dddddd;
+}
+
+#ruru-ext-vote-dialog td.vote-body-vote div.vote-body-inner {
+	position: relative;
+	padding-left: 1.5em;
+}
+
+#ruru-ext-vote-dialog td.vote-body-vote span.ui-icon {
+	position: absolute;
+	display: inline-block;
+	top: 0px;
+	left: 0px;
+}
