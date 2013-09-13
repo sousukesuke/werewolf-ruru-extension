@@ -19,7 +19,7 @@
 
 
 <br>
-<font color="green">Firefox</font>用ファイル(v2.13版） ： [https://docs.google.com/file/d/0B60Wj811teVLNV9tT2dkRGh6OTA/edit?usp=sharing ruru_extension.xpi]
+<font color="red">Firefox</font>用ファイル(v2.13版） ： [https://docs.google.com/file/d/0B60Wj811teVLNV9tT2dkRGh6OTA/edit?usp=sharing ruru_extension.xpi]
 
 
 <br>
