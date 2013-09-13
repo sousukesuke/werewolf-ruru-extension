@@ -18,6 +18,9 @@
 マニュアル ： *[https://docs.google.com/drawings/d/1vtzyJENpn7-O5BAKFt47-GkTinRoIYZxxFhVraq13EE/edit?usp=sharing インストールマニュアル]*
 
 
+<br>
+Firefox用ファイル(v2.13版） ： [https://docs.google.com/file/d/0B60Wj811teVLNV9tT2dkRGh6OTA/edit?usp=sharing ruru_extension.xpi]
+
 
 <br>
 == 使ってみる ==
