@@ -51,4 +51,4 @@
 <br/>
 昔作った面白いコードがあったので新しいプラグインに組み込もうと思う。Webフォントと合わせ技でOSを選ばずに使えるかもしれない<br/> *[https://code.google.com/p/werewolf-ruru-extension/source/browse/#svn%2Ftrunk%2Fmessage リポジトリ]* → *[http://www.ne.jp/asahi/tatatata/plugins/sample.html サンプル]*
 
-=====<font color="red">※サンプルに利用しているAAは拾い物ですが、取得元を失念してしまいました。著作権等、なにか問題がある場合は直ちに消しますので掲示板までご一報下さい。</font>=====
+=====<font color="red">※サンプルに利用しているAAは拾い物ですが、取得元を失念してしまいました。なにか問題がある場合は直ちに消しますので掲示板までご一報下さい。</font>=====
