@@ -1,3 +1,4 @@
+/* @author tatatata MIT License https://code.google.com/p/werewolf-ruru-extension/ */
 $( function( $ ) {
 	$.showMsg = function( msg ) {
 		var messages = msg.split( /[\r\n]*#keyframe[\r\n]+/ );
