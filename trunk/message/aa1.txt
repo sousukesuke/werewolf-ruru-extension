@@ -1,0 +1,31 @@
+#wait 4000
+#width 400px
+#height 300px
+#bg black
+#layer 500
+#wait 5000
+#color white
+#top 30px
+#left 330px
+#size 50px
+#css font-family:serif;font-weight:bold;text-shadow:0px 0px 10px #fff;line-height:0.9em;letter-spacing: -17px;
+第
+八
+話
+#layer 1000
+#wait 3000
+#color white
+#top 98px
+#left 10px
+#size 110px
+#css font-family:serif;font-weight:bold;text-shadow:0px 0px 8px #fff;line-height:0.8em;letter-spacing: -17px;
+ア
+スカ、
+#layer 1500
+#wait 3000
+#color white
+#top 180px
+#left 205px
+#size 110px
+#css font-family:serif;font-weight:bold;text-shadow:0px 0px 8px #fff;line-height:0.9em;letter-spacing: -17px;
+来日

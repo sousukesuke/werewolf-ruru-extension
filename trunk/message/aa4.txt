@@ -1,0 +1,47 @@
+#left .-200
+#color blue
+#wait 200
+　　　　　┗( ^o^)┓ 
+　　　　　,ヽ,、┫ 
+#keyframe
+#left .-100
+#color blue
+#wait 200
+　（　　　┏( ^o^)┛ 
+( 　)　ヽ　　┛┓
+#keyframe
+#left .0
+#color blue
+#wait 200
+　　　　　┗( ^o^)┓ 
+　　　　　,ヽ,、┫ 
+#keyframe
+#left .100
+#color blue
+#wait 200
+　（　　　┏( ^o^)┛ 
+( 　)　ヽ　　┛┓
+#keyframe
+#left .200
+#color blue
+#wait 200
+　　　　　┗( ^o^)┓ 
+　　　　　,ヽ,、┫ 
+#keyframe
+#left .300
+#color blue
+#wait 200
+　（　　　┏( ^o^)┛ 
+( 　)　ヽ　　┛┓
+#keyframe
+#left .400
+#color blue
+#wait 200
+　　　　　┗( ^o^)┓ 
+　　　　　,ヽ,、┫ 
+#keyframe
+#left .500
+#color blue
+#wait 200
+　（　　　┏( ^o^)┛ 
+( 　)　ヽ　　┛┓
