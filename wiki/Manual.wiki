@@ -48,4 +48,5 @@
 お勧めの色募集しています。見やすい色は初期カラーに設定させて頂きますのでご協力下さい → *[https://code.google.com/p/werewolf-ruru-extension/issues/detail?id=28 Issues]*
 
 
-昔作った面白いコードがあったので新しいプラグインに組み込もうと思う → *[https://code.google.com/p/werewolf-ruru-extension/source/browse/#svn%2Ftrunk%2Fmessage リポジトリ]* → *[http://www.ne.jp/asahi/tatatata/plugins/sample.html サンプル]*
+<br/>
+昔作った面白いコードがあったので新しいプラグインに組み込もうと思う。Webフォントと合わせ技でOSを選ばずに使えるかもしれない<br/> *[https://code.google.com/p/werewolf-ruru-extension/source/browse/#svn%2Ftrunk%2Fmessage リポジトリ]* → *[http://www.ne.jp/asahi/tatatata/plugins/sample.html サンプル]*
