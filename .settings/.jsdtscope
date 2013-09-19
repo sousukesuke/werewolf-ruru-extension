@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="ruru_extension/jquery-ui.js|ruru_extension/jquery.js|ruru_kome/jquery-ui.js|ruru_kome/jquery.js" kind="src" path=""/>
+	<classpathentry excluding="message/jquery.js|ruru_extension/jquery-ui.js|ruru_extension/jquery.js|ruru_kome/jquery-ui.js|ruru_kome/jquery.js" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.WebProject">
 		<attributes>

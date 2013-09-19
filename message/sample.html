@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="message.js"></script>
+<script type="text/javascript" src="gameover.js"></script>
+<script type="text/javascript">
+	$( function( $ ) {
+		$( "#show-message-button1" ).on( "click", function() {
+			$.showMsg( "Hello World!!" );
+		} );
+
+		$( "#show-message-button2" ).on( "click", function() {
+			$.showMsg( gameovermsg );
+		} );
+
+		$( "#show-message-button3" ).on( "click", function() {
+			$.get( $( "#files" ).val(), function( text ) {
+				$.showMsg( text );
+			} );
+		} );
+	} );
+</script>
+<style type="text/css">
+.chat-message-box pre {
+	font-family: 'MS PGothic', 'IPAMonaPGothic', 'Mona', sans-serif;
+	margin: 0px;
+	padding: 0px;
+}
+</style>
+</head>
+<body style="min-height: 500px;">
+	<button id="show-message-button1">MESSAGE 1</button>
+	<button id="show-message-button2">MESSAGE 2</button>
+	<select id="files">
+		<option value="aa1.txt">1</option>
+		<option value="aa2.txt">2</option>
+		<option value="aa3.txt">3</option>
+		<option value="aa4.txt">4</option>
+		<option value="aa5.txt">5</option>
+		<option value="aa6.txt">6</option>
+		<option value="aa7.txt">7</option>
+		<option value="aa8.txt">8</option>
+		<option value="aa9.txt">9</option>
+		<option value="aa10.txt">10</option>
+	</select>
+	<button id="show-message-button3">MESSAGE</button>
+</body>
+</html>
