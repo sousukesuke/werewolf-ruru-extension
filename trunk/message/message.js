@@ -5,6 +5,16 @@ $( function( $ ) {
 
 		var body = $( "body" );
 		var msgBox = $( "<div class='chat-message-box' style='position:absolute;'></div>" );
+		var temporary = {
+			interrupt : false
+		};
+		msgBox.data( "msg-temporary", temporary );
+
+		msgBox.on( "click", function( event ) {
+			var msgBox = $( this );
+			msgBox.data( "msg-temporary" )["interrupt"] = true;
+			msgBox.hide();
+		} );
 
 		body.append( msgBox );
 
@@ -29,7 +39,7 @@ $( function( $ ) {
 
 				pre.data( "msg", m );
 
-				pre.setupMessage( msgBox, function() {
+				pre.setupMessage( msgBox, temporary, function() {
 					msgpool();
 				} );
 
@@ -50,7 +60,7 @@ $( function( $ ) {
 							subpre.data( "wait", layer[1] );
 							subpre.data( "msg", layer[2] );
 
-							subpre.setupMessageForNoWait( subpre, function( container, pre ) {
+							subpre.setupMessageForNoWait( subpre, temporary, function( container, pre ) {
 								pre.remove();
 							} );
 						}
@@ -84,7 +94,16 @@ $( function( $ ) {
 		}
 	};
 
-	$.fn.setupMessage = function( container, callback ) {
+	$.fn.setupMessage = function( container, temporary, callback ) {
+		if ( temporary.interrupt ) {
+			if ( callback ) {
+				setTimeout( function() {
+					callback( container, pre );
+				}, 0 );
+			}
+			return;
+		}
+
 		var pre = this;
 		var msg = pre.data( "msg" );
 
@@ -170,12 +189,21 @@ $( function( $ ) {
 		}
 	};
 
-	$.fn.setupMessageForNoWait = function( container, callback ) {
+	$.fn.setupMessageForNoWait = function( container, temporary, callback ) {
+		if ( temporary.interrupt ) {
+			if ( callback ) {
+				setTimeout( function() {
+					callback( container, pre );
+				}, 0 );
+			}
+			return;
+		}
+
 		var pre = this;
 		var wait = pre.data( "wait" );
 		setTimeout( function() {
 			pre.show();
-			pre.setupMessage( container, callback );
+			pre.setupMessage( container, temporary, callback );
 		}, wait );
 	};
 } );
