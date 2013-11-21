@@ -914,7 +914,7 @@ $( function() {
 					var checked = $( checkbox ).is( ":checked" );
 					if ( !checked ) {
 						var userid = $( checkbox ).attr( "userid" );
-						_self.data.dialogStyleSheet.insertRule( "#ruru-log-table ." + userid + " {display:none;}" );
+						_self.data.dialogStyleSheet.insertRule( "#ruru-log-table ." + userid + " {display:none;}", 0 );
 					}
 				} );
 			};
@@ -1826,22 +1826,22 @@ $( function() {
 				if ( _self.data.showposition && userData && userData["役職"] && !userData["役職解除"] ) {
 					var cl = _self.data.positions[userData["役職"]][1];
 					var bg = _self.data.positions[userData["役職"]][2];
-					_self.data.styleSheet.insertRule( "." + userid + " {background-color:" + bg + ";color:" + cl + ";" + style + "}" );
+					_self.data.styleSheet.insertRule( "." + userid + " {background-color:" + bg + ";color:" + cl + ";" + style + "}", 0 );
 				} else if ( style === "" && _self.data.showgray ) {
-					_self.data.styleSheet.insertRule( "." + userid + " {background-color:" + _self.data.graycolor + ";}" );
+					_self.data.styleSheet.insertRule( "." + userid + " {background-color:" + _self.data.graycolor + ";}", 0 );
 				} else {
-					_self.data.styleSheet.insertRule( "." + userid + " {" + style + "}" );
+					_self.data.styleSheet.insertRule( "." + userid + " {" + style + "}", 0 );
 				}
 			}
 
 			if ( _self.data.hidecng ) {
-				_self.data.styleSheet.insertRule( ".cng {display:none;}" );
-				_self.data.styleSheet.insertRule( ".ccg {display:none;}" );
+				_self.data.styleSheet.insertRule( ".cng {display:none;}", 0 );
+				_self.data.styleSheet.insertRule( ".ccg {display:none;}", 0 );
 			}
 
 			if ( _self.data.hidecnw ) {
-				_self.data.styleSheet.insertRule( ".cnw {display:none;}" );
-				_self.data.styleSheet.insertRule( ".ccw {display:none;}" );
+				_self.data.styleSheet.insertRule( ".cnw {display:none;}", 0 );
+				_self.data.styleSheet.insertRule( ".ccw {display:none;}", 0 );
 			}
 
 			if ( _self.data.showhistory ) {
@@ -1849,19 +1849,19 @@ $( function() {
 				for ( var key in _self.data.dead ) {
 					var dead = _self.data.dead[key];
 					for ( var i = 0; i < dead.length; i++ ) {
-						_self.data.styleSheet.insertRule( "#No01 td." + dead[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: red;padding: 2px 5px;color:white;}" );
-						_self.data.styleSheet.insertRule( "#No01 td.name." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
-						_self.data.styleSheet.insertRule( "#ruru-ext-position-dialog div." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
-						_self.data.styleSheet.insertRule( "#ruru-log-users label." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
-						_self.data.styleSheet.insertRule( "#ruru-ext-gray-table-dialog td." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
-						_self.data.styleSheet.insertRule( "#ruru-ext-vote-dialog td." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}" );
+						_self.data.styleSheet.insertRule( "#No01 td." + dead[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: red;padding: 2px 5px;color:white;}", 0 );
+						_self.data.styleSheet.insertRule( "#No01 td.name." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
+						_self.data.styleSheet.insertRule( "#ruru-ext-position-dialog div." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
+						_self.data.styleSheet.insertRule( "#ruru-log-users label." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
+						_self.data.styleSheet.insertRule( "#ruru-ext-gray-table-dialog td." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
+						_self.data.styleSheet.insertRule( "#ruru-ext-vote-dialog td." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
 					}
 				}
 
 				for ( var key in _self.data.hang ) {
 					var hang = _self.data.hang[key];
 					for ( var i = 0; i < hang.length; i++ ) {
-						_self.data.styleSheet.insertRule( "#No01 td." + hang[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: blue;padding: 2px 5px;color:white;}" );
+						_self.data.styleSheet.insertRule( "#No01 td." + hang[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: blue;padding: 2px 5px;color:white;}", 0 );
 					}
 				}
 			}
