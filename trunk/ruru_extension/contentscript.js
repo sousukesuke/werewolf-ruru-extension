@@ -1237,8 +1237,8 @@ $( function() {
 					}
 
 					if ( _self.data.positions[userPosition][3] === "判定" ) {
-						var white = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村　人</a></li>" ).appendTo( _self.data.menu ) );
-						var black = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-bullet'></span>人　狼</a></li>" ).appendTo( _self.data.menu ) );
+						var white = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</a></li>" ).appendTo( _self.data.menu ) );
+						var black = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</a></li>" ).appendTo( _self.data.menu ) );
 
 						for ( var name in _self.data.names ) {
 							var targetUserid = _self.data.names[name];
@@ -1278,13 +1278,13 @@ $( function() {
 
 				if ( $( ui ).hasClass( "gray-table-data-white" ) ) {
 					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人　狼</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</a></li>" );
 				} else if ( $( ui ).hasClass( "gray-table-data-black" ) ) {
 					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村　人</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</a></li>" );
 				} else {
-					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'></span>村　人</a></li>" );
-					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'></span>人　狼</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</a></li>" );
 				}
 
 				_self.data.menu.append( "<hr/>" );
@@ -1566,12 +1566,17 @@ $( function() {
 		updatePosition : function() {
 			var _self = this;
 
+			var delim = "";
+
 			var dialog = $( "#ruru-ext-position-dialog" ).empty();
 
 			for ( var pos in _self.data.positionOrders ) {
 				var order = _self.data.positionOrders[pos];
 
 				if ( order.length !== 0 ) {
+					dialog.append( delim );
+					delim = "<br/>";
+
 					dialog.append( "<h3>" + pos + "</h3>" );
 
 					var elm = $( "<div pos='" + pos + "'></div>" ).appendTo( dialog );
@@ -1589,11 +1594,11 @@ $( function() {
 								for ( var targetUserid in userData["結果"] ) {
 									if ( userData["結果"][targetUserid] === "村　人" ) {
 										result.append( $(
-												"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'></span>" + _self.data.users[targetUserid]["name"]
-														+ "</div>" ).attr( "userid", targetUserid ) );
+												"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-radio-off'>　　○</span>"
+														+ _self.data.users[targetUserid]["name"] + "</div>" ).attr( "userid", targetUserid ) );
 									} else {
 										result.append( $(
-												"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'></span>" + _self.data.users[targetUserid]["name"]
+												"<div style='display:inline-block;padding:3px;margin-right:3px;' class='position-target " + targetUserid + "'><span style='display:inline-block;vertical-align:middle;' class='ui-icon ui-icon-bullet'>　　●</span>" + _self.data.users[targetUserid]["name"]
 														+ "</div>" ).attr( "userid", targetUserid ) );
 									}
 								}
@@ -1705,18 +1710,18 @@ $( function() {
 
 					var result = uranaiUsers[j]["結果"][userid];
 					if ( result === "人　狼" ) {
-						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span>" );
+						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'>●</span>" );
 						col.addClass( "gray-table-data-black" );
 						black = true;
 					} else if ( result === "村　人" ) {
-						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span>" );
+						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'>○</span>" );
 						col.addClass( "gray-table-data-white" );
 					} else if ( uranaiUsers[j]["userid"] == userid ) {
 						col.text( "-" );
 					}
 
 					if ( userData["hang"] || userData["dead"] ) {
-						col.css( "background-color", "#fdeada" );
+						col.addClass("ui-state-hover").css( "background", "#bbb" );
 					}
 				}
 
@@ -1725,18 +1730,18 @@ $( function() {
 
 					var result = reiUsers[j]["結果"][userid];
 					if ( result === "人　狼" ) {
-						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'></span>" );
+						col.append( "<span class='ui-icon ui-icon-bullet' style='display:inline-block;'>●</span>" );
 						col.addClass( "gray-table-data-black" );
 						black = true;
 					} else if ( result === "村　人" ) {
-						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'></span>" );
+						col.append( "<span class='ui-icon ui-icon-radio-off' style='display:inline-block;'>○</span>" );
 						col.addClass( "gray-table-data-white" );
 					} else if ( reiUsers[j]["userid"] == userid ) {
 						col.text( "-" );
 					}
 
 					if ( userData["hang"] || userData["dead"] ) {
-						col.css( "background-color", "#fdeada" );
+						col.addClass("ui-state-hover").css( "background", "#bbb" );
 					}
 				}
 

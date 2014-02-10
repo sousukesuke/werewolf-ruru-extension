@@ -1,0 +1,35 @@
+{
+  "name" : "汝は人狼なりや？るる鯖アイコン拡張",
+  "version" : "0.1",
+  "description" : "るる鯖のアイコン拡張です。",
+  "update_url" : "http://www.ne.jp/asahi/tatatata/plugins/updates.xml",
+  "icons" : {
+    "16": "icoch16.png",
+    "48" : "icoch48.png",
+    "128" : "icoch128.png"
+  },
+  "background": { "scripts": ["background.js"] },
+  "page_action" :
+  {
+    "default_icon" : "icoch16.png",
+    "default_title" : "白米RP",
+    "default_popup": "popup.html"
+  },
+  "content_scripts" : [
+    {
+      "matches" : [
+        "http://werewolf.ddo.jp/village.jsp"
+      ],
+      "css" : ["icoch.css"],
+      "js" : ["jquery.js", "contentscript.js"],
+      "run_at" : "document_idle",
+      "all_frames" : false
+    }
+  ],
+  "web_accessible_resources": [
+  ],
+  "permissions" : [
+    "tabs"
+  ],
+  "manifest_version": 2
+}
