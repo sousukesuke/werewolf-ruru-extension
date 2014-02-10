@@ -70,17 +70,17 @@
 
 #ruru-ext-gray-body td {
 	border : none;
-	border-top: 1px solid #bbb;
+	border-top: 1px solid #ddd;
 }
 
 #ruru-ext-gray-table-dialog td.gray-table-head {
 	text-align: center;
-	border-left: 1px solid #bbb;
+	border-left: 1px solid #ddd;
 }
 
 #ruru-ext-gray-table-dialog td.gray-table-data {
 	text-align: center;
-	border-left: 1px solid #bbb;
+	border-left: 1px solid #ddd;
 }
 
 div.colorPicker-picker {
@@ -101,13 +101,13 @@ div.colorPicker-picker {
 }
 
 #ruru-ext-vote-body td {
-	border-top: 1px solid #bbb;
+	border-top: 1px solid #ddd;
 	padding-right: 0.5em;
 }
 
 #ruru-ext-vote-dialog td.vote-head-day {
 	text-align: center;
-	border-left: 1px solid #bbb;
+	border-left: 1px solid #ddd;
 }
 
 #ruru-ext-vote-dialog td.vote-head-order-reset {
@@ -118,13 +118,13 @@ div.colorPicker-picker {
 	cursor: pointer;
 	font-weight: bold;
 	text-align: center;
-	border-top: 1px solid #bbb;
-	border-left: 1px solid #bbb;
+	border-top: 1px solid #ddd;
+	border-left: 1px solid #ddd;
 }
 
 #ruru-ext-vote-dialog td.vote-body-vote {
 	position: relative;
-	border-left: 1px solid #bbb;
+	border-left: 1px solid #ddd;
 	padding-left: 1.5em;
 }
 

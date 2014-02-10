@@ -1721,7 +1721,7 @@ $( function() {
 					}
 
 					if ( userData["hang"] || userData["dead"] ) {
-						col.addClass("ui-state-hover").css( "background", "#bbb" );
+						col.css( "background", "#ddd" );
 					}
 				}
 
@@ -1741,7 +1741,7 @@ $( function() {
 					}
 
 					if ( userData["hang"] || userData["dead"] ) {
-						col.addClass("ui-state-hover").css( "background", "#bbb" );
+						col.css( "background", "#ddd" );
 					}
 				}
 
