@@ -27,7 +27,7 @@ $( function() {
 
 	_RuruExt.prototype = {
 		data : {
-			debug : true,
+			debug : false,
 			debugPanel : undefined,
 			installed : false,
 			days : undefined,
@@ -1854,7 +1854,7 @@ $( function() {
 				for ( var key in _self.data.dead ) {
 					var dead = _self.data.dead[key];
 					for ( var i = 0; i < dead.length; i++ ) {
-						_self.data.styleSheet.insertRule( "#No01 td." + dead[i] + ".icon div:after {content: '" + key + "';font-size: 10px;background-color: red;padding: 2px 5px;color:white;}", 0 );
+						_self.data.styleSheet.insertRule( "#No01 td." + dead[i] + ".icon div:before {content: '" + key + "';font-size: 10px;background-color: red;padding: 2px 5px;color:white;}", 0 );
 						_self.data.styleSheet.insertRule( "#No01 td.name." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
 						_self.data.styleSheet.insertRule( "#ruru-ext-position-dialog div." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
 						_self.data.styleSheet.insertRule( "#ruru-log-users label." + dead[i] + " {background-image:url(" + bgi + ");background-repeat:no-repeat;background-position:right top;}", 0 );
