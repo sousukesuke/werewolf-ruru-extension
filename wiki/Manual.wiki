@@ -36,19 +36,3 @@
 （書きかけ）
 
 *[https://docs.google.com/document/d/1xxkO4R1wsv2aPcNCkOhGtKFvvWlZAHi9r9vr56-Yuqw/edit?usp=sharing るる鯖拡張プラグイン 機能一覧]*
-
-
-<br>
-== その他 ==
-
-*[http://www3.rocketbbs.com/731/ruruext.html 掲示板]*
-
-
-
-お勧めの色募集しています。見やすい色は初期カラーに設定させて頂きますのでご協力下さい → *[https://code.google.com/p/werewolf-ruru-extension/issues/detail?id=28 Issues]*
-
-
-<br/>
-昔作った面白いコードがあったので新しいプラグインに組み込もうと思う。Webフォントと合わせ技でOSを選ばずに使えるかもしれない<br/> *[https://code.google.com/p/werewolf-ruru-extension/source/browse/#svn%2Ftrunk%2Fmessage リポジトリ]* → *[http://www.ne.jp/asahi/tatatata/plugins/sample.html サンプル]*
-
-=====<font color="red">※サンプルに利用しているAAは拾い物ですが、取得元を失念してしまいました。なにか問題がある場合は直ちに消しますので掲示板までご一報下さい。</font>=====
