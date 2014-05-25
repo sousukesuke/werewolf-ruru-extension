@@ -144,7 +144,6 @@ $( function() {
 			}
 
 			var h1 = $( "#chatscr2_1>.d1215" ).height();
-			$( '#chatscr2_1' ).scrollTop( h1 );
 		} else {
 			var mslist = $( "#No09>table>tbody>tr" ).get();
 
