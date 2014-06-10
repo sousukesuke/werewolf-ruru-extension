@@ -2,7 +2,6 @@
   "name" : "汝は人狼なりや？るる鯖拡張機能",
   "version" : "2.19",
   "description" : "るる鯖の便利拡張です",
-  "update_url" : "http://www.ne.jp/asahi/tatatata/plugins/updates.xml",
   "icons" : {
     "16": "ruru_default.png",
     "48" : "ruru_extension48.png",
