@@ -1063,22 +1063,6 @@ $( function() {
 			}
 
 			_self.data.time = time;
-
-			if ( _self.data.reverseLog ) {
-				var loglog = $( "#chatscr2_1>.d1215" );
-				var logcon = $( "#chatscr2_1" );
-
-				var logHeight = loglog.height();
-				var displayHeight = logcon.height();
-
-				var sTop = logcon.scrollTop();
-				var scroll = logHeight + 19 + 20 - displayHeight - sTop;
-				if ( scroll > 0 ) {
-					$( '#chatscr2_1' ).animate( {
-						scrollTop : sTop + scroll
-					}, 500, "swing" );
-				}
-			}
 		},
 		refreshLog : function() {
 			$( "#ruru-log-table" ).accordion( "refresh" );
