@@ -12,15 +12,15 @@
   "page_action" :
   {
     "default_icon" : "icoch16.png",
-    "default_title" : "白米RP",
+    "default_title" : "るる鯖アイコン拡張",
     "default_popup": "popup.html"
   },
   "content_scripts" : [
     {
       "matches" : [
-        "http://werewolf.ddo.jp/village.jsp"
+        "http://werewolf.ddo.jp/village.jsp",
+        "http://werewolf.ddo.jp/log*"
       ],
-      "css" : ["icoch.css"],
       "js" : ["jquery.js", "contentscript.js"],
       "run_at" : "document_idle",
       "all_frames" : false
