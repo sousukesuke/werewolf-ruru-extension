@@ -5,7 +5,7 @@
 // Called when the url of a tab changes.
 function checkForValidUrl( tabId, changeInfo, tab ) {
 	// If the letter 'g' is found in the tab's URL...
-	if ( tab.url.match( 'http://werewolf.ddo.jp/(village.jsp|log2/log.+.html)' ) ) {
+	if ( tab.url.match( 'http://werewolf.ddo.jp/(village.jsp|log[0-9]*/log.+.html)' ) ) {
 		// ... show the page action.
 		chrome.pageAction.show( tabId );
 	}
