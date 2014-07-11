@@ -25,7 +25,5 @@
 <br>
 == 機能一覧 ==
 
-この Wiki 画像添付できないので、別途画像付きの機能一覧を用意しました
-
 
 *[https://docs.google.com/document/d/1xxkO4R1wsv2aPcNCkOhGtKFvvWlZAHi9r9vr56-Yuqw/edit?usp=sharing るる鯖拡張プラグイン 機能一覧]*
