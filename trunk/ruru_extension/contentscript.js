@@ -43,7 +43,6 @@ $( function() {
 			showuranai : true,
 			reverseLog : false,
 			showhistory : true,
-			balloon : undefined,
 			menu : undefined,
 			styleSheet : undefined,
 			dialogRects : {
@@ -261,7 +260,7 @@ $( function() {
 				try {
 					_self.onUpdateChat();
 				} catch ( e ) {
-					_self.data.balloon( "エラーが発生しました。", true );
+					console.log( "エラーが発生しました。", e );
 					throw e;
 				}
 			};
@@ -275,7 +274,7 @@ $( function() {
 						dispatcher.on( "click", idle );
 					}
 				} catch ( e ) {
-					_self.data.balloon( "エラーが発生しました。", true );
+					console.log( "エラーが発生しました。", e );
 					throw e;
 				}
 			};
@@ -294,7 +293,7 @@ $( function() {
 						dispatcher.on( "click", setup );
 					}
 				} catch ( e ) {
-					_self.data.balloon( "エラーが発生しました。", true );
+					console.log( "エラーが発生しました。", e );
 					throw e;
 				}
 			};
@@ -321,29 +320,6 @@ $( function() {
 
 			// z-indexの計算対象にならないように ラップ
 			$( "#overDiv" ).wrap( "<div></div>" ).css( "z-index", "9999" );
-
-			var balloonContainer = $( "<div style='display:inline-block;width:150px;position:absolute;top:5px;left:5px;'></div>" ).appendTo( "body" );
-
-			_self.data.balloon = function( message, alert, html ) {
-				var balloon = $( "<div class='ui-corner-all ruru-ext-balloon' style='font-size:11px;margin-bottom:5px;padding:1em;'></div>" ).addClass( alert ? "ui-state-error" : "ui-state-highligh" ).hide();
-
-				balloon.addClass( alert ? "ui-state-error" : "ui-state-highlight" );
-
-				if ( html ) {
-					balloon.html( message );
-				} else {
-					console.log( message );
-					balloon.text( message );
-				}
-
-				balloon.prependTo( balloonContainer ).show( "slide", {}, 300, function() {
-					setTimeout( function() {
-						balloon.fadeOut( "normal", function() {
-							balloon.remove();
-						} );
-					}, 2000 );
-				} );
-			};
 
 			$( "head" ).append( "<style id='ruru-ext-styles' type='text/css'></style>" );
 			$( "head" ).append( "<style id='ruru-ext-dialog-styles' type='text/css'></style>" );
@@ -596,12 +572,12 @@ $( function() {
 					"Save" : function() {
 						var diary = $( "#ruru-extension-diary" ).val();
 						localStorage.diaryTemplate = diary;
-						_self.data.balloon( "日記帳を保存しました" );
+						console.log( "日記帳を保存しました" );
 					},
 					"Load" : function() {
 						if ( localStorage.diaryTemplate ) {
 							$( "#ruru-extension-diary" ).val( localStorage.diaryTemplate );
-							_self.data.balloon( "保存済みの日記帳を読み込みました" );
+							console.log( "保存済みの日記帳を読み込みました" );
 						}
 					}
 				},
@@ -619,7 +595,7 @@ $( function() {
 
 			if ( localStorage.diaryBackup ) {
 				$( "#ruru-extension-diary" ).val( localStorage.diaryBackup );
-				_self.data.balloon( "日記帳のバックアップがありました" );
+				console.log( "日記帳のバックアップがありました" );
 			}
 
 			_self.data.grayTableDialog = $(
@@ -716,7 +692,7 @@ $( function() {
 				try {
 					_self.createMenu( event.target, userid );
 				} catch ( e ) {
-					_self.data.balloon( "エラーが発生しました。", true );
+					console.log( "エラーが発生しました。", e );
 					throw e;
 				}
 
@@ -729,7 +705,7 @@ $( function() {
 				try {
 					_self.execAction( userid, action, event.target );
 				} catch ( e ) {
-					_self.data.balloon( "エラーが発生しました。", true );
+					console.log( "エラーが発生しました。", e );
 					throw e;
 				}
 			} );
@@ -765,7 +741,7 @@ $( function() {
 				}
 			} );
 
-			_self.data.balloon( "コンポーネントロード" );
+			console.log( "コンポーネントロード" );
 
 			$( ".ui-dialog .ui-dialog-buttonpane" ).css( "font-size", "11px" );
 		},
@@ -792,7 +768,7 @@ $( function() {
 			var to = posText.indexOf( "昼", from );
 			posText = posText.slice( from, to );
 
-			_self.data.balloon( posText );
+			console.log( posText );
 
 			for ( var pos in _self.data.positions ) {
 				if ( posText.indexOf( _self.data.positions[pos][4] ) === -1 ) {
@@ -864,7 +840,7 @@ $( function() {
 
 			_self.updateCss();
 
-			_self.data.balloon( "ユーザー把握" );
+			console.log( "ユーザー把握" );
 			console.log( $.stringify( _self.data.names ) );
 
 			return true;
@@ -880,7 +856,7 @@ $( function() {
 				_self.data.dayIndex = parseInt( tmp[1] - 1 );
 				_self.data.days[_self.data.dayIndex] = _self.data.day;
 
-				_self.data.balloon( time + " になりました" );
+				console.log( time + " になりました" );
 
 				var all = $( "#No01 td.name>span" ).length;
 				var dead = $( "#No01 td.name>span.dead" ).length;
@@ -913,7 +889,7 @@ $( function() {
 					$( "#ruru-log-table" ).append( "<h3>" + _self.data.day + "</h3>" ).append( $( "<div style='background:white;padding:0px 2px 20px 2px;overflow-y:scroll;'></div>" ).append( table ) );
 					_self.refreshLog();
 
-					_self.data.balloon( "ログを保存しました 【" + _self.data.day + "】" );
+					console.log( "ログを保存しました 【" + _self.data.day + "】" );
 				} else if ( time === "昼" ) {
 					var dead = [];
 					$( "#No09 td.cs>span.death>span.name" ).each( function( i, name ) {
@@ -968,7 +944,7 @@ $( function() {
 						_self.data.vorteOrder = true;
 						_self.refreshVote();
 
-						_self.data.balloon( "投票結果を保存しました 【" + _self.data.day + "】" );
+						console.log( "投票結果を保存しました 【" + _self.data.day + "】" );
 					}
 				} else if ( time === "夜明け" ) {
 				} else if ( time === "ゲーム終了" ) {
@@ -1316,30 +1292,30 @@ $( function() {
 			} else if ( action === "menu-reverse-log" ) {
 				_self.data.reverseLog = !_self.data.reverseLog;
 				_self.data.status.attr( "reverselog", _self.data.reverseLog );
-				_self.data.balloon( "チャット逆 " + ( _self.data.reverseLog ? "ON" : "OFF" ) );
+				console.log( "チャット逆 " + ( _self.data.reverseLog ? "ON" : "OFF" ) );
 				localStorage.reverseLog = _self.data.reverseLog;
 			} else if ( action === "menu-hidecng" ) {
 				_self.data.hidecng = !_self.data.hidecng;
-				_self.data.balloon( "GM表示 " + ( !_self.data.hidecng ? "ON" : "OFF" ) );
+				console.log( "GM表示 " + ( !_self.data.hidecng ? "ON" : "OFF" ) );
 			} else if ( action === "menu-hidecnw" ) {
 				_self.data.hidecnw = !_self.data.hidecnw;
-				_self.data.balloon( "観戦表示 " + ( !_self.data.hidecnw ? "ON" : "OFF" ) );
+				console.log( "観戦表示 " + ( !_self.data.hidecnw ? "ON" : "OFF" ) );
 				localStorage.hidecnw = _self.data.hidecnw;
 			} else if ( action === "menu-showposition" ) {
 				_self.data.showposition = !_self.data.showposition;
-				_self.data.balloon( "役職強調表示 " + ( _self.data.showposition ? "ON" : "OFF" ) );
+				console.log( "役職強調表示 " + ( _self.data.showposition ? "ON" : "OFF" ) );
 				localStorage.showposition = _self.data.showposition;
 			} else if ( action === "menu-showgray" ) {
 				_self.data.showgray = !_self.data.showgray;
-				_self.data.balloon( "完グレー強調表示 " + ( _self.data.showgray ? "ON" : "OFF" ) );
+				console.log( "完グレー強調表示 " + ( _self.data.showgray ? "ON" : "OFF" ) );
 				localStorage.showgray = _self.data.showgray;
 			} else if ( action === "menu-showuranai" ) {
 				_self.data.showuranai = !_self.data.showuranai;
-				_self.data.balloon( "占い結果強調表示 " + ( _self.data.showuranai ? "ON" : "OFF" ) );
+				console.log( "占い結果強調表示 " + ( _self.data.showuranai ? "ON" : "OFF" ) );
 				localStorage.showuranai = _self.data.showuranai;
 			} else if ( action === "menu-showhistory" ) {
 				_self.data.showhistory = !_self.data.showhistory;
-				_self.data.balloon( "吊噛履歴表示 " + ( _self.data.showhistory ? "ON" : "OFF" ) );
+				console.log( "吊噛履歴表示 " + ( _self.data.showhistory ? "ON" : "OFF" ) );
 				localStorage.showhistory = _self.data.showhistory;
 			} else if ( action === "menu-log" ) {
 				var day = $( selected ).attr( "last-day" );
