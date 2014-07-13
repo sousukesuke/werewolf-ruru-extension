@@ -318,6 +318,17 @@ $( function() {
 		setupComponents : function() {
 			var _self = this;
 
+			var dialogBox = $( "<div id='ruru-ext-dialog-box'/>" ).css( {
+				"position" : "absolute",
+				"left" : "0px",
+				"top" : "0px",
+				"width" : "0px",
+				"height" : "0px",
+				"border" : "none",
+				"margin" : "0px",
+				"padding" : "0px"
+			} ).appendTo( "body" );
+
 			// z-indexの計算対象にならないように ラップ
 			$( "#overDiv" ).wrap( "<div></div>" ).css( "z-index", "9999" );
 
@@ -333,7 +344,8 @@ $( function() {
 				}
 			}
 
-			_self.data.logDialog = $( "<div style='font-size:11px;overflow:hidden;'><div id='ruru-log-table' style='overflow:hidden;'></div><div id='ruru-log-users'></div></div>" ).appendTo( "body" ).dialog( {
+			_self.data.logDialog = $( "<div style='font-size:11px;overflow:hidden;'><div id='ruru-log-table' style='overflow:hidden;'></div><div id='ruru-log-users'></div></div>" ).appendTo( dialogBox ).dialog( {
+				appendTo : "#ruru-ext-dialog-box",
 				title : "ログ",
 				autoOpen : false,
 				minWidth : 450,
@@ -387,7 +399,8 @@ $( function() {
 				}
 			} );
 
-			_self.data.positionDialog = $( "<div style='font-size:11px;overflow:auto;' id='ruru-ext-position-dialog'></div>" ).appendTo( "body" ).dialog( {
+			_self.data.positionDialog = $( "<div style='font-size:11px;overflow:auto;' id='ruru-ext-position-dialog'></div>" ).appendTo( dialogBox ).dialog( {
+				appendTo : "#ruru-ext-dialog-box",
 				autoOpen : false,
 				title : "内訳",
 				width : _self.data.dialogRects.positionDialog.width,
@@ -401,7 +414,8 @@ $( function() {
 				}
 			} );
 
-			_self.data.colorDialog = $( "<div style='font-size:11px;'><table class='ui-corner-all' style='width:100%;background:white;'><tbody id='ruru-color-table'></tbody></table></div>" ).appendTo( "body" ).dialog( {
+			_self.data.colorDialog = $( "<div style='font-size:11px;'><table class='ui-corner-all' style='width:100%;background:white;'><tbody id='ruru-color-table'></tbody></table></div>" ).appendTo( dialogBox ).dialog( {
+				appendTo : "#ruru-ext-dialog-box",
 				autoOpen : false,
 				minHeight : 490,
 				minWidth : 450,
@@ -562,7 +576,8 @@ $( function() {
 				}
 			} );
 
-			_self.data.diaryDialog = $( "<div style='font-size:11px;overflow:hidden;' id='ruru-ext-rest-dialog'><textarea id='ruru-extension-diary' style='width:100%;height:100%;padding:0px;margin:0px;'></textarea></div>" ).appendTo( "body" ).dialog( {
+			_self.data.diaryDialog = $( "<div style='font-size:11px;overflow:hidden;' id='ruru-ext-rest-dialog'><textarea id='ruru-extension-diary' style='width:100%;height:100%;padding:0px;margin:0px;'></textarea></div>" ).appendTo( dialogBox ).dialog( {
+				appendTo : "#ruru-ext-dialog-box",
 				autoOpen : false,
 				title : "日記帳",
 				width : _self.data.dialogRects.diaryDialog.width,
@@ -600,7 +615,8 @@ $( function() {
 
 			_self.data.grayTableDialog = $(
 					"<div style='font-size:11px;overflow:auto;' id='ruru-ext-gray-table-dialog'><span id='ruru-ext-gray-table-rest' style='margin-right:20px;vertical-align:middle;font-weight:bold;font-size:13px;'></span><input type='checkbox' style='vertical-align:middle;' id='ruru-ext-gray-table-show'/><label style='vertical-align:middle;' for='ruru-ext-gray-table-show'>逝った村は非表示</label><table class='ui-widget-content ui-corner-all'><thead id='ruru-ext-gray-head'></thead><tbody id='ruru-ext-gray-body'></tbody></table></div>" )
-					.appendTo( "body" ).dialog( {
+					.appendTo( dialogBox ).dialog( {
+						appendTo : "#ruru-ext-dialog-box",
 						autoOpen : false,
 						width : _self.data.dialogRects.grayTableDialog.width,
 						height : _self.data.dialogRects.grayTableDialog.height,
@@ -618,7 +634,8 @@ $( function() {
 				_self.updateGrayTable();
 			} );
 
-			_self.data.voteDialog = $( "<div style='font-size:11px;overflow:auto;' id='ruru-ext-vote-dialog'><table class='ui-widget-content ui-corner-all'><thead id='ruru-ext-vote-head'></thead><tbody id='ruru-ext-vote-body'></tbody></table></div>" ).appendTo( "body" ).dialog( {
+			_self.data.voteDialog = $( "<div style='font-size:11px;overflow:auto;' id='ruru-ext-vote-dialog'><table class='ui-widget-content ui-corner-all'><thead id='ruru-ext-vote-head'></thead><tbody id='ruru-ext-vote-body'></tbody></table></div>" ).appendTo( dialogBox ).dialog( {
+				appendTo : "#ruru-ext-dialog-box",
 				autoOpen : false,
 				width : _self.data.dialogRects.voteDialog.width,
 				height : _self.data.dialogRects.voteDialog.height,
@@ -672,9 +689,9 @@ $( function() {
 				_self.data.menu.css( "top", limitTop < event.pageY ? limitTop : event.pageY );
 				_self.data.menu.css( "left", event.pageX );
 
-				$( "a", _self.data.menu ).off( "click" );
-				$( "a", _self.data.menu ).on( "click", function() {
-					var eventui = $( this ).parent( ":first" );
+				$( ".ui-menu-item", _self.data.menu ).off( "click" );
+				$( ".ui-menu-item", _self.data.menu ).on( "click", function() {
+					var eventui = $( this );
 					if ( !eventui.hasClass( "ui-state-disabled" ) ) {
 						eventui.trigger( "execmenu", menuTarget );
 					}
@@ -751,7 +768,10 @@ $( function() {
 			var parent = $( dialog ).parent( ".ui-dialog:first" );
 			rect.width = parseInt( parent.css( "width" ) );
 			rect.height = parseInt( parent.css( "height" ) ) + 7;// +ceil(padding&border-width)
-			rect.position = [ parseInt( parent.css( "left" ) ), parseInt( parent.css( "top" ) ) ];
+			rect.position = {
+				"my" : "left top",
+				"at" : "left+" + parseInt( parent.css( "left" ) ) + " top+" + parseInt( parent.css( "top" ) )
+			};
 
 			localStorage.dialogRects = $.stringify( _self.data.dialogRects );
 		},
@@ -1094,11 +1114,11 @@ $( function() {
 
 			var selection = window.getSelection();
 			if ( !selection.isCollapsed ) {
-				_self.data.menu.append( "<li id='menu-copy'><a href='#'><span class='ui-icon ui-icon-copy'></span>コピー</a></li>" );
+				_self.data.menu.append( "<li id='menu-copy'><span class='ui-icon ui-icon-copy'></span>コピー</li>" );
 				_self.data.menu.append( "<hr/>" );
 			}
 
-			if ( userid ) {
+			if ( userid && _self.data.users[userid] ) {
 				var userData = _self.data.users[userid];
 
 				var userPosition = userData["役職"];
@@ -1106,9 +1126,9 @@ $( function() {
 				if ( userPosition ) {
 					var post;
 					if ( userData["役職解除"] ) {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-closethick'></span>" + userPosition + "</a></li>" );
+						post = $( "<li id='menu-toggle-post'><span class='ui-icon ui-icon-closethick'></span>" + userPosition + "</li>" );
 					} else {
-						post = $( "<li id='menu-toggle-post'><a href='#'><span class='ui-icon ui-icon-check'></span>" + userPosition + "</a></li>" );
+						post = $( "<li id='menu-toggle-post'><span class='ui-icon ui-icon-check'></span>" + userPosition + "</li>" );
 					}
 
 					_self.data.menu.append( post );
@@ -1116,38 +1136,38 @@ $( function() {
 
 					var postsub = $( "<ul></ul>" ).appendTo( post );
 
-					postsub.append( "<li id='menu-remove-position'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
+					postsub.append( "<li id='menu-remove-position'><span class='ui-icon ui-icon-close'></span>削除</li>" );
 
 					for ( var pos in _self.data.positions ) {
 						if ( userPosition === pos ) {
 							continue;
 						}
 
-						postsub.append( "<li id='menu-position' pos='" + pos + "'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[pos][0] + "'></span>" + pos + "</a></li>" );
+						postsub.append( "<li id='menu-position' pos='" + pos + "'><span class='ui-icon ui-icon-" + _self.data.positions[pos][0] + "'></span>" + pos + "</li>" );
 					}
 
 					if ( _self.data.positions[userPosition][3] === "判定" ) {
-						var white = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</a></li>" ).appendTo( _self.data.menu ) );
-						var black = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</a></li>" ).appendTo( _self.data.menu ) );
+						var white = $( "<ul></ul>" ).appendTo( $( "<li><span class='ui-icon ui-icon-radio-off'>○</span>村　人</li>" ).appendTo( _self.data.menu ) );
+						var black = $( "<ul></ul>" ).appendTo( $( "<li><span class='ui-icon ui-icon-bullet'>●</span>人　狼</li>" ).appendTo( _self.data.menu ) );
 
 						for ( var name in _self.data.names ) {
 							var targetUserid = _self.data.names[name];
 
 							if ( !userData["結果"][targetUserid] && targetUserid !== userid ) {
-								$( "<li id='menu-judgment-white'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUserid ).appendTo( white );
-								$( "<li id='menu-judgment-black'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUserid ).appendTo( black );
+								$( "<li id='menu-judgment-white'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</li>" ).attr( "userid", targetUserid ).appendTo( white );
+								$( "<li id='menu-judgment-black'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</li>" ).attr( "userid", targetUserid ).appendTo( black );
 							}
 						}
 
 						_self.data.menu.append( "<hr/>" );
 					} else if ( _self.data.positions[userPosition][3] === "対象" ) {
-						var target = $( "<ul></ul>" ).appendTo( $( "<li><a href='#'><span class='ui-icon ui-icon-flag'></span>対象</a></li>" ).appendTo( _self.data.menu ) );
+						var target = $( "<ul></ul>" ).appendTo( $( "<li><span class='ui-icon ui-icon-flag'></span>対象</li>" ).appendTo( _self.data.menu ) );
 
 						for ( var name in _self.data.names ) {
 							var targetUserid = _self.data.names[name];
 
 							if ( targetUserid !== userid ) {
-								$( "<li id='menu-target'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</a></li>" ).attr( "userid", targetUserid ).appendTo( target );
+								$( "<li id='menu-target'><span class='ui-icon ui-icon-" + _self.data.positions[userPosition][0] + "'></span>" + name + "</li>" ).attr( "userid", targetUserid ).appendTo( target );
 							}
 						}
 
@@ -1156,7 +1176,7 @@ $( function() {
 
 				} else {
 					for ( var pos in _self.data.positions ) {
-						_self.data.menu.append( "<li id='menu-position' pos='" + pos + "'><a href='#'><span class='ui-icon ui-icon-" + _self.data.positions[pos][0] + "'></span>" + pos + "</a></li>" );
+						_self.data.menu.append( "<li id='menu-position' pos='" + pos + "'><span class='ui-icon ui-icon-" + _self.data.positions[pos][0] + "'></span>" + pos + "</li>" );
 					}
 					_self.data.menu.append( "<hr/>" );
 				}
@@ -1167,101 +1187,101 @@ $( function() {
 				var to = $( ui ).attr( "touserid" );
 
 				if ( $( ui ).hasClass( "gray-table-data-white" ) ) {
-					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><span class='ui-icon ui-icon-close'></span>削除</li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</li>" );
 				} else if ( $( ui ).hasClass( "gray-table-data-black" ) ) {
-					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-close'></span>削除</a></li>" );
-					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-delete' fromuserid='" + from + "' touserid='" + to + "'><span class='ui-icon ui-icon-close'></span>削除</li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</li>" );
 				} else {
-					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</a></li>" );
-					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><a href='#'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</a></li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-white' fromuserid='" + from + "' touserid='" + to + "'><span class='ui-icon ui-icon-radio-off'>○</span>村　人</li>" );
+					_self.data.menu.append( "<li id='menu-gray-table-black' fromuserid='" + from + "' touserid='" + to + "'><span class='ui-icon ui-icon-bullet'>●</span>人　狼</li>" );
 				}
 
 				_self.data.menu.append( "<hr/>" );
 			}
 
 			if ( $( "#No01 td." + userid + ".icon.dv" ).length !== 0 ) {
-				var hangmenu = $( "<li id='menu-hang'><a href='#'><span class='ui-icon ui-icon-power'></span>吊り</a></li>" ).appendTo( _self.data.menu );
-				var deadmenu = $( "<li id='menu-dead'><a href='#'><span class='ui-icon ui-icon-scissors'></span>噛み</a></li>" ).appendTo( _self.data.menu );
+				var hangmenu = $( "<li id='menu-hang'><span class='ui-icon ui-icon-power'></span>吊り</li>" ).appendTo( _self.data.menu );
+				var deadmenu = $( "<li id='menu-dead'><span class='ui-icon ui-icon-scissors'></span>噛み</li>" ).appendTo( _self.data.menu );
 				var hangsub = $( "<ul></ul>" ).appendTo( hangmenu );
 				var deadsub = $( "<ul></ul>" ).appendTo( deadmenu );
 				for ( var i = 0; i <= _self.data.dayIndex; i++ ) {
 					var day = _self.data.days[i];
 
 					if ( i !== 0 ) {
-						hangsub.append( "<li id='menu-input-hang' dayindex='" + i + "'><a href='#'><span class='ui-icon ui-icon-power'></span>" + day + "</a></li>" );
+						hangsub.append( "<li id='menu-input-hang' dayindex='" + i + "'><span class='ui-icon ui-icon-power'></span>" + day + "</li>" );
 					}
-					deadsub.append( "<li id='menu-input-dead' dayindex='" + i + "'><a href='#'><span class='ui-icon ui-icon-scissors'></span>" + day + "</a></li>" );
+					deadsub.append( "<li id='menu-input-dead' dayindex='" + i + "'><span class='ui-icon ui-icon-scissors'></span>" + day + "</li>" );
 				}
 				_self.data.menu.append( "<hr/>" );
 			}
 
 			if ( _self.data.logTags.length ) {
-				var logmenu = $( "<li id='menu-log'><a href='#'><span class='ui-icon ui-icon-comment'></span>ログ</a></li>" ).appendTo( _self.data.menu );
+				var logmenu = $( "<li id='menu-log'><span class='ui-icon ui-icon-comment'></span>ログ</li>" ).appendTo( _self.data.menu );
 				var logsub = $( "<ul></ul>" ).appendTo( logmenu );
 
 				for ( var i = 0; i < _self.data.logTags.length; i++ ) {
 					var day = _self.data.logTags[i];
-					logsub.append( "<li id='menu-log-of-day'><a href='#'><span class='ui-icon ui-icon-comment'></span>" + day + "</a></li>" );
+					logsub.append( "<li id='menu-log-of-day'><span class='ui-icon ui-icon-comment'></span>" + day + "</li>" );
 					logmenu.attr( "last-day", day );
 				}
 			}
 
 			if ( _self.data.voteCounts.length ) {
-				_self.data.menu.append( "<li id='menu-vote'><a href='#'><span class='ui-icon ui-icon-tag'></span>投票結果</a></li>" );
+				_self.data.menu.append( "<li id='menu-vote'><span class='ui-icon ui-icon-tag'></span>投票結果</li>" );
 			}
 
-			_self.data.menu.append( "<li id='menu-person'><a href='#'><span class='ui-icon ui-icon-person'></span>内訳</a></li>" );
-			_self.data.menu.append( "<li id='menu-gray-table'><a href='#'><span class='ui-icon ui-icon-calculator'></span>役職テーブル</a></li>" );
-			_self.data.menu.append( "<li id='menu-diary'><a href='#'><span class='ui-icon ui-icon-pencil'></span>メモ帳</a></li>" );
+			_self.data.menu.append( "<li id='menu-person'><span class='ui-icon ui-icon-person'></span>内訳</li>" );
+			_self.data.menu.append( "<li id='menu-gray-table'><span class='ui-icon ui-icon-calculator'></span>役職テーブル</li>" );
+			_self.data.menu.append( "<li id='menu-diary'><span class='ui-icon ui-icon-pencil'></span>メモ帳</li>" );
 
-			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><a href='#'><span class='ui-icon ui-icon-wrench'></span>表示設定</a></li>" ).appendTo( _self.data.menu ) );
+			var optionalMenu = $( "<ul></ul>" ).appendTo( $( "<li id='menu-optional'><span class='ui-icon ui-icon-wrench'></span>表示設定</li>" ).appendTo( _self.data.menu ) );
 
 			if ( _self.data.showposition ) {
-				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-check'></span>役職強調</a></li>" );
+				optionalMenu.append( "<li id='menu-showposition'><span class='ui-icon ui-icon-check'></span>役職強調</li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showposition'><a href='#'><span class='ui-icon ui-icon-closethick'></span>役職強調切り替え</a></li>" );
+				optionalMenu.append( "<li id='menu-showposition'><span class='ui-icon ui-icon-closethick'></span>役職強調切り替え</li>" );
 			}
 
 			if ( _self.data.showuranai ) {
-				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-check'></span>占い結果強調</a></li>" );
+				optionalMenu.append( "<li id='menu-showuranai'><span class='ui-icon ui-icon-check'></span>占い結果強調</li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showuranai'><a href='#'><span class='ui-icon ui-icon-closethick'></span>占い結果強調切り替え</a></li>" );
+				optionalMenu.append( "<li id='menu-showuranai'><span class='ui-icon ui-icon-closethick'></span>占い結果強調切り替え</li>" );
 			}
 
 			if ( _self.data.showgray ) {
-				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-check'></span>完グレー強調</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><span class='ui-icon ui-icon-check'></span>完グレー強調</li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showgray'><a href='#'><span class='ui-icon ui-icon-closethick'></span>完グレー強調切り替え</a></li>" );
+				optionalMenu.append( "<li id='menu-showgray'><span class='ui-icon ui-icon-closethick'></span>完グレー強調切り替え</li>" );
 			}
 
 			if ( _self.data.hidecng ) {
-				optionalMenu.append( "<li id='menu-hidecng'><a href='#'><span class='ui-icon ui-icon-closethick'></span>GM非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecng'><span class='ui-icon ui-icon-closethick'></span>GM非表示</li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-hidecng'><a href='#'><span class='ui-icon ui-icon-check'></span>GM表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecng'><span class='ui-icon ui-icon-check'></span>GM表示</li>" );
 			}
 
 			if ( _self.data.hidecnw ) {
-				optionalMenu.append( "<li id='menu-hidecnw'><a href='#'><span class='ui-icon ui-icon-closethick'></span>観戦非表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecnw'><span class='ui-icon ui-icon-closethick'></span>観戦非表示</li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-hidecnw'><a href='#'><span class='ui-icon ui-icon-check'></span>観戦表示</a></li>" );
+				optionalMenu.append( "<li id='menu-hidecnw'><span class='ui-icon ui-icon-check'></span>観戦表示</li>" );
 			}
 
 			if ( _self.data.reverseLog ) {
-				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-check'></span>チャット反転</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><span class='ui-icon ui-icon-check'></span>チャット反転</li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-reverse-log'><a href='#'><span class='ui-icon ui-icon-closethick'></span>チャット反転切り替え</a></li>" );
+				optionalMenu.append( "<li id='menu-reverse-log'><span class='ui-icon ui-icon-closethick'></span>チャット反転切り替え</li>" );
 			}
 
 			if ( _self.data.showhistory ) {
-				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-check'></span>吊噛表示</a></li>" );
+				optionalMenu.append( "<li id='menu-showhistory'><span class='ui-icon ui-icon-check'></span>吊噛表示</li>" );
 			} else {
-				optionalMenu.append( "<li id='menu-showhistory'><a href='#'><span class='ui-icon ui-icon-closethick'></span>吊噛表示切り替え</a></li>" );
+				optionalMenu.append( "<li id='menu-showhistory'><span class='ui-icon ui-icon-closethick'></span>吊噛表示切り替え</li>" );
 			}
 
 			optionalMenu.append( "<hr/>" );
-			optionalMenu.append( "<li id='menu-colors'><a href='#'><span class='ui-icon ui-icon-image'></span>カラー詳細</a></li>" );
-			optionalMenu.append( "<li id='menu-reset'><a href='#'><span class='ui-icon ui-icon-alert'></span>設定リセット</a></li>" );
+			optionalMenu.append( "<li id='menu-colors'><span class='ui-icon ui-icon-image'></span>カラー詳細</li>" );
+			optionalMenu.append( "<li id='menu-reset'><span class='ui-icon ui-icon-alert'></span>設定リセット</li>" );
 		},
 		execAction : function( userid, action, selected ) {
 			var _self = this;

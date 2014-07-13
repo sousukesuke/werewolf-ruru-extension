@@ -69,7 +69,7 @@
 }
 
 #ruru-ext-gray-body td {
-	border : none;
+	border: none;
 	border-top: 1px solid #ddd;
 }
 
@@ -133,4 +133,16 @@ div.colorPicker-picker {
 	display: inline-block;
 	top: 0px;
 	left: 0px;
+}
+
+.ui-menu-item .ui-menu .ui-menu-item .ui-icon {
+	background-image: url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_666666_256x240.png");
+}
+
+.ui-menu-item .ui-menu .ui-menu-item.ui-state-hover .ui-icon,.ui-menu-item .ui-menu .ui-menu-item.ui-state-focus .ui-icon {
+	background-image: url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_ffffff_256x240.png");
+}
+
+.ui-menu-item .ui-menu .ui-menu-item.ui-state-active .ui-icon {
+	background-image: url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_ff0084_256x240.png");
 }
