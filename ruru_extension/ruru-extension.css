@@ -1,3 +1,7 @@
+td.icon>div {
+	position: relative;
+}
+
 .ruru-ext-balloon {
 	box-shadow: 3px 3px 6px black;
 }
@@ -136,13 +140,17 @@ div.colorPicker-picker {
 }
 
 .ui-menu-item .ui-menu .ui-menu-item .ui-icon {
-	background-image: url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_666666_256x240.png");
+	background-image:
+		url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_666666_256x240.png");
 }
 
-.ui-menu-item .ui-menu .ui-menu-item.ui-state-hover .ui-icon,.ui-menu-item .ui-menu .ui-menu-item.ui-state-focus .ui-icon {
-	background-image: url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_ffffff_256x240.png");
+.ui-menu-item .ui-menu .ui-menu-item.ui-state-hover .ui-icon,
+	.ui-menu-item .ui-menu .ui-menu-item.ui-state-focus .ui-icon {
+	background-image:
+		url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_ffffff_256x240.png");
 }
 
 .ui-menu-item .ui-menu .ui-menu-item.ui-state-active .ui-icon {
-	background-image: url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_ff0084_256x240.png");
+	background-image:
+		url("chrome-extension://__MSG_@@extension_id__/images/ui-icons_ff0084_256x240.png");
 }
