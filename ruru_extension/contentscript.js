@@ -1122,7 +1122,7 @@ $(function() {
 
 			var posText = $("#No00").text();
 			var from = posText.indexOf("」村\xa0\xa0定員：");
-			from = posText.indexOf("役職", from);
+			from = posText.indexOf("配役", from);
 			var to = posText.indexOf("昼", from);
 			posText = posText.slice(from, to);
 
